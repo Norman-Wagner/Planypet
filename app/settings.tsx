@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
+import { useI18n, LANGUAGES, Language } from "@/lib/i18n";
 
 const themeColors = [
   { id: "blue", name: "Blau", colors: ["#0066CC", "#00A3FF"] },
@@ -22,6 +23,7 @@ export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { userName, clearAllData } = usePetStore();
+  const { language, setLanguage, t } = useI18n();
   
   const [selectedTheme, setSelectedTheme] = useState("blue");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -90,8 +92,34 @@ export default function SettingsScreen() {
           </View>
         </GlassCard>
 
+        {/* Language Section */}
+        <Text className="text-foreground text-lg font-semibold mb-3">{t("language")}</Text>
+        <GlassCard className="mb-6">
+          <Text className="text-muted text-sm mb-3">Wähle deine Sprache</Text>
+          <View className="flex-row flex-wrap gap-3">
+            {LANGUAGES.map((lang) => (
+              <Pressable
+                key={lang.code}
+                onPress={() => setLanguage(lang.code)}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+              >
+                <View 
+                  className={`flex-row items-center px-4 py-2 rounded-full ${
+                    language === lang.code ? "bg-primary" : "bg-surface"
+                  }`}
+                >
+                  <Text className="text-lg mr-2">{lang.flag}</Text>
+                  <Text className={language === lang.code ? "text-white font-bold" : "text-foreground"}>
+                    {lang.name}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        </GlassCard>
+
         {/* Theme Section */}
-        <Text className="text-foreground text-lg font-semibold mb-3">Farbschema</Text>
+        <Text className="text-foreground text-lg font-semibold mb-3">{t("theme")}</Text>
         <GlassCard className="mb-6">
           <Text className="text-muted text-sm mb-3">Wähle deine Lieblingsfarbe</Text>
           <View className="flex-row flex-wrap gap-3">

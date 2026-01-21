@@ -212,3 +212,26 @@
 - [x] Backup wiederherstellen
 - [x] Geräte-Sync (mehrere Geräte, gleiche Daten)
 - [x] Export aller Daten (DSGVO-konform)
+
+## Mehrsprachigkeit (Neue Features)
+- [x] i18n-System implementieren
+- [x] Deutsche Übersetzungen (Standard)
+- [x] Englische Übersetzungen
+- [x] Französische Übersetzungen
+- [x] Spanische Übersetzungen
+- [x] Sprachauswahl in Einstellungen
+
+## Homescreen-Widget (Neue Features)
+- [x] Widget-Konfiguration vorbereiten
+- [x] Nächste Fütterung anzeigen
+- [x] Schnellaktionen (Fütterung erledigt)
+- [x] Widget-Design passend zur App
+- [ ] Native Widget-Implementation (erfordert Xcode/Android Studio)
+
+## Smartwatch-Integration (Neue Features)
+- [x] Apple Watch Companion vorbereiten
+- [x] Wear OS Companion vorbereiten
+- [x] Gassi-Tracking auf Smartwatch
+- [x] Erinnerungen auf Smartwatch
+- [x] Schnellaktionen auf Smartwatch
+- [ ] Native Watch-App Implementation (erfordert Xcode/Android Studio)
