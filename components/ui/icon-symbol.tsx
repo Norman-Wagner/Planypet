@@ -51,6 +51,15 @@ const MAPPING = {
   "mic.fill": "mic",
   "play.fill": "play-arrow",
   "stop.fill": "stop",
+  "speaker.wave.3.fill": "volume-up",
+  "waveform": "graphic-eq",
+  
+  // Navigation extended
+  "chevron.up": "expand-less",
+  "chevron.down": "expand-more",
+  
+  // Shield
+  "shield.fill": "shield",
   
   // Alerts
   "exclamationmark.triangle.fill": "warning",

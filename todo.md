@@ -235,3 +235,43 @@
 - [x] Erinnerungen auf Smartwatch
 - [x] Schnellaktionen auf Smartwatch
 - [ ] Native Watch-App Implementation (erfordert Xcode/Android Studio)
+
+## Innovative Features (Neue Erweiterungen)
+
+### Tiergeräusch-Erkennung & Übersetzung
+- [x] KI-basierte Miau-Erkennung (wie MeowTalk)
+- [x] Hunde-Bell-Analyse (hungrig, aufgeregt, ängstlich, etc.)
+- [x] Geräusch-zu-Text Übersetzung
+- [ ] Lernfähiges System (Tier-spezifische Geräusche)
+
+### Tier-Lockrufe & Soundboard
+- [x] Katzen-Lockrufe (Miau-Sounds die Katzen anlocken)
+- [x] Hunde-Aufmerksamkeits-Sounds
+- [x] Vogel-Lockrufe
+- [x] Trainings-Clicker für alle Tierarten
+- [x] Beruhigende Musik für gestresste Tiere
+
+### Tierrassen-Erkennung
+- [x] Kamera-basierte Hunderassen-Erkennung
+- [x] Katzenrassen-Erkennung
+- [x] Mischlings-Analyse (welche Rassen gemischt)
+- [x] Rassen-spezifische Pflegetipps
+
+### Erste-Hilfe Guide
+- [x] Notfall-Anleitungen für häufige Situationen
+- [ ] Schritt-für-Schritt Videos
+- [x] Giftige Pflanzen/Lebensmittel Datenbank
+- [x] Symptom-Checker mit Handlungsempfehlungen
+
+### Training & Verhalten
+- [x] Trainings-Clicker mit verschiedenen Sounds
+- [ ] Trainings-Anleitungen für Grundkommandos
+- [ ] Verhaltens-Tagebuch
+- [ ] Fortschritts-Tracking für Training
+
+### Smart-Geräte Integration
+- [ ] Verbindung mit Smart-Futterautomaten
+- [ ] GPS-Tracker Integration (Tractive, etc.)
+- [ ] Smart-Kamera Integration (Petcube, etc.)
+- [ ] Automatische Wasserspender-Erinnerung
+

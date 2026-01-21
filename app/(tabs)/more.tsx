@@ -71,8 +71,49 @@ export default function MoreScreen() {
           <Text className="text-white/70 text-base">Einstellungen & Features</Text>
         </View>
 
-        {/* Features Section */}
+        {/* Innovative Features Section */}
         <Text className="text-foreground text-lg font-semibold mb-3">
+          KI & Tools
+        </Text>
+
+        <MenuItem
+          icon="mic.fill"
+          iconColor="#8B5CF6"
+          iconBg="rgba(139, 92, 246, 0.15)"
+          title="Tier-Übersetzer"
+          subtitle="Verstehe was dein Tier sagt"
+          onPress={() => router.push("/pet-translator")}
+        />
+
+        <MenuItem
+          icon="speaker.wave.3.fill"
+          iconColor="#10B981"
+          iconBg="rgba(16, 185, 129, 0.15)"
+          title="Tier-Soundboard"
+          subtitle="Lockrufe & Training"
+          onPress={() => router.push("/pet-sounds")}
+        />
+
+        <MenuItem
+          icon="camera.fill"
+          iconColor="#EC4899"
+          iconBg="rgba(236, 72, 153, 0.15)"
+          title="Rassen-Scanner"
+          subtitle="Erkenne die Rasse deines Tieres"
+          onPress={() => router.push("/breed-scanner")}
+        />
+
+        <MenuItem
+          icon="cross.case.fill"
+          iconColor={colors.error}
+          iconBg="rgba(239, 68, 68, 0.15)"
+          title="Erste Hilfe"
+          subtitle="Notfall-Anleitungen"
+          onPress={() => router.push("/first-aid")}
+        />
+
+        {/* Features Section */}
+        <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
           Features
         </Text>
 
