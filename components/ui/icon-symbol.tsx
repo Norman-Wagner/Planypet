@@ -5,25 +5,73 @@ import { SymbolWeight, SymbolViewProps } from "expo-symbols";
 import { ComponentProps } from "react";
 import { OpaqueColorValue, type StyleProp, type TextStyle } from "react-native";
 
-type IconMapping = Record<SymbolViewProps["name"], ComponentProps<typeof MaterialIcons>["name"]>;
+type IconMapping = Record<string, ComponentProps<typeof MaterialIcons>["name"]>;
 type IconSymbolName = keyof typeof MAPPING;
 
 /**
- * Add your SF Symbols to Material Icons mappings here.
- * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
- * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
+ * SF Symbols to Material Icons mappings for Planypet
  */
 const MAPPING = {
+  // Navigation
   "house.fill": "home",
-  "paperplane.fill": "send",
-  "chevron.left.forwardslash.chevron.right": "code",
+  "pawprint.fill": "pets",
+  "heart.fill": "favorite",
+  "gearshape.fill": "settings",
+  "plus.circle.fill": "add-circle",
   "chevron.right": "chevron-right",
+  "chevron.left": "chevron-left",
+  "xmark": "close",
+  
+  // Pet actions
+  "fork.knife": "restaurant",
+  "drop.fill": "water-drop",
+  "figure.walk": "directions-walk",
+  "location.fill": "location-on",
+  "map.fill": "map",
+  "clock.fill": "schedule",
+  "bell.fill": "notifications",
+  
+  // Health
+  "cross.case.fill": "medical-services",
+  "stethoscope": "healing",
+  "pill.fill": "medication",
+  "syringe.fill": "vaccines",
+  "doc.text.fill": "description",
+  
+  // Media
+  "camera.fill": "camera-alt",
+  "photo.fill": "photo",
+  "mic.fill": "mic",
+  "play.fill": "play-arrow",
+  
+  // Alerts
+  "exclamationmark.triangle.fill": "warning",
+  "checkmark.circle.fill": "check-circle",
+  "info.circle.fill": "info",
+  
+  // Shopping
+  "cart.fill": "shopping-cart",
+  "bag.fill": "shopping-bag",
+  "cube.box.fill": "inventory",
+  
+  // Social
+  "person.2.fill": "people",
+  "person.fill": "person",
+  "share.fill": "share",
+  
+  // Misc
+  "magnifyingglass": "search",
+  "calendar": "event",
+  "star.fill": "star",
+  "trash.fill": "delete",
+  "pencil": "edit",
+  "paperplane.fill": "send",
+  "phone.fill": "phone",
+  "envelope.fill": "email",
 } as IconMapping;
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
- * This ensures a consistent look across platforms, and optimal resource usage.
- * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
  */
 export function IconSymbol({
   name,
@@ -37,5 +85,6 @@ export function IconSymbol({
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  const iconName = MAPPING[name as keyof typeof MAPPING] || "help";
+  return <MaterialIcons color={color} size={size} name={iconName} style={style} />;
 }
