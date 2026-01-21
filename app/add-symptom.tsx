@@ -12,6 +12,8 @@ import { PetAvatar } from "@/components/ui/pet-avatar";
 import { VoiceInput } from "@/components/ui/voice-input";
 import { useColors } from "@/hooks/use-colors";
 import { usePetStore, Pet } from "@/lib/pet-store";
+import { useImagePicker } from "@/hooks/use-image-picker";
+import { Image } from "expo-image";
 
 export default function AddSymptomScreen() {
   const colors = useColors();
@@ -25,6 +27,8 @@ export default function AddSymptomScreen() {
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showVoiceInput, setShowVoiceInput] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const { pickImage, takePhoto, isUploading } = useImagePicker();
 
   const handleAnalyze = async () => {
     if (!selectedPet || !description) {
@@ -68,6 +72,24 @@ export default function AddSymptomScreen() {
   const handleVoiceTranscript = (text: string) => {
     setDescription((prev) => (prev ? `${prev} ${text}` : text));
     setShowVoiceInput(false);
+  };
+
+  const handleTakePhoto = async () => {
+    const uri = await takePhoto();
+    if (uri) {
+      setPhotos((prev) => [...prev, uri]);
+    }
+  };
+
+  const handlePickImage = async () => {
+    const uri = await pickImage();
+    if (uri) {
+      setPhotos((prev) => [...prev, uri]);
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const recordTypes = [
@@ -217,11 +239,34 @@ export default function AddSymptomScreen() {
             </GlassCard>
           )}
 
+          {/* Photos */}
+          {photos.length > 0 && (
+            <View className="mb-6">
+              <Text className="text-foreground text-sm font-medium mb-2">Fotos ({photos.length})</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+                {photos.map((uri, index) => (
+                  <View key={index} className="relative">
+                    <Image source={{ uri }} style={{ width: 100, height: 100, borderRadius: 12 }} />
+                    <Pressable
+                      onPress={() => handleRemovePhoto(index)}
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-error items-center justify-center"
+                      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                    >
+                      <Text className="text-white text-xs font-bold">×</Text>
+                    </Pressable>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {/* Media Buttons */}
           <View className="flex-row gap-3 mb-6">
             <Pressable 
               className="flex-1"
-              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+              onPress={handleTakePhoto}
+              disabled={isUploading}
+              style={({ pressed }) => ({ opacity: pressed || isUploading ? 0.5 : 1 })}
             >
               <GlassCard className="items-center py-4">
                 <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mb-2">

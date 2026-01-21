@@ -122,3 +122,27 @@
 - [x] Nachbestell-Vorschläge bei niedrigem Vorrat
 - [x] Tierarzt-Disclaimer für KI-Hinweise
 - [x] Audio-zu-Text Transkription
+
+## Familien-Sharing (Neue Features)
+- [x] Backend: User-Authentifizierung erweitern
+- [x] Backend: Pet-Sharing-Tabelle erstellen
+- [x] Einladungs-System (QR-Code oder Link)
+- [ ] Geteilte Tiere anzeigen
+- [x] Aktivitäts-Feed (Wer hat gefüttert/Gassi gemacht)
+- [x] Berechtigungen (Besitzer vs. Mitglied)
+
+## Push-Benachrichtigungen (Neue Features)
+- [x] Expo Push Notifications konfigurieren
+- [x] Benachrichtigungs-Berechtigungen anfordern
+- [x] Fütterungserinnerungen schedulen
+- [x] Gassi-Erinnerungen schedulen
+- [x] Tierarzttermin-Erinnerungen
+- [ ] Benachrichtigungs-Einstellungen
+
+## Foto-Upload (Neue Features)
+- [x] expo-image-picker integrieren
+- [x] Kamera-Berechtigung anfordern
+- [x] Foto-Upload für Symptome
+- [ ] Foto-Upload für Tierprofile
+- [ ] Foto-Galerie anzeigen
+- [ ] Fotos in S3 speichern

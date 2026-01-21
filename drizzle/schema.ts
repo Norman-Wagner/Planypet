@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, tinyint, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,101 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// Pet Management Tables
+export const pets = mysqlTable("pets", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: varchar("type", { length: 50 }).notNull(), // dog, cat, fish, bird, reptile, horse, small_mammal
+  breed: varchar("breed", { length: 255 }),
+  birthDate: varchar("birthDate", { length: 20 }),
+  weight: varchar("weight", { length: 50 }),
+  microchipId: varchar("microchipId", { length: 255 }),
+  insurance: text("insurance"),
+  notes: text("notes"),
+  avatar: text("avatar"), // S3 URL
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const petShares = mysqlTable("petShares", {
+  id: int("id").autoincrement().primaryKey(),
+  petId: int("petId").notNull().references(() => pets.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 20 }).notNull().default("member"), // owner, member
+  canEdit: tinyint("canEdit").notNull().default(1),
+  canDelete: tinyint("canDelete").notNull().default(0),
+  invitedBy: int("invitedBy").references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const activities = mysqlTable("activities", {
+  id: int("id").autoincrement().primaryKey(),
+  petId: int("petId").notNull().references(() => pets.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id),
+  type: varchar("type", { length: 50 }).notNull(), // feeding, walk, symptom, medication, vaccination, note
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  metadata: json("metadata"), // Additional data like GPS coordinates, duration, etc.
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const healthRecords = mysqlTable("healthRecords", {
+  id: int("id").autoincrement().primaryKey(),
+  petId: int("petId").notNull().references(() => pets.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id),
+  type: varchar("type", { length: 50 }).notNull(), // symptom, vaccination, medication, note
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  photos: json("photos"), // Array of S3 URLs
+  aiAnalysis: text("aiAnalysis"),
+  date: timestamp("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const invitations = mysqlTable("invitations", {
+  id: int("id").autoincrement().primaryKey(),
+  petId: int("petId").notNull().references(() => pets.id, { onDelete: "cascade" }),
+  invitedBy: int("invitedBy").notNull().references(() => users.id),
+  inviteeEmail: varchar("inviteeEmail", { length: 320 }),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  role: varchar("role", { length: 20 }).notNull().default("member"),
+  expiresAt: timestamp("expiresAt").notNull(),
+  acceptedAt: timestamp("acceptedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const pushTokens = mysqlTable("pushTokens", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 512 }).notNull().unique(),
+  platform: varchar("platform", { length: 20 }).notNull(), // ios, android, web
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  petId: int("petId").references(() => pets.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 50 }).notNull(), // feeding, walk, vet_appointment, medication
+  title: varchar("title", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  sentAt: timestamp("sentAt"),
+  isRead: tinyint("isRead").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Pet = typeof pets.$inferSelect;
+export type InsertPet = typeof pets.$inferInsert;
+export type PetShare = typeof petShares.$inferSelect;
+export type InsertPetShare = typeof petShares.$inferInsert;
+export type Activity = typeof activities.$inferSelect;
+export type InsertActivity = typeof activities.$inferInsert;
+export type HealthRecord = typeof healthRecords.$inferSelect;
+export type InsertHealthRecord = typeof healthRecords.$inferInsert;
+export type Invitation = typeof invitations.$inferSelect;
+export type InsertInvitation = typeof invitations.$inferInsert;
+export type PushToken = typeof pushTokens.$inferSelect;
+export type InsertPushToken = typeof pushTokens.$inferInsert;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
