@@ -169,3 +169,24 @@
 - [x] Tierarzttermine in Kalender exportieren
 - [x] Impftermine in Kalender exportieren
 - [x] Automatische Kalender-Updates bei Änderungen
+
+## Fotoalbum (Neue Features)
+- [x] Foto-Galerie für alle Haustiere
+- [x] Fotos nach Tier filtern
+- [x] Diashow-Funktion
+- [x] Fotos teilen
+- [x] Fotos löschen
+
+## Shop-Integration (Neue Features)
+- [x] Produkt-Empfehlungen basierend auf Tierart
+- [x] Amazon-Links für Futter
+- [x] Amazon-Links für Zubehör
+- [x] Nachbestell-Erinnerungen mit direktem Shop-Link
+- [x] Produkt-Suche
+
+## Tierbetreuungs-Suche (Neue Features)
+- [x] Tiersitter in der Nähe finden
+- [x] Tierpensionen anzeigen
+- [x] Bewertungen und Kontaktdaten
+- [x] Direkte Kontaktaufnahme (Telefon/E-Mail)
+- [x] Favoriten speichern

@@ -99,7 +99,8 @@ export default function MoreScreen() {
           iconColor={colors.success}
           iconBg="rgba(16, 185, 129, 0.15)"
           title="Shop"
-          subtitle="Tierbedarf kaufen"
+          subtitle="Tierbedarf bestellen"
+          onPress={() => router.push("/shop")}
         />
 
         <MenuItem
@@ -108,6 +109,7 @@ export default function MoreScreen() {
           iconBg="rgba(139, 92, 246, 0.15)"
           title="Tierbetreuung"
           subtitle="Tiersitter & Pensionen finden"
+          onPress={() => router.push("/pet-care-finder")}
         />
 
         <MenuItem
@@ -116,6 +118,7 @@ export default function MoreScreen() {
           iconBg="rgba(236, 72, 153, 0.15)"
           title="Fotoalbum"
           subtitle="Bilder deiner Haustiere"
+          onPress={() => router.push("/photo-album")}
         />
 
         {/* Emergency Section */}
