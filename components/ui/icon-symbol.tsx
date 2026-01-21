@@ -43,6 +43,7 @@ const MAPPING = {
   "photo.fill": "photo",
   "mic.fill": "mic",
   "play.fill": "play-arrow",
+  "stop.fill": "stop",
   
   // Alerts
   "exclamationmark.triangle.fill": "warning",

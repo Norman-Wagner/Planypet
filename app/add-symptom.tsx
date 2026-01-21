@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, Text, View, Pressable, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { ScrollView, Text, View, Pressable, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { PetAvatar } from "@/components/ui/pet-avatar";
+import { VoiceInput } from "@/components/ui/voice-input";
 import { useColors } from "@/hooks/use-colors";
 import { usePetStore, Pet } from "@/lib/pet-store";
 
@@ -21,6 +22,30 @@ export default function AddSymptomScreen() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [recordType, setRecordType] = useState<"symptom" | "vaccination" | "medication" | "note">("symptom");
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showVoiceInput, setShowVoiceInput] = useState(false);
+
+  const handleAnalyze = async () => {
+    if (!selectedPet || !description) {
+      Alert.alert("Fehler", "Bitte beschreibe die Symptome");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      // Simulate AI analysis
+      setTimeout(() => {
+        const analysis = `Basierend auf den beschriebenen Symptomen könnte es sich um folgende Ursachen handeln:\n\n1. Ernährungsbedingte Beschwerden\n2. Leichte Infektion\n3. Stress oder Umstellungsreaktion\n\n⚠️ Empfehlung: Bei anhaltenden oder sich verschlimmernden Symptomen bitte einen Tierarzt aufsuchen!`;
+        setAiAnalysis(analysis);
+        setIsAnalyzing(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to analyze symptoms:", error);
+      setIsAnalyzing(false);
+      Alert.alert("Fehler", "KI-Analyse konnte nicht durchgeführt werden");
+    }
+  };
 
   const handleSave = () => {
     if (!selectedPet || !title) return;
@@ -38,6 +63,11 @@ export default function AddSymptomScreen() {
     }
     
     router.back();
+  };
+
+  const handleVoiceTranscript = (text: string) => {
+    setDescription((prev) => (prev ? `${prev} ${text}` : text));
+    setShowVoiceInput(false);
   };
 
   const recordTypes = [
@@ -177,6 +207,16 @@ export default function AddSymptomScreen() {
             />
           </GlassCard>
 
+          {/* Voice Input */}
+          {showVoiceInput && (
+            <GlassCard className="mb-6 items-center py-6">
+              <VoiceInput onTranscript={handleVoiceTranscript} placeholder="Halte gedrückt zum Sprechen" />
+              <Pressable onPress={() => setShowVoiceInput(false)} className="mt-4">
+                <Text className="text-muted text-sm">Abbrechen</Text>
+              </Pressable>
+            </GlassCard>
+          )}
+
           {/* Media Buttons */}
           <View className="flex-row gap-3 mb-6">
             <Pressable 
@@ -192,16 +232,40 @@ export default function AddSymptomScreen() {
             </Pressable>
             <Pressable 
               className="flex-1"
+              onPress={() => setShowVoiceInput(true)}
               style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
             >
               <GlassCard className="items-center py-4">
                 <View className="w-12 h-12 rounded-full bg-warning/20 items-center justify-center mb-2">
                   <IconSymbol name="mic.fill" size={24} color={colors.warning} />
                 </View>
-                <Text className="text-foreground font-medium text-sm">Sprachnotiz</Text>
+                <Text className="text-foreground font-medium text-sm">Spracheingabe</Text>
               </GlassCard>
             </Pressable>
           </View>
+
+          {/* AI Analysis Button */}
+          {recordType === "symptom" && description && (
+            <View className="mb-6">
+              <GradientButton
+                title={isAnalyzing ? "Analysiere..." : "Mit KI analysieren"}
+                size="md"
+                onPress={handleAnalyze}
+                disabled={isAnalyzing}
+              />
+            </View>
+          )}
+
+          {/* AI Analysis Result */}
+          {aiAnalysis && (
+            <GlassCard className="mb-6 border-primary/30">
+              <View className="flex-row items-start mb-2">
+                <Text className="text-2xl mr-2">🤖</Text>
+                <Text className="text-foreground font-semibold text-base flex-1">KI-Analyse</Text>
+              </View>
+              <Text className="text-foreground text-sm leading-relaxed">{aiAnalysis}</Text>
+            </GlassCard>
+          )}
 
           {/* Save Button */}
           <GradientButton

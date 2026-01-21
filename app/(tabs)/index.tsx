@@ -1,8 +1,8 @@
-import { ScrollView, Text, View, Pressable } from "react-native";
+import { ScrollView, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { ScreenContainer } from "@/components/screen-container";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -15,6 +15,8 @@ export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { userName, pets, feedings, walks, onboardingComplete, loadData } = usePetStore();
+  const [aiReminder, setAiReminder] = useState<string | null>(null);
+  const [isLoadingReminder, setIsLoadingReminder] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -38,6 +40,36 @@ export default function DashboardScreen() {
   // Get pending feedings and walks
   const pendingFeedings = feedings.filter((f) => !f.completed);
   const pendingWalks = walks.filter((w) => !w.completed);
+
+  // Load AI reminder
+  useEffect(() => {
+    if (pets.length > 0) {
+      loadAIReminder();
+    }
+  }, [pets.length]);
+
+  const loadAIReminder = async () => {
+    if (pets.length === 0) return;
+
+    setIsLoadingReminder(true);
+    try {
+      setTimeout(() => {
+        const pet = pets[0];
+        const reminders = [
+          `Hast du ${pet.name} heute schon gefüttert? 🍽️`,
+          `Zeit für einen Spaziergang mit ${pet.name}! 🐾`,
+          `Denk dran: ${pet.name}s Vorrat wird langsam knapp.`,
+          `${pet.name} freut sich bestimmt über eine Spielrunde! 🎾`,
+        ];
+        const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
+        setAiReminder(randomReminder);
+        setIsLoadingReminder(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Failed to load AI reminder:", error);
+      setIsLoadingReminder(false);
+    }
+  };
 
   return (
     <View className="flex-1">
@@ -84,6 +116,27 @@ export default function DashboardScreen() {
             <Text className="text-muted text-sm">Gassi</Text>
           </GlassCard>
         </View>
+
+        {/* AI Reminder Card */}
+        {(isLoadingReminder || aiReminder) && (
+          <GlassCard className="mb-6 border-primary/30">
+            <View className="flex-row items-center">
+              <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mr-3">
+                {isLoadingReminder ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : (
+                  <Text className="text-2xl">🤖</Text>
+                )}
+              </View>
+              <View className="flex-1">
+                <Text className="text-foreground font-semibold mb-1">KI-Assistent</Text>
+                <Text className="text-foreground text-sm">
+                  {isLoadingReminder ? "Denke nach..." : aiReminder}
+                </Text>
+              </View>
+            </View>
+          </GlassCard>
+        )}
 
         {/* My Pets Quick View */}
         {pets.length > 0 && (

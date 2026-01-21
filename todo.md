@@ -112,3 +112,13 @@
 - [x] App-Logo generieren
 - [x] Splash-Screen
 - [x] App-Icon für iOS/Android
+
+## KI-Integration (Neue Features)
+- [x] Backend LLM-API-Route erstellen
+- [x] Spracheingabe für Symptome implementieren
+- [x] Spracheingabe für Notizen implementieren
+- [x] Proaktive Erinnerungen im Dashboard ("Hast du Luna gefüttert?")
+- [x] KI-Symptom-Analyse mit Foto/Video
+- [x] Nachbestell-Vorschläge bei niedrigem Vorrat
+- [x] Tierarzt-Disclaimer für KI-Hinweise
+- [x] Audio-zu-Text Transkription
