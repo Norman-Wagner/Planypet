@@ -121,6 +121,20 @@ export default function MoreScreen() {
           onPress={() => router.push("/photo-album")}
         />
 
+        {/* Social Section */}
+        <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
+          Community
+        </Text>
+
+        <MenuItem
+          icon="person.2.fill"
+          iconColor="#EC4899"
+          iconBg="rgba(236, 72, 153, 0.15)"
+          title="Community-Feed"
+          subtitle="Mit anderen Tierbesitzern teilen"
+          onPress={() => router.push("/community")}
+        />
+
         {/* Emergency Section */}
         <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
           Notfall
@@ -189,6 +203,20 @@ export default function MoreScreen() {
           title="App-Einstellungen"
           subtitle="Theme, Sprache, Export"
           onPress={() => router.push("/settings")}
+        />
+
+        {/* Backup Section */}
+        <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
+          Datensicherung
+        </Text>
+
+        <MenuItem
+          icon="icloud.fill"
+          iconColor="#10B981"
+          iconBg="rgba(16, 185, 129, 0.15)"
+          title="Backup & Sync"
+          subtitle="Daten sichern und synchronisieren"
+          onPress={() => router.push("/backup")}
         />
 
         {/* Legal Section */}

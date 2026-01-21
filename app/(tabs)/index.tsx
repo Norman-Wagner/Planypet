@@ -10,6 +10,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { PetAvatar } from "@/components/ui/pet-avatar";
 import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
+import { useWeather } from "@/hooks/use-weather";
 
 export default function DashboardScreen() {
   const colors = useColors();
@@ -17,6 +18,7 @@ export default function DashboardScreen() {
   const { userName, pets, feedings, walks, onboardingComplete, loadData } = usePetStore();
   const [aiReminder, setAiReminder] = useState<string | null>(null);
   const [isLoadingReminder, setIsLoadingReminder] = useState(false);
+  const { weather, loading: weatherLoading, walkRecommendation, getWeatherIcon, getWeatherColor } = useWeather();
 
   useEffect(() => {
     loadData();
@@ -133,6 +135,49 @@ export default function DashboardScreen() {
                 <Text className="text-foreground text-sm">
                   {isLoadingReminder ? "Denke nach..." : aiReminder}
                 </Text>
+              </View>
+            </View>
+          </GlassCard>
+        )}
+
+        {/* Weather Widget */}
+        {weather && (
+          <GlassCard className="mb-6" style={{ borderColor: `${getWeatherColor(weather.condition)}30` }}>
+            <View className="flex-row items-center">
+              <View
+                className="w-16 h-16 rounded-2xl items-center justify-center mr-3"
+                style={{ backgroundColor: `${getWeatherColor(weather.condition)}20` }}
+              >
+                <Text className="text-4xl">{getWeatherIcon(weather.condition)}</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-foreground font-semibold text-base">
+                  {weather.temperature}°C • {weather.location}
+                </Text>
+                <Text className="text-muted text-sm mt-1">
+                  {walkRecommendation.reason}
+                </Text>
+                {walkRecommendation.warning && (
+                  <View className="mt-2 bg-warning/10 px-2 py-1 rounded-lg">
+                    <Text className="text-warning text-xs">
+                      ⚠️ {walkRecommendation.warning}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <View
+                className="w-10 h-10 rounded-full items-center justify-center"
+                style={{
+                  backgroundColor: walkRecommendation.suitable
+                    ? `${colors.success}20`
+                    : `${colors.error}20`,
+                }}
+              >
+                <IconSymbol
+                  name={walkRecommendation.suitable ? "checkmark" : "xmark"}
+                  size={20}
+                  color={walkRecommendation.suitable ? colors.success : colors.error}
+                />
               </View>
             </View>
           </GlassCard>

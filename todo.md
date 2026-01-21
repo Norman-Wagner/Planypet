@@ -190,3 +190,25 @@
 - [x] Bewertungen und Kontaktdaten
 - [x] Direkte Kontaktaufnahme (Telefon/E-Mail)
 - [x] Favoriten speichern
+
+## Wetter-Integration (Neue Features)
+- [x] Wetter-API integrieren (OpenWeatherMap oder ähnlich)
+- [x] Gassi-Empfehlungen basierend auf Wetter
+- [x] Regenwarnung vor Gassi-Runden
+- [x] Temperatur-Hinweise (zu heiß/kalt für Tier)
+- [x] Wetter-Widget im Dashboard
+
+## Social Features (Neue Features)
+- [x] Community-Feed erstellen
+- [x] Fotos mit anderen Tierbesitzern teilen
+- [x] Kommentare und Likes
+- [ ] Profil anderer Nutzer ansehen
+- [ ] Freunde hinzufügen
+- [ ] Private Nachrichten
+
+## Backup & Cloud-Sync (Neue Features)
+- [x] Automatische Datensicherung in Cloud
+- [x] Manuelles Backup erstellen
+- [x] Backup wiederherstellen
+- [x] Geräte-Sync (mehrere Geräte, gleiche Daten)
+- [x] Export aller Daten (DSGVO-konform)

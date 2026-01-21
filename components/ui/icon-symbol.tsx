@@ -19,8 +19,15 @@ const MAPPING = {
   "gearshape.fill": "settings",
   "plus.circle.fill": "add-circle",
   "chevron.right": "chevron-right",
-  "chevron.left": "chevron-left",
+  "checkmark": "check",
   "xmark": "close",
+  "chevron.left": "chevron-left",
+  "ellipsis.circle.fill": "more-horiz",
+  "bubble.left.fill": "chat-bubble",
+  "square.and.arrow.up.fill": "share",
+  "icloud.fill": "cloud",
+  "arrow.down.doc.fill": "download",
+  "arrow.up.doc.fill": "upload",
   
   // Pet actions
   "fork.knife": "restaurant",
