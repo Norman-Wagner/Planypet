@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, Pressable } from "react-native";
+import { ScrollView, Text, View, Pressable, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -9,11 +9,24 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { PetAvatar } from "@/components/ui/pet-avatar";
 import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
+import { useCalendar } from "@/hooks/use-calendar";
 
 export default function HealthScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { pets, healthRecords } = usePetStore();
+  const { hasPermission, addVetAppointmentToCalendar, addVaccinationToCalendar } = useCalendar();
+
+  const handleAddVaccinationToCalendar = async () => {
+    const success = await addVaccinationToCalendar(
+      "Luna",
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      "Tollwut-Auffrischung"
+    );
+    if (success) {
+      Alert.alert("Erfolg", "Impftermin wurde zu deinem Kalender hinzugefügt");
+    }
+  };
 
   return (
     <View className="flex-1">
@@ -118,7 +131,14 @@ export default function HealthScreen() {
               <Text className="text-foreground font-semibold">Impfung Luna</Text>
               <Text className="text-muted text-sm">Nächste Woche • Tollwut-Auffrischung</Text>
             </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+            <Pressable
+              onPress={handleAddVaccinationToCalendar}
+              style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            >
+              <View className="bg-primary/20 px-3 py-2 rounded-full">
+                <Text className="text-primary text-xs font-medium">Zum Kalender</Text>
+              </View>
+            </Pressable>
           </View>
         </GlassCard>
 

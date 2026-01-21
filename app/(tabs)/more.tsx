@@ -91,6 +91,7 @@ export default function MoreScreen() {
           iconBg="rgba(245, 158, 11, 0.15)"
           title="Vorräte"
           subtitle="Futter & Zubehör verwalten"
+          onPress={() => router.push("/supplies")}
         />
 
         <MenuItem
@@ -185,6 +186,38 @@ export default function MoreScreen() {
           title="App-Einstellungen"
           subtitle="Theme, Sprache, Export"
           onPress={() => router.push("/settings")}
+        />
+
+        {/* Legal Section */}
+        <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
+          Rechtliches
+        </Text>
+
+        <MenuItem
+          icon="doc.text.fill"
+          iconColor={colors.muted}
+          iconBg="rgba(100, 116, 139, 0.15)"
+          title="Impressum"
+          subtitle="Angaben gemäß § 5 TMG"
+          onPress={() => router.push("/legal/impressum")}
+        />
+
+        <MenuItem
+          icon="shield.fill"
+          iconColor={colors.primary}
+          iconBg="rgba(0, 102, 204, 0.15)"
+          title="Datenschutzerklärung"
+          subtitle="DSGVO-konforme Datenschutzhinweise"
+          onPress={() => router.push("/legal/privacy")}
+        />
+
+        <MenuItem
+          icon="doc.text.fill"
+          iconColor={colors.muted}
+          iconBg="rgba(100, 116, 139, 0.15)"
+          title="AGB"
+          subtitle="Allgemeine Geschäftsbedingungen"
+          onPress={() => router.push("/legal/terms")}
         />
 
         {/* App Info */}

@@ -146,3 +146,26 @@
 - [ ] Foto-Upload für Tierprofile
 - [ ] Foto-Galerie anzeigen
 - [ ] Fotos in S3 speichern
+
+## DSGVO/Datenschutz (Neue Features)
+- [x] Impressum für Privatperson erstellen
+- [x] AGB (Allgemeine Geschäftsbedingungen) erstellen
+- [x] Datenschutzerklärung (DSGVO-konform) erstellen
+- [x] Cookie-/Consent-Banner (nicht erforderlich für native App)
+- [x] Rechtliche Screens in App integrieren
+- [x] Internationale Datenschutz-Compliance geprüft
+
+## Vorratsverwaltung (Neue Features)
+- [x] Futter-Vorräte tracken
+- [x] Medikamenten-Vorräte tracken
+- [x] Niedrig-Stand-Warnungen
+- [x] Automatische Nachbestell-Erinnerungen
+- [x] Einkaufsliste generieren
+- [x] Verfallsdatum-Tracking
+
+## Kalender-Sync (Neue Features)
+- [x] expo-calendar integrieren
+- [x] Kalender-Berechtigung anfordern
+- [x] Tierarzttermine in Kalender exportieren
+- [x] Impftermine in Kalender exportieren
+- [x] Automatische Kalender-Updates bei Änderungen
