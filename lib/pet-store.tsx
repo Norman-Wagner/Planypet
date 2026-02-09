@@ -1,7 +1,19 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export type PetType = "cat" | "dog" | "fish" | "bird" | "reptile" | "horse" | "smallPet";
+export type PetType = 
+  // Haustiere
+  | "cat" | "dog" | "rabbit" | "hamster" | "guinea_pig" | "chinchilla" | "degu" | "rat" | "mouse" | "ferret"
+  // Vögel
+  | "parakeet" | "canary" | "cockatiel" | "parrot" | "finch" | "lovebird"
+  // Reptilien
+  | "bearded_dragon" | "leopard_gecko" | "corn_snake" | "ball_python" | "iguana" | "chameleon" | "tortoise"
+  // Amphibien
+  | "axolotl" | "frog" | "newt"
+  // Fische
+  | "fish" | "goldfish" | "betta"
+  // Nutztiere
+  | "horse" | "cow" | "sheep" | "goat" | "pig" | "chicken" | "duck";
 
 export interface Pet {
   id: string;
@@ -107,27 +119,35 @@ export function PetStoreProvider({ children }: { children: ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [userName, pets, feedings, walks, healthRecords, onboardingComplete] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.userName),
-        AsyncStorage.getItem(STORAGE_KEYS.pets),
-        AsyncStorage.getItem(STORAGE_KEYS.feedings),
-        AsyncStorage.getItem(STORAGE_KEYS.walks),
-        AsyncStorage.getItem(STORAGE_KEYS.healthRecords),
-        AsyncStorage.getItem(STORAGE_KEYS.onboardingComplete),
-      ]);
+      const pets = await AsyncStorage.getItem(STORAGE_KEYS.pets);
+      const feedings = await AsyncStorage.getItem(STORAGE_KEYS.feedings);
+      const walks = await AsyncStorage.getItem(STORAGE_KEYS.walks);
+      const healthRecords = await AsyncStorage.getItem(STORAGE_KEYS.healthRecords);
+      const userName = await AsyncStorage.getItem(STORAGE_KEYS.userName);
+      const onboardingComplete = await AsyncStorage.getItem(STORAGE_KEYS.onboardingComplete);
+
+      const parseSafe = (data: string | null) => {
+        if (!data) return [];
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          console.warn("Failed to parse data:", e);
+          return [];
+        }
+      };
 
       setState({
-        userName: userName ? JSON.parse(userName) : "",
-        pets: pets ? JSON.parse(pets) : [],
-        feedings: feedings ? JSON.parse(feedings) : [],
-        walks: walks ? JSON.parse(walks) : [],
-        healthRecords: healthRecords ? JSON.parse(healthRecords) : [],
+        userName: userName || "",
+        pets: parseSafe(pets),
+        feedings: parseSafe(feedings),
+        walks: parseSafe(walks),
+        healthRecords: parseSafe(healthRecords),
         onboardingComplete: onboardingComplete === "true",
       });
     } catch (error) {
       console.error("Error loading data:", error);
     }
-  };
+  };;
 
   useEffect(() => {
     loadData();

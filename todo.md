@@ -236,6 +236,17 @@
 - [x] Schnellaktionen auf Smartwatch
 - [ ] Native Watch-App Implementation (erfordert Xcode/Android Studio)
 
+## Redesign Phase 2 - Luxuriöses UI & KI-Integration
+- [ ] Pet-Profil erweitern: Rasse, Gewicht, Geburtsdatum, Vorlieben
+- [ ] KI-Rassen-Erkennung von Fotos integrieren
+- [ ] Familien-Verwaltung (Hierarchie: Lydia + Tiere)
+- [ ] KI-Assistent prominent sichtbar - Tipps & Empfehlungen
+- [ ] Community-Challenges Feature - Foto-Aufgaben
+- [ ] Sichtbare "Alles gespeichert ✓" Button
+- [ ] Luxuriöses Premium-Design (nicht wie Lego)
+- [ ] Persönliche Benutzer-Profil erweitern (Lydia)
+- [ ] Gamification & Rewards System
+
 ## Innovative Features (Neue Erweiterungen)
 
 ### Tiergeräusch-Erkennung & Übersetzung

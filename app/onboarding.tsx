@@ -21,13 +21,48 @@ interface PetTypeOption {
 }
 
 const petTypes: PetTypeOption[] = [
+  // Haustiere
   { type: "cat", label: "Katze", emoji: "🐱", supportsGroup: false },
   { type: "dog", label: "Hund", emoji: "🐕", supportsGroup: false },
-  { type: "smallPet", label: "Kleintier", emoji: "🐹", supportsGroup: true },
-  { type: "bird", label: "Vogel", emoji: "🦜", supportsGroup: true },
+  { type: "rabbit", label: "Kaninchen", emoji: "🐰", supportsGroup: true },
+  { type: "hamster", label: "Hamster", emoji: "🐹", supportsGroup: true },
+  { type: "guinea_pig", label: "Meerschweinchen", emoji: "🐹", supportsGroup: true },
+  { type: "chinchilla", label: "Chinchilla", emoji: "🐭", supportsGroup: true },
+  { type: "degu", label: "Degu", emoji: "🐭", supportsGroup: true },
+  { type: "rat", label: "Ratte", emoji: "🐭", supportsGroup: true },
+  { type: "mouse", label: "Maus", emoji: "🐭", supportsGroup: true },
+  { type: "ferret", label: "Frettchen", emoji: "🦡", supportsGroup: true },
+  // Vögel
+  { type: "parakeet", label: "Wellensittich", emoji: "🦜", supportsGroup: true },
+  { type: "canary", label: "Kanarienvogel", emoji: "🐦", supportsGroup: true },
+  { type: "cockatiel", label: "Nymphensittich", emoji: "🦜", supportsGroup: false },
+  { type: "parrot", label: "Papagei", emoji: "🦜", supportsGroup: false },
+  { type: "finch", label: "Zebrafinke", emoji: "🐦", supportsGroup: true },
+  { type: "lovebird", label: "Agapornide", emoji: "🦜", supportsGroup: true },
+  // Reptilien
+  { type: "bearded_dragon", label: "Bartagame", emoji: "🦎", supportsGroup: false },
+  { type: "leopard_gecko", label: "Leopardgecko", emoji: "🦎", supportsGroup: false },
+  { type: "corn_snake", label: "Kornnatter", emoji: "🐍", supportsGroup: false },
+  { type: "ball_python", label: "Königspython", emoji: "🐍", supportsGroup: false },
+  { type: "iguana", label: "Leguan", emoji: "🦎", supportsGroup: false },
+  { type: "chameleon", label: "Chamäleon", emoji: "🦎", supportsGroup: false },
+  { type: "tortoise", label: "Schildkröte", emoji: "🐢", supportsGroup: false },
+  // Amphibien
+  { type: "axolotl", label: "Axolotl", emoji: "🦎", supportsGroup: true },
+  { type: "frog", label: "Frosch", emoji: "🐸", supportsGroup: true },
+  { type: "newt", label: "Molch", emoji: "🦎", supportsGroup: true },
+  // Fische
   { type: "fish", label: "Fisch", emoji: "🐠", supportsGroup: true },
-  { type: "reptile", label: "Reptil", emoji: "🦎", supportsGroup: false },
+  { type: "goldfish", label: "Goldfisch", emoji: "🐠", supportsGroup: true },
+  { type: "betta", label: "Bettafisch", emoji: "🐠", supportsGroup: false },
+  // Nutztiere
   { type: "horse", label: "Pferd", emoji: "🐴", supportsGroup: false },
+  { type: "cow", label: "Kuh", emoji: "🐄", supportsGroup: true },
+  { type: "sheep", label: "Schaf", emoji: "🐑", supportsGroup: true },
+  { type: "goat", label: "Ziege", emoji: "🐐", supportsGroup: true },
+  { type: "pig", label: "Schwein", emoji: "🐷", supportsGroup: true },
+  { type: "chicken", label: "Huhn", emoji: "🐔", supportsGroup: true },
+  { type: "duck", label: "Ente", emoji: "🦆", supportsGroup: true },
 ];
 
 export default function OnboardingScreen() {
