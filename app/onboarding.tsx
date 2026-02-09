@@ -67,10 +67,10 @@ export default function OnboardingScreen() {
             <View className="w-24 h-24 rounded-full bg-white/20 items-center justify-center mb-6">
               <Text className="text-5xl">🐾</Text>
             </View>
-            <Text className="text-white text-3xl font-bold text-center mb-3">
+            <Text className="text-white text-4xl font-extrabold text-center mb-3" style={{fontFamily: 'System', fontWeight: '900'}}>
               Willkommen bei Planypet
             </Text>
-            <Text className="text-white/80 text-lg text-center mb-8">
+            <Text className="text-white text-base text-center mb-8" style={{fontFamily: 'System', fontWeight: '600'}}>
               Dein persönlicher Assistent für die Pflege deiner Haustiere
             </Text>
             <GradientButton
@@ -87,10 +87,10 @@ export default function OnboardingScreen() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             className="flex-1 justify-center px-6"
           >
-            <Text className="text-white text-2xl font-bold text-center mb-2">
+            <Text className="text-white text-3xl font-extrabold text-center mb-2" style={{fontFamily: 'System', fontWeight: '900'}}>
               Wie heißt du?
             </Text>
-            <Text className="text-white/70 text-center mb-8">
+            <Text className="text-white text-base text-center mb-8" style={{fontFamily: 'System', fontWeight: '600'}}>
               Damit wir dich persönlich begrüßen können
             </Text>
             
