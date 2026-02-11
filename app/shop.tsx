@@ -1,315 +1,135 @@
-import { ScrollView, Text, View, Pressable, TextInput, Linking, Alert } from "react-native";
+import { ScrollView, Text, View, Pressable, TextInput, Linking, Alert, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
-import { ScreenContainer } from "@/components/screen-container";
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
 
-interface Product {
-  id: string;
-  name: string;
-  category: "food" | "toy" | "health" | "accessory";
-  petType: string[];
-  price: string;
-  rating: number;
-  amazonLink: string;
-  inStock: boolean;
-}
+interface Product { id: string; name: string; category: "food" | "toy" | "health" | "accessory"; price: string; rating: number; amazonLink: string; inStock: boolean; }
 
 const MOCK_PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Premium Katzenfutter 10kg",
-    category: "food",
-    petType: ["cat"],
-    price: "€ 29,99",
-    rating: 4.8,
-    amazonLink: "https://www.amazon.de/s?k=katzenfutter",
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Hundespielzeug Set",
-    category: "toy",
-    petType: ["dog"],
-    price: "€ 19,99",
-    rating: 4.6,
-    amazonLink: "https://www.amazon.de/s?k=hundespielzeug",
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Vitamin-Tabletten für Katzen",
-    category: "health",
-    petType: ["cat"],
-    price: "€ 14,99",
-    rating: 4.7,
-    amazonLink: "https://www.amazon.de/s?k=katzen+vitamine",
-    inStock: true,
-  },
-  {
-    id: "4",
-    name: "Hundehalsband LED",
-    category: "accessory",
-    petType: ["dog"],
-    price: "€ 12,99",
-    rating: 4.5,
-    amazonLink: "https://www.amazon.de/s?k=hundehalsband+led",
-    inStock: true,
-  },
-  {
-    id: "5",
-    name: "Fischfutter Premium 500g",
-    category: "food",
-    petType: ["fish"],
-    price: "€ 8,99",
-    rating: 4.9,
-    amazonLink: "https://www.amazon.de/s?k=fischfutter",
-    inStock: true,
-  },
-  {
-    id: "6",
-    name: "Kaninchenfutter Bio 5kg",
-    category: "food",
-    petType: ["rabbit"],
-    price: "€ 24,99",
-    rating: 4.8,
-    amazonLink: "https://www.amazon.de/s?k=kaninchenfutter",
-    inStock: false,
-  },
+  { id: "1", name: "Premium Katzenfutter 10kg", category: "food", price: "29,99", rating: 4.8, amazonLink: "https://www.amazon.de/s?k=katzenfutter", inStock: true },
+  { id: "2", name: "Hundespielzeug Set", category: "toy", price: "19,99", rating: 4.6, amazonLink: "https://www.amazon.de/s?k=hundespielzeug", inStock: true },
+  { id: "3", name: "Vitamin-Tabletten fuer Katzen", category: "health", price: "14,99", rating: 4.7, amazonLink: "https://www.amazon.de/s?k=katzen+vitamine", inStock: true },
+  { id: "4", name: "Hundehalsband LED", category: "accessory", price: "12,99", rating: 4.5, amazonLink: "https://www.amazon.de/s?k=hundehalsband+led", inStock: true },
+  { id: "5", name: "Fischfutter Premium 500g", category: "food", price: "8,99", rating: 4.9, amazonLink: "https://www.amazon.de/s?k=fischfutter", inStock: true },
+  { id: "6", name: "Kaninchenfutter Bio 5kg", category: "food", price: "24,99", rating: 4.8, amazonLink: "https://www.amazon.de/s?k=kaninchenfutter", inStock: false },
 ];
 
+const catLabel: Record<string, string> = { food: "Futter", toy: "Spielzeug", health: "Gesundheit", accessory: "Zubehoer" };
+const catIcon: Record<string, string> = { food: "fork.knife", toy: "sportscourt.fill", health: "cross.fill", accessory: "bag.fill" };
+const catColor: Record<string, string> = { food: "#66BB6A", toy: "#FFB74D", health: "#EF5350", accessory: "#42A5F5" };
+
 export default function ShopScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   const { pets } = usePetStore();
-  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const filteredProducts = MOCK_PRODUCTS.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  const filtered = MOCK_PRODUCTS.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchCat = !selectedCategory || p.category === selectedCategory;
+    return matchSearch && matchCat;
   });
 
-  const handleOpenAmazon = (link: string, productName: string) => {
-    Alert.alert(
-      "Zu Amazon",
-      `Möchtest du "${productName}" auf Amazon ansehen?`,
-      [
-        {
-          text: "Abbrechen",
-          style: "cancel",
-        },
-        {
-          text: "Öffnen",
-          onPress: () => Linking.openURL(link),
-        },
-      ]
-    );
-  };
-
-  const getCategoryIcon = (category: string): any => {
-    switch (category) {
-      case "food":
-        return "fork.knife";
-      case "toy":
-        return "sportscourt.fill";
-      case "health":
-        return "cross.fill";
-      case "accessory":
-        return "bag.fill";
-      default:
-        return "cube.box.fill";
-    }
-  };
-
-  const getCategoryColor = (category: string): string => {
-    switch (category) {
-      case "food":
-        return colors.success;
-      case "toy":
-        return colors.warning;
-      case "health":
-        return colors.error;
-      case "accessory":
-        return colors.primary;
-      default:
-        return colors.muted;
-    }
+  const openAmazon = (link: string, name: string) => {
+    Alert.alert("Zu Amazon", `Moechtest du "${name}" auf Amazon ansehen?`, [
+      { text: "Abbrechen", style: "cancel" },
+      { text: "Oeffnen", onPress: () => Linking.openURL(link) },
+    ]);
   };
 
   return (
-    <ScreenContainer className="p-6">
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
-      >
-        {/* Header */}
-        <View className="flex-row items-center mb-6">
-          <Pressable
-            onPress={() => router.back()}
-            className="mr-4"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <IconSymbol name="chevron.left" size={28} color={colors.primary} />
-          </Pressable>
-          <Text className="text-3xl font-bold text-foreground">Shop</Text>
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 40, paddingHorizontal: 20 }}>
+        <Pressable onPress={() => router.back()} style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}>
+          <IconSymbol name="chevron.left" size={20} color="#D4A843" />
+          <Text style={s.backText}>Zurueck</Text>
+        </Pressable>
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Shop</Text>
+          <Text style={s.headerSub}>Empfehlungen fuer dein Tier</Text>
+          <View style={s.goldDivider} />
         </View>
 
         {/* Search */}
-        <GlassCard className="mb-4">
-          <View className="flex-row items-center">
-            <IconSymbol name="magnifyingglass" size={20} color={colors.muted} />
-            <TextInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder="Produkte suchen..."
-              placeholderTextColor={colors.muted}
-              className="flex-1 ml-3 text-foreground"
-            />
-          </View>
-        </GlassCard>
+        <View style={s.searchBar}>
+          <IconSymbol name="magnifyingglass" size={18} color="#4A4A4A" />
+          <TextInput value={searchQuery} onChangeText={setSearchQuery} placeholder="Produkte suchen..." placeholderTextColor="#4A4A4A" style={s.searchInput} />
+        </View>
 
-        {/* Category Filter */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          className="mb-6"
-          contentContainerStyle={{ gap: 8 }}
-        >
-          <Pressable
-            onPress={() => setSelectedCategory(null)}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-          >
-            <View
-              className={`px-4 py-2 rounded-full ${
-                selectedCategory === null ? "bg-primary" : "bg-surface"
-              }`}
-            >
-              <Text
-                className={`font-medium ${
-                  selectedCategory === null ? "text-white" : "text-foreground"
-                }`}
-              >
-                Alle
-              </Text>
-            </View>
+        {/* Categories */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginBottom: 24 }}>
+          <Pressable onPress={() => setSelectedCategory(null)} style={({ pressed }) => [s.catBtn, !selectedCategory && s.catBtnActive, pressed && { opacity: 0.7 }]}>
+            <Text style={[s.catText, !selectedCategory && s.catTextActive]}>Alle</Text>
           </Pressable>
-          {["food", "toy", "health", "accessory"].map((cat) => (
-            <Pressable
-              key={cat}
-              onPress={() => setSelectedCategory(cat)}
-              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-            >
-              <View
-                className={`px-4 py-2 rounded-full ${
-                  selectedCategory === cat ? "bg-primary" : "bg-surface"
-                }`}
-              >
-                <Text
-                  className={`font-medium ${
-                    selectedCategory === cat ? "text-white" : "text-foreground"
-                  }`}
-                >
-                  {cat === "food" && "Futter"}
-                  {cat === "toy" && "Spielzeug"}
-                  {cat === "health" && "Gesundheit"}
-                  {cat === "accessory" && "Zubehör"}
-                </Text>
-              </View>
+          {(["food", "toy", "health", "accessory"] as const).map((cat) => (
+            <Pressable key={cat} onPress={() => setSelectedCategory(cat)} style={({ pressed }) => [s.catBtn, selectedCategory === cat && s.catBtnActive, pressed && { opacity: 0.7 }]}>
+              <Text style={[s.catText, selectedCategory === cat && s.catTextActive]}>{catLabel[cat]}</Text>
             </Pressable>
           ))}
         </ScrollView>
 
-        {/* Recommendations */}
         {pets.length > 0 && !searchQuery && !selectedCategory && (
-          <>
-            <Text className="text-foreground text-lg font-semibold mb-3">
-              Empfohlen für deine Tiere
-            </Text>
-            <Text className="text-muted text-sm mb-4">
-              Basierend auf {pets.map((p) => p.name).join(", ")}
-            </Text>
-          </>
+          <Text style={{ fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginBottom: 16 }}>Empfohlen fuer {pets.map((p) => p.name).join(", ")}</Text>
         )}
 
         {/* Products */}
-        {filteredProducts.length === 0 ? (
-          <GlassCard className="p-8 items-center">
-            <IconSymbol name="magnifyingglass" size={48} color={colors.muted} />
-            <Text className="text-muted text-center mt-4">
-              Keine Produkte gefunden
-            </Text>
-          </GlassCard>
-        ) : (
-          <View className="gap-3">
-            {filteredProducts.map((product) => (
-              <Pressable
-                key={product.id}
-                onPress={() => handleOpenAmazon(product.amazonLink, product.name)}
-                style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}
-              >
-                <GlassCard className="p-4">
-                  <View className="flex-row items-start">
-                    <View
-                      className="w-12 h-12 rounded-xl items-center justify-center mr-3"
-                      style={{ backgroundColor: `${getCategoryColor(product.category)}15` }}
-                    >
-                      <IconSymbol
-                        name={getCategoryIcon(product.category)}
-                        size={24}
-                        color={getCategoryColor(product.category)}
-                      />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-foreground font-semibold text-base">
-                        {product.name}
-                      </Text>
-                      <View className="flex-row items-center mt-1">
-                        <Text className="text-warning text-sm">★</Text>
-                        <Text className="text-muted text-sm ml-1">
-                          {product.rating} • Amazon
-                        </Text>
-                      </View>
-                      <View className="flex-row items-center justify-between mt-2">
-                        <Text className="text-primary font-bold text-lg">
-                          {product.price}
-                        </Text>
-                        {!product.inStock && (
-                          <View className="bg-error/20 px-2 py-1 rounded-full">
-                            <Text className="text-error text-xs font-medium">
-                              Nicht verfügbar
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                    <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-                  </View>
-                </GlassCard>
-              </Pressable>
-            ))}
+        {filtered.length === 0 ? (
+          <View style={[s.card, { padding: 40, alignItems: "center" }]}>
+            <IconSymbol name="magnifyingglass" size={32} color="#4A4A4A" />
+            <Text style={{ fontSize: 13, color: "#6B6B6B", marginTop: 12 }}>Keine Produkte gefunden</Text>
           </View>
+        ) : (
+          filtered.map((product) => (
+            <Pressable key={product.id} onPress={() => openAmazon(product.amazonLink, product.name)} style={({ pressed }) => [s.card, { marginBottom: 8 }, pressed && { opacity: 0.8 }]}>
+              <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 14 }}>
+                <View style={[s.prodIcon, { backgroundColor: `${catColor[product.category]}12` }]}>
+                  <IconSymbol name={catIcon[product.category] as any} size={20} color={catColor[product.category]} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.prodName}>{product.name}</Text>
+                  <Text style={s.prodMeta}>{product.rating} · Amazon</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
+                    <Text style={s.prodPrice}>{product.price} EUR</Text>
+                    {!product.inStock && <View style={s.outBadge}><Text style={s.outText}>Nicht verfuegbar</Text></View>}
+                  </View>
+                </View>
+                <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
+              </View>
+            </Pressable>
+          ))
         )}
 
-        {/* Disclaimer */}
-        <GlassCard className="mt-6 border-warning/30">
-          <View className="flex-row items-start">
-            <IconSymbol name="info.circle.fill" size={20} color={colors.warning} />
-            <View className="flex-1 ml-3">
-              <Text className="text-foreground font-medium text-sm">Hinweis</Text>
-              <Text className="text-muted text-xs mt-1">
-                Die Produkte werden über Amazon verkauft. Planypet erhält möglicherweise eine kleine Provision bei Käufen über diese Links.
-              </Text>
-            </View>
-          </View>
-        </GlassCard>
+        <View style={s.disclaimer}>
+          <IconSymbol name="info.circle.fill" size={16} color="#D4A843" />
+          <Text style={s.disclaimerText}>Die Produkte werden ueber Amazon verkauft. Planypet erhaelt moeglicherweise eine kleine Provision bei Kaeufen ueber diese Links.</Text>
+        </View>
       </ScrollView>
-    </ScreenContainer>
+    </View>
   );
 }
+
+const s = StyleSheet.create({
+  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
+  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+  header: { marginBottom: 32 },
+  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
+  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
+  searchBar: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: "#141418", borderWidth: 1, borderColor: "rgba(212,168,67,0.08)", paddingHorizontal: 16, paddingVertical: 12, marginBottom: 16 },
+  searchInput: { flex: 1, fontSize: 14, color: "#FAFAF8", letterSpacing: 0.3 },
+  catBtn: { paddingHorizontal: 16, paddingVertical: 8, borderWidth: 1, borderColor: "rgba(212,168,67,0.1)" },
+  catBtnActive: { borderColor: "#D4A843", backgroundColor: "rgba(212,168,67,0.08)" },
+  catText: { fontSize: 12, fontWeight: "500", color: "#6B6B6B", letterSpacing: 0.5 },
+  catTextActive: { color: "#D4A843" },
+  card: { backgroundColor: "#141418", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  prodIcon: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" },
+  prodName: { fontSize: 15, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3 },
+  prodMeta: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
+  prodPrice: { fontSize: 18, fontWeight: "300", color: "#D4A843", letterSpacing: 0.5 },
+  outBadge: { backgroundColor: "rgba(239,83,80,0.1)", paddingHorizontal: 10, paddingVertical: 3 },
+  outText: { fontSize: 11, fontWeight: "500", color: "#EF5350" },
+  disclaimer: { flexDirection: "row", gap: 10, marginTop: 24, backgroundColor: "rgba(212,168,67,0.05)", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.1)" },
+  disclaimerText: { flex: 1, fontSize: 12, fontWeight: "400", color: "#6B6B6B", lineHeight: 18 },
+});

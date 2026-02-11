@@ -1,16 +1,22 @@
-import { ScrollView, Text, View, Pressable, Image, Dimensions, Alert } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+  Pressable,
+  Image,
+  Dimensions,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
-import { ScreenContainer } from "@/components/screen-container";
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
 import { useImagePicker } from "@/hooks/use-image-picker";
 
 const { width } = Dimensions.get("window");
-const imageSize = (width - 60) / 3; // 3 columns with padding
+const imageSize = (width - 40) / 3; // 3 columns with 8px gap
 
 interface Photo {
   id: string;
@@ -21,14 +27,13 @@ interface Photo {
 }
 
 export default function PhotoAlbumScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   const { pets } = usePetStore();
   const { pickImage, takePhoto } = useImagePicker();
-  
+
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
-  
-  // Mock data - in real app, this would be stored in pet store
+
+  // Mock data
   const [photos, setPhotos] = useState<Photo[]>([
     {
       id: "1",
@@ -79,27 +84,28 @@ export default function PhotoAlbumScreen() {
     : photos;
 
   const handleAddPhoto = async () => {
-    Alert.alert(
-      "Foto hinzufügen",
-      "Wähle eine Option",
-      [
-        { text: "Kamera", onPress: async () => {
+    Alert.alert("Foto hinzufügen", "Wähle eine Option", [
+      {
+        text: "Kamera",
+        onPress: async () => {
           const uri = await takePhoto();
           if (uri) {
-            // Add photo logic
+            // In a real app, you would create a new photo object and add it to the state
             Alert.alert("Erfolg", "Foto wurde hinzugefügt");
           }
-        }},
-        { text: "Galerie", onPress: async () => {
+        },
+      },
+      {
+        text: "Galerie",
+        onPress: async () => {
           const uri = await pickImage();
           if (uri) {
-            // Add photo logic
             Alert.alert("Erfolg", "Foto wurde hinzugefügt");
           }
-        }},
-        { text: "Abbrechen", style: "cancel" },
-      ]
-    );
+        },
+      },
+      { text: "Abbrechen", style: "cancel" },
+    ]);
   };
 
   const handlePhotoPress = (photo: Photo) => {
@@ -107,10 +113,17 @@ export default function PhotoAlbumScreen() {
       photo.petName,
       `Aufgenommen am ${new Date(photo.date).toLocaleDateString("de-DE")}`,
       [
-        { text: "Teilen", onPress: () => Alert.alert("Teilen", "Foto wird geteilt...") },
-        { text: "Löschen", style: "destructive", onPress: () => {
-          setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
-        }},
+        {
+          text: "Teilen",
+          onPress: () => Alert.alert("Teilen", "Foto wird geteilt..."),
+        },
+        {
+          text: "Löschen",
+          style: "destructive",
+          onPress: () => {
+            setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+          },
+        },
         { text: "Schließen", style: "cancel" },
       ]
     );
@@ -121,147 +134,242 @@ export default function PhotoAlbumScreen() {
   };
 
   return (
-    <ScreenContainer className="p-6">
-      <ScrollView 
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 20, paddingHorizontal: 16 }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6">
-          <View className="flex-row items-center flex-1">
-            <Pressable
-              onPress={() => router.back()}
-              className="mr-4"
-              style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-            >
-              <IconSymbol name="chevron.left" size={28} color={colors.primary} />
+        <View style={styles.headerContainer}>
+            <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}>
+                <IconSymbol name="chevron.left" size={24} color="#D4A843" />
             </Pressable>
-            <Text className="text-3xl font-bold text-foreground">Fotoalbum</Text>
-          </View>
-          <Pressable
-            onPress={handleAddPhoto}
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <View className="w-10 h-10 rounded-full bg-primary items-center justify-center">
-              <Text className="text-white text-2xl font-bold">+</Text>
+            <View>
+                <Text style={styles.headerTitle}>FOTOALBUM</Text>
+                <Text style={styles.headerSubtitle}>Ihre schönsten Momente</Text>
+                <View style={styles.headerDivider} />
             </View>
-          </Pressable>
+            <Pressable onPress={handleAddPhoto} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }, styles.addButton]}>
+                <IconSymbol name="plus" size={22} color="#0A0A0F" />
+            </Pressable>
         </View>
 
         {/* Stats */}
-        <View className="flex-row gap-3 mb-6">
-          <GlassCard className="flex-1 items-center py-3">
-            <Text className="text-2xl font-bold text-foreground">{photos.length}</Text>
-            <Text className="text-muted text-sm">Fotos</Text>
-          </GlassCard>
-          <GlassCard className="flex-1 items-center py-3">
-            <Text className="text-2xl font-bold text-foreground">{pets.length}</Text>
-            <Text className="text-muted text-sm">Tiere</Text>
-          </GlassCard>
-          <Pressable
-            onPress={handleSlideshow}
-            className="flex-1"
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-          >
-            <GlassCard className="items-center py-3 bg-primary/10">
-              <IconSymbol name="play.fill" size={24} color={colors.primary} />
-              <Text className="text-primary text-sm font-medium mt-1">Diashow</Text>
-            </GlassCard>
-          </Pressable>
+        <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Übersicht</Text>
+            <View style={styles.statsRow}>
+                <View style={styles.statCard}>
+                    <Text style={styles.statValue}>{photos.length}</Text>
+                    <Text style={styles.statLabel}>Fotos</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <Text style={styles.statValue}>{pets.length}</Text>
+                    <Text style={styles.statLabel}>Tiere</Text>
+                </View>
+                <Pressable onPress={handleSlideshow} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
+                    <View style={[styles.statCard, { alignItems: 'center', justifyContent: 'center'}]}>
+                        <IconSymbol name="play.fill" size={20} color="#D4A843" />
+                        <Text style={[styles.statLabel, {color: '#D4A843', marginTop: 4}]}>Diashow</Text>
+                    </View>
+                </Pressable>
+            </View>
         </View>
 
         {/* Filter */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          className="mb-6"
-          contentContainerStyle={{ gap: 8 }}
-        >
-          <Pressable
-            onPress={() => setSelectedPet(null)}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-          >
-            <View
-              className={`px-4 py-2 rounded-full ${
-                selectedPet === null ? "bg-primary" : "bg-surface"
-              }`}
-            >
-              <Text
-                className={`font-medium ${
-                  selectedPet === null ? "text-white" : "text-foreground"
-                }`}
-              >
-                Alle
-              </Text>
-            </View>
-          </Pressable>
-          {pets.map((pet) => (
-            <Pressable
-              key={pet.id}
-              onPress={() => setSelectedPet(pet.id.toString())}
-              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-            >
-              <View
-                className={`px-4 py-2 rounded-full ${
-                  selectedPet === pet.id.toString() ? "bg-primary" : "bg-surface"
-                }`}
-              >
-                <Text
-                  className={`font-medium ${
-                    selectedPet === pet.id.toString() ? "text-white" : "text-foreground"
-                  }`}
-                >
-                  {pet.name}
-                </Text>
-              </View>
-            </Pressable>
-          ))}
-        </ScrollView>
+        <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Filter</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                <Pressable onPress={() => setSelectedPet(null)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+                    <View style={[styles.filterButton, selectedPet === null && styles.filterButtonActive]}>
+                        <Text style={[styles.filterButtonText, selectedPet === null && styles.filterButtonTextActive]}>Alle</Text>
+                    </View>
+                </Pressable>
+                {pets.map((pet) => (
+                    <Pressable key={pet.id} onPress={() => setSelectedPet(pet.id.toString())} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+                        <View style={[styles.filterButton, selectedPet === pet.id.toString() && styles.filterButtonActive]}>
+                            <Text style={[styles.filterButtonText, selectedPet === pet.id.toString() && styles.filterButtonTextActive]}>{pet.name}</Text>
+                        </View>
+                    </Pressable>
+                ))}
+            </ScrollView>
+        </View>
 
         {/* Photo Grid */}
-        {filteredPhotos.length === 0 ? (
-          <GlassCard className="p-8 items-center">
-            <IconSymbol name="photo.fill" size={48} color={colors.muted} />
-            <Text className="text-muted text-center mt-4">
-              Noch keine Fotos vorhanden
-            </Text>
-            <Text className="text-muted text-center text-sm mt-2">
-              Tippe auf das + Symbol, um Fotos hinzuzufügen
-            </Text>
-          </GlassCard>
-        ) : (
-          <View className="flex-row flex-wrap gap-2">
-            {filteredPhotos.map((photo) => (
-              <Pressable
-                key={photo.id}
-                onPress={() => handlePhotoPress(photo)}
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.8 : 1,
-                  width: imageSize,
-                  height: imageSize,
-                })}
-              >
-                <Image
-                  source={{ uri: photo.uri }}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 12,
-                  }}
-                  resizeMode="cover"
-                />
-                <View
-                  className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded-full"
-                >
-                  <Text className="text-white text-xs font-medium">
-                    {photo.petName}
-                  </Text>
+        <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Galerie</Text>
+            {filteredPhotos.length === 0 ? (
+                <View style={[styles.card, styles.emptyStateContainer]}>
+                    <IconSymbol name="photo.on.rectangle.angled" size={32} color="#6B6B6B" />
+                    <Text style={styles.emptyStateText}>Keine Fotos gefunden</Text>
+                    <Text style={styles.emptyStateSubText}>Fügen Sie neue Bilder über die Plus-Schaltfläche hinzu.</Text>
                 </View>
-              </Pressable>
-            ))}
-          </View>
-        )}
+            ) : (
+                <View style={styles.photoGridContainer}>
+                    {filteredPhotos.map((photo) => (
+                        <Pressable key={photo.id} onPress={() => handlePhotoPress(photo)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, width: imageSize, height: imageSize })}>
+                            <Image source={{ uri: photo.uri }} style={styles.photoImage} resizeMode="cover" />
+                            <View style={styles.photoOverlay}>
+                                <Text style={styles.photoPetName}>{photo.petName}</Text>
+                            </View>
+                        </Pressable>
+                    ))}
+                </View>
+            )}
+        </View>
       </ScrollView>
-    </ScreenContainer>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#0A0A0F",
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginBottom: 16,
+  },
+  backButton: {
+    position: 'absolute',
+    left: -8, // Visually align chevron
+    top: 12,
+    zIndex: 1,
+  },
+  headerTitle: {
+    color: "#FAFAF8",
+    fontSize: 22,
+    fontWeight: "300",
+    letterSpacing: 2,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  headerSubtitle: {
+    color: "#6B6B6B",
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  headerDivider: {
+    width: 40,
+    height: 1,
+    backgroundColor: "#D4A843",
+    alignSelf: 'center',
+    marginTop: 8,
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#D4A843',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionContainer: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#D4A843",
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    marginBottom: 12,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  card: {
+    backgroundColor: "#141418",
+    borderWidth: 1,
+    borderColor: "rgba(212, 168, 67, 0.08)",
+    borderRadius: 16,
+    padding: 16,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: "#141418",
+    borderWidth: 1,
+    borderColor: "rgba(212, 168, 67, 0.08)",
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  statValue: {
+    color: "#FAFAF8",
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  statLabel: {
+    color: "#8B8B80",
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#141418",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(212, 168, 67, 0.08)",
+  },
+  filterButtonActive: {
+    backgroundColor: "#D4A843",
+    borderColor: "#D4A843",
+  },
+  filterButtonText: {
+    color: "#FAFAF8",
+    fontWeight: "500",
+  },
+  filterButtonTextActive: {
+    color: "#0A0A0F",
+  },
+  photoGridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  photoImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 12,
+  },
+  photoOverlay: {
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  photoPetName: {
+    color: "#FAFAF8",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+  },
+  emptyStateText: {
+    color: "#8B8B80",
+    fontSize: 16,
+    fontWeight: '500',
+    marginTop: 16,
+  },
+  emptyStateSubText: {
+    color: "#6B6B6B",
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 4,
+    maxWidth: '80%',
+  },
+});

@@ -76,6 +76,9 @@ const MAPPING = {
   "person.fill": "person",
   "share.fill": "share",
   
+  // Crown / Premium
+  "crown.fill": "auto-awesome",
+  
   // Misc
   "magnifyingglass": "search",
   "calendar": "event",

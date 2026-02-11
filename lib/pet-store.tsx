@@ -21,7 +21,10 @@ export interface Pet {
   type: PetType;
   breed?: string;
   age?: string;
-  weight?: string;
+  weight?: number;
+  birthDate?: string;
+  preferences?: string;
+  photoUrl?: string;
   isGroup: boolean;
   imageUrl?: string;
   createdAt: string;
@@ -51,6 +54,42 @@ export interface WalkEntry {
   };
 }
 
+export type FamilyRole = 
+  | "owner" | "mother" | "father" | "child" | "partner"
+  | "boss" | "employee" | "secretary" | "foreman" | "caretaker"
+  | "veterinarian" | "trainer" | "other";
+
+export interface FamilyMember {
+  id: string;
+  name: string;
+  role: FamilyRole;
+  email?: string;
+  phone?: string;
+  photoUrl?: string;
+  assignedPets: string[]; // pet IDs
+  permissions: {
+    canFeed: boolean;
+    canWalk: boolean;
+    canEditHealth: boolean;
+    canOrder: boolean;
+    canManageFamily: boolean;
+  };
+  createdAt: string;
+}
+
+export interface SupplyItem {
+  id: string;
+  petId: string;
+  name: string;
+  category: "food" | "medicine" | "accessory" | "hygiene";
+  currentAmount: number;
+  unit: string;
+  minimumAmount: number;
+  autoOrder: boolean;
+  lastOrderDate?: string;
+  estimatedRunoutDate?: string;
+}
+
 export interface HealthRecord {
   id: string;
   petId: string;
@@ -64,15 +103,25 @@ export interface HealthRecord {
 
 interface PetStoreState {
   userName: string;
+  userRole: FamilyRole;
   pets: Pet[];
   feedings: FeedingEntry[];
   walks: WalkEntry[];
   healthRecords: HealthRecord[];
+  familyMembers: FamilyMember[];
+  supplies: SupplyItem[];
   onboardingComplete: boolean;
 }
 
 interface PetStoreActions {
   setUserName: (name: string) => void;
+  setUserRole: (role: FamilyRole) => void;
+  addFamilyMember: (member: Omit<FamilyMember, "id" | "createdAt">) => void;
+  updateFamilyMember: (id: string, updates: Partial<FamilyMember>) => void;
+  deleteFamilyMember: (id: string) => void;
+  addSupply: (supply: Omit<SupplyItem, "id">) => void;
+  updateSupply: (id: string, updates: Partial<SupplyItem>) => void;
+  deleteSupply: (id: string) => void;
   addPet: (pet: Omit<Pet, "id" | "createdAt">) => void;
   updatePet: (id: string, updates: Partial<Pet>) => void;
   deletePet: (id: string) => void;
@@ -92,20 +141,26 @@ const PetStoreContext = createContext<PetStore | null>(null);
 
 const STORAGE_KEYS = {
   userName: "userName",
+  userRole: "userRole",
   pets: "pets",
   feedings: "feedings",
   walks: "walks",
   healthRecords: "healthRecords",
+  familyMembers: "familyMembers",
+  supplies: "supplies",
   onboardingComplete: "onboardingComplete",
 };
 
 export function PetStoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PetStoreState>({
     userName: "",
+    userRole: "owner" as FamilyRole,
     pets: [],
     feedings: [],
     walks: [],
     healthRecords: [],
+    familyMembers: [],
+    supplies: [],
     onboardingComplete: false,
   });
 
@@ -123,7 +178,10 @@ export function PetStoreProvider({ children }: { children: ReactNode }) {
       const feedings = await AsyncStorage.getItem(STORAGE_KEYS.feedings);
       const walks = await AsyncStorage.getItem(STORAGE_KEYS.walks);
       const healthRecords = await AsyncStorage.getItem(STORAGE_KEYS.healthRecords);
+      const familyMembers = await AsyncStorage.getItem(STORAGE_KEYS.familyMembers);
+      const supplies = await AsyncStorage.getItem(STORAGE_KEYS.supplies);
       const userName = await AsyncStorage.getItem(STORAGE_KEYS.userName);
+      const userRole = await AsyncStorage.getItem(STORAGE_KEYS.userRole);
       const onboardingComplete = await AsyncStorage.getItem(STORAGE_KEYS.onboardingComplete);
 
       const parseSafe = (data: string | null) => {
@@ -138,10 +196,13 @@ export function PetStoreProvider({ children }: { children: ReactNode }) {
 
       setState({
         userName: userName || "",
+        userRole: (userRole || "owner") as FamilyRole,
         pets: parseSafe(pets),
         feedings: parseSafe(feedings),
         walks: parseSafe(walks),
         healthRecords: parseSafe(healthRecords),
+        familyMembers: parseSafe(familyMembers),
+        supplies: parseSafe(supplies),
         onboardingComplete: onboardingComplete === "true",
       });
     } catch (error) {
@@ -157,6 +218,65 @@ export function PetStoreProvider({ children }: { children: ReactNode }) {
     setUserName: (name) => {
       setState((prev) => ({ ...prev, userName: name }));
       saveToStorage(STORAGE_KEYS.userName, name);
+    },
+
+    setUserRole: (role) => {
+      setState((prev) => ({ ...prev, userRole: role }));
+      AsyncStorage.setItem(STORAGE_KEYS.userRole, role);
+    },
+
+    addFamilyMember: (member) => {
+      const newMember: FamilyMember = {
+        ...member,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+      };
+      setState((prev) => {
+        const newMembers = [...prev.familyMembers, newMember];
+        saveToStorage(STORAGE_KEYS.familyMembers, newMembers);
+        return { ...prev, familyMembers: newMembers };
+      });
+    },
+
+    updateFamilyMember: (id, updates) => {
+      setState((prev) => {
+        const newMembers = prev.familyMembers.map((m) => (m.id === id ? { ...m, ...updates } : m));
+        saveToStorage(STORAGE_KEYS.familyMembers, newMembers);
+        return { ...prev, familyMembers: newMembers };
+      });
+    },
+
+    deleteFamilyMember: (id) => {
+      setState((prev) => {
+        const newMembers = prev.familyMembers.filter((m) => m.id !== id);
+        saveToStorage(STORAGE_KEYS.familyMembers, newMembers);
+        return { ...prev, familyMembers: newMembers };
+      });
+    },
+
+    addSupply: (supply) => {
+      const newSupply: SupplyItem = { ...supply, id: Date.now().toString() };
+      setState((prev) => {
+        const newSupplies = [...prev.supplies, newSupply];
+        saveToStorage(STORAGE_KEYS.supplies, newSupplies);
+        return { ...prev, supplies: newSupplies };
+      });
+    },
+
+    updateSupply: (id, updates) => {
+      setState((prev) => {
+        const newSupplies = prev.supplies.map((s) => (s.id === id ? { ...s, ...updates } : s));
+        saveToStorage(STORAGE_KEYS.supplies, newSupplies);
+        return { ...prev, supplies: newSupplies };
+      });
+    },
+
+    deleteSupply: (id) => {
+      setState((prev) => {
+        const newSupplies = prev.supplies.filter((s) => s.id !== id);
+        saveToStorage(STORAGE_KEYS.supplies, newSupplies);
+        return { ...prev, supplies: newSupplies };
+      });
     },
 
     addPet: (pet) => {
@@ -256,10 +376,13 @@ export function PetStoreProvider({ children }: { children: ReactNode }) {
         await AsyncStorage.multiRemove(Object.values(STORAGE_KEYS));
         setState({
           userName: "",
+          userRole: "owner" as FamilyRole,
           pets: [],
           feedings: [],
           walks: [],
           healthRecords: [],
+          familyMembers: [],
+          supplies: [],
           onboardingComplete: false,
         });
       } catch (error) {
@@ -281,4 +404,15 @@ export function usePetStore() {
     throw new Error("usePetStore must be used within a PetStoreProvider");
   }
   return context;
+}
+
+// Alias für einfacheren Zugriff
+export function usePets() {
+  const store = usePetStore();
+  return {
+    pets: store.pets,
+    addPet: store.addPet,
+    updatePet: (pet: Pet) => store.updatePet(pet.id, pet),
+    deletePet: store.deletePet,
+  };
 }

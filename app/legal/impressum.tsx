@@ -1,95 +1,68 @@
-import { ScrollView, Text, View, Pressable } from "react-native";
+import { ScrollView, Text, View, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScreenContainer } from "@/components/screen-container";
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
 
 export default function ImpressumScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
 
   return (
-    <ScreenContainer className="p-6">
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
-      >
-        {/* Header */}
-        <View className="flex-row items-center mb-6">
-          <Pressable
-            onPress={() => router.back()}
-            className="mr-4"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <IconSymbol name="chevron.left" size={28} color={colors.primary} />
-          </Pressable>
-          <Text className="text-3xl font-bold text-foreground">Impressum</Text>
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 40, paddingHorizontal: 20 }}>
+        <Pressable onPress={() => router.back()} style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}>
+          <IconSymbol name="chevron.left" size={20} color="#D4A843" />
+          <Text style={s.backText}>Zurueck</Text>
+        </Pressable>
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Impressum</Text>
+          <View style={s.goldDivider} />
         </View>
 
-        <GlassCard className="p-6 mb-6">
-          <Text className="text-foreground text-base leading-relaxed mb-4">
-            <Text className="font-bold">Angaben gemäß § 5 TMG</Text>
+        <View style={s.card}>
+          <Text style={s.bold}>Angaben gemaess Paragraph 5 TMG</Text>
+          <Text style={s.text}>Joachim Norman Wagner</Text>
+          <Text style={s.muted}>Deutschland</Text>
+
+          <View style={s.divider} />
+          <Text style={s.bold}>Kontakt:</Text>
+          <Text style={s.text}>E-Mail: info@wagnerconnect.com</Text>
+
+          <View style={s.divider} />
+          <Text style={s.bold}>Verantwortlich fuer den Inhalt nach Paragraph 55 Abs. 2 RStV:</Text>
+          <Text style={s.text}>Joachim Norman Wagner</Text>
+
+          <View style={s.divider} />
+          <Text style={s.bold}>Haftungsausschluss:</Text>
+
+          <Text style={[s.semibold, { marginTop: 12 }]}>Haftung fuer Inhalte</Text>
+          <Text style={s.muted}>Die Inhalte unserer App wurden mit groesster Sorgfalt erstellt. Fuer die Richtigkeit, Vollstaendigkeit und Aktualitaet der Inhalte koennen wir jedoch keine Gewaehr uebernehmen. Als Diensteanbieter sind wir gemaess Paragraph 7 Abs.1 TMG fuer eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.</Text>
+
+          <Text style={[s.semibold, { marginTop: 12 }]}>Gesundheitshinweis</Text>
+          <Text style={s.muted}>Die in dieser App bereitgestellten KI-gestuetzten Gesundheitshinweise dienen ausschliesslich Informationszwecken und ersetzen in keinem Fall die professionelle Beratung oder Behandlung durch einen approbierten Tierarzt. Bei gesundheitlichen Problemen Ihres Haustieres konsultieren Sie bitte immer einen Tierarzt.</Text>
+
+          <Text style={[s.semibold, { marginTop: 12 }]}>Datenschutz</Text>
+          <Text style={s.muted}>Die Nutzung unserer App ist ohne Angabe personenbezogener Daten moeglich. Soweit auf unseren Seiten personenbezogene Daten erhoben werden, erfolgt dies stets auf freiwilliger Basis. Diese Daten werden ohne Ihre ausdrueckliche Zustimmung nicht an Dritte weitergegeben. Weitere Informationen finden Sie in unserer Datenschutzerklaerung.</Text>
+
+          <View style={s.divider} />
+          <Text style={{ fontSize: 11, fontWeight: "400", color: "#4A4A4A", fontStyle: "italic", textAlign: "center" }}>
+            (PS.: Denkt dran, alle guten Dinge sind 3 ;)... Viele Gruesse "Eure Deutschen Entwickler")
           </Text>
-
-          <Text className="text-foreground text-base leading-relaxed mb-2">
-            Joachim Norman Wagner
-          </Text>
-          <Text className="text-muted text-base leading-relaxed mb-4">
-            Deutschland
-          </Text>
-
-          <Text className="text-foreground text-base leading-relaxed mb-4">
-            <Text className="font-bold">Kontakt:</Text>
-          </Text>
-          <Text className="text-foreground text-base leading-relaxed mb-2">
-            E-Mail: info@wagnerconnect.com
-          </Text>
-
-          <View className="mt-6 pt-6 border-t border-border">
-            <Text className="text-foreground text-base leading-relaxed mb-4">
-              <Text className="font-bold">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</Text>
-            </Text>
-            <Text className="text-foreground text-base leading-relaxed">
-              Joachim Norman Wagner
-            </Text>
-          </View>
-
-          <View className="mt-6 pt-6 border-t border-border">
-            <Text className="text-foreground text-base leading-relaxed mb-4">
-              <Text className="font-bold">Haftungsausschluss:</Text>
-            </Text>
-            
-            <Text className="text-foreground text-base leading-relaxed mb-3">
-              <Text className="font-semibold">Haftung für Inhalte</Text>
-            </Text>
-            <Text className="text-muted text-sm leading-relaxed mb-4">
-              Die Inhalte unserer App wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
-            </Text>
-
-            <Text className="text-foreground text-base leading-relaxed mb-3">
-              <Text className="font-semibold">Gesundheitshinweis</Text>
-            </Text>
-            <Text className="text-muted text-sm leading-relaxed mb-4">
-              Die in dieser App bereitgestellten KI-gestützten Gesundheitshinweise dienen ausschließlich Informationszwecken und ersetzen in keinem Fall die professionelle Beratung oder Behandlung durch einen approbierten Tierarzt. Bei gesundheitlichen Problemen Ihres Haustieres konsultieren Sie bitte immer einen Tierarzt.
-            </Text>
-
-            <Text className="text-foreground text-base leading-relaxed mb-3">
-              <Text className="font-semibold">Datenschutz</Text>
-            </Text>
-            <Text className="text-muted text-sm leading-relaxed">
-              Die Nutzung unserer App ist ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten erhoben werden, erfolgt dies stets auf freiwilliger Basis. Diese Daten werden ohne Ihre ausdrückliche Zustimmung nicht an Dritte weitergegeben. Weitere Informationen finden Sie in unserer Datenschutzerklärung.
-            </Text>
-          </View>
-
-          <View className="mt-6 pt-6 border-t border-border">
-            <Text className="text-muted text-xs italic text-center">
-              (PS.: Denkt dran, alle guten Dinge sind 3 ;)... Viele Grüße "Eure Deutschen Entwickler")
-            </Text>
-          </View>
-        </GlassCard>
+        </View>
       </ScrollView>
-    </ScreenContainer>
+    </View>
   );
 }
+
+const s = StyleSheet.create({
+  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
+  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+  header: { marginBottom: 32 },
+  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
+  card: { backgroundColor: "#141418", padding: 20, borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  bold: { fontSize: 14, fontWeight: "600", color: "#FAFAF8", letterSpacing: 0.3, marginBottom: 8 },
+  semibold: { fontSize: 14, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3, marginBottom: 6 },
+  text: { fontSize: 14, fontWeight: "400", color: "#C8C8C0", lineHeight: 22, marginBottom: 4 },
+  muted: { fontSize: 13, fontWeight: "400", color: "#6B6B6B", lineHeight: 20, marginBottom: 4 },
+  divider: { height: 1, backgroundColor: "rgba(212,168,67,0.08)", marginVertical: 16 },
+});

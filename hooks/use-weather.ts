@@ -100,17 +100,17 @@ export function useWeather() {
   const getWeatherIcon = (condition: string): string => {
     switch (condition) {
       case "sunny":
-        return "☀️";
+        return "--";
       case "cloudy":
-        return "☁️";
+        return "--";
       case "rainy":
-        return "🌧️";
+        return "--";
       case "snowy":
-        return "❄️";
+        return "--";
       case "stormy":
-        return "⛈️";
+        return "--";
       default:
-        return "🌤️";
+        return "--";
     }
   };
 

@@ -1,290 +1,203 @@
 import { useState } from "react";
-import { ScrollView, Text, View, Pressable, Linking, Alert, Platform } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView, Text, View, Pressable, Linking, Alert, Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 
-import { GlassCard } from "@/components/ui/glass-card";
-import { GradientButton } from "@/components/ui/gradient-button";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { PetAvatar } from "@/components/ui/pet-avatar";
-import { useColors } from "@/hooks/use-colors";
 import { usePetStore, Pet } from "@/lib/pet-store";
 
-// Demo poison bait warnings
 const poisonWarnings = [
-  {
-    id: "1",
-    location: "Stadtpark, Nähe Spielplatz",
-    date: "Heute, 14:30",
-    type: "Köder mit Nägeln",
-    distance: "1.2 km",
-  },
-  {
-    id: "2",
-    location: "Waldweg am Fluss",
-    date: "Gestern, 10:15",
-    type: "Verdächtiges Fleisch",
-    distance: "3.5 km",
-  },
+  { id: "1", location: "Stadtpark, Naehe Spielplatz", date: "Heute, 14:30", type: "Koeder mit Naegeln", distance: "1.2 km" },
+  { id: "2", location: "Waldweg am Fluss", date: "Gestern, 10:15", type: "Verdaechtiges Fleisch", distance: "3.5 km" },
 ];
 
 export default function EmergencyScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   const { pets } = usePetStore();
-  
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showLostPetForm, setShowLostPetForm] = useState(false);
 
   const handleCallVet = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    }
-    // In a real app, this would open phone with vet number
-    Alert.alert(
-      "Tierarzt anrufen",
-      "Möchtest du den Notfall-Tierarzt anrufen?",
-      [
-        { text: "Abbrechen", style: "cancel" },
-        { text: "Anrufen", onPress: () => Linking.openURL("tel:+49123456789") },
-      ]
-    );
+    if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Alert.alert("Tierarzt anrufen", "Moechtest du den Notfall-Tierarzt anrufen?", [
+      { text: "Abbrechen", style: "cancel" },
+      { text: "Anrufen", onPress: () => Linking.openURL("tel:+49123456789") },
+    ]);
   };
 
   const handleReportLostPet = (pet: Pet) => {
     setSelectedPet(pet);
     setShowLostPetForm(true);
-    
-    if (Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    }
-  };
-
-  const handleTassoLink = () => {
-    Linking.openURL("https://www.tasso.net/");
-  };
-
-  const handleFindeFix = () => {
-    Linking.openURL("https://www.findefix.com/");
+    if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   };
 
   return (
-    <View className="flex-1">
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={["#EF4444", "#F87171", "#F0F7FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.6 }}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-      
-      <ScrollView 
-        className="flex-1"
-        contentContainerStyle={{ 
-          paddingTop: insets.top + 20,
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingTop: insets.top + 16,
           paddingBottom: insets.bottom + 40,
           paddingHorizontal: 20,
         }}
       >
-        {/* Header */}
-        <View className="flex-row items-center mb-6">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <IconSymbol name="chevron.left" size={24} color="#FFFFFF" />
-          </Pressable>
-          <View className="flex-1">
-            <Text className="text-white text-2xl font-bold">Notfall-Hilfe</Text>
-            <Text className="text-white/70 text-base">Schnelle Hilfe im Ernstfall</Text>
-          </View>
-        </View>
-
-        {/* Emergency Call Button */}
-        <Pressable
-          onPress={handleCallVet}
-          style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}
-        >
-          <GlassCard className="mb-6 border-2 border-error">
-            <View className="flex-row items-center">
-              <View className="w-16 h-16 rounded-full bg-error items-center justify-center mr-4">
-                <IconSymbol name="phone.fill" size={32} color="#FFFFFF" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-error text-xl font-bold">Notfall-Tierarzt</Text>
-                <Text className="text-foreground">24/7 Notdienst anrufen</Text>
-              </View>
-              <IconSymbol name="chevron.right" size={24} color={colors.error} />
-            </View>
-          </GlassCard>
+        {/* Back */}
+        <Pressable onPress={() => router.back()} style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}>
+          <IconSymbol name="chevron.left" size={20} color="#D4A843" />
+          <Text style={s.backText}>Zurueck</Text>
         </Pressable>
 
-        {/* Lost Pet Section */}
-        <Text className="text-foreground text-lg font-semibold mb-3">
-          Tier vermisst?
-        </Text>
-        
-        <GlassCard className="mb-4">
-          <Text className="text-foreground font-medium mb-3">Wähle das vermisste Tier:</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 12 }}
-          >
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Notfall-Hilfe</Text>
+          <Text style={s.headerSub}>Schnelle Hilfe im Ernstfall</Text>
+          <View style={s.goldDivider} />
+        </View>
+
+        {/* Emergency Call */}
+        <Pressable onPress={handleCallVet} style={({ pressed }) => [s.emergencyCard, pressed && { opacity: 0.8 }]}>
+          <View style={s.emergencyIcon}>
+            <IconSymbol name="phone.fill" size={28} color="#FAFAF8" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.emergencyTitle}>Notfall-Tierarzt</Text>
+            <Text style={s.emergencySub}>24/7 Notdienst anrufen</Text>
+          </View>
+          <IconSymbol name="chevron.right" size={16} color="#EF5350" />
+        </Pressable>
+
+        {/* Lost Pet */}
+        <Text style={s.sectionTitle}>Tier vermisst?</Text>
+        <View style={s.card}>
+          <Text style={s.cardSub}>Waehle das vermisste Tier:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingVertical: 8 }}>
             {pets.map((pet) => (
-              <Pressable
-                key={pet.id}
-                onPress={() => handleReportLostPet(pet)}
-                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
-              >
-                <View className="items-center">
-                  <PetAvatar name={pet.name} type={pet.type} size="lg" />
-                  <Text className="text-foreground font-medium mt-1 text-sm">{pet.name}</Text>
-                </View>
+              <Pressable key={pet.id} onPress={() => handleReportLostPet(pet)} style={({ pressed }) => [pressed && { opacity: 0.7 }]}>
+                <PetAvatar name={pet.name} type={pet.type} size="lg" showName />
               </Pressable>
             ))}
+            {pets.length === 0 && <Text style={s.emptyText}>Keine Tiere registriert</Text>}
           </ScrollView>
-        </GlassCard>
+        </View>
 
         {/* Lost Pet Form */}
         {showLostPetForm && selectedPet && (
-          <GlassCard className="mb-4 border-warning">
-            <View className="flex-row items-center mb-4">
+          <View style={[s.card, { marginTop: 12, borderColor: "rgba(255,183,77,0.2)" }]}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 16 }}>
               <PetAvatar name={selectedPet.name} type={selectedPet.type} size="lg" />
-              <View className="flex-1 ml-3">
-                <Text className="text-foreground text-lg font-bold">{selectedPet.name} vermisst</Text>
-                <Text className="text-muted text-sm">Melde dein Tier bei diesen Diensten:</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.cardTitle}>{selectedPet.name} vermisst</Text>
+                <Text style={s.cardSub2}>Melde dein Tier bei diesen Diensten:</Text>
               </View>
             </View>
-            
-            <View className="gap-3">
-              <Pressable
-                onPress={handleTassoLink}
-                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-              >
-                <View className="flex-row items-center bg-primary/10 p-4 rounded-xl">
-                  <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mr-3">
-                    <Text className="text-2xl">🔍</Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-foreground font-semibold">TASSO</Text>
-                    <Text className="text-muted text-sm">Europas größtes Haustierregister</Text>
-                  </View>
-                  <IconSymbol name="chevron.right" size={20} color={colors.primary} />
-                </View>
-              </Pressable>
-              
-              <Pressable
-                onPress={handleFindeFix}
-                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-              >
-                <View className="flex-row items-center bg-success/10 p-4 rounded-xl">
-                  <View className="w-12 h-12 rounded-full bg-success/20 items-center justify-center mr-3">
-                    <Text className="text-2xl">📍</Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-foreground font-semibold">FINDEFIX</Text>
-                    <Text className="text-muted text-sm">Deutscher Tierschutzbund</Text>
-                  </View>
-                  <IconSymbol name="chevron.right" size={20} color={colors.success} />
-                </View>
-              </Pressable>
-            </View>
-            
-            <Pressable
-              onPress={() => setShowLostPetForm(false)}
-              className="mt-4"
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            >
-              <Text className="text-muted text-center">Abbrechen</Text>
+            <Pressable onPress={() => Linking.openURL("https://www.tasso.net/")} style={({ pressed }) => [s.serviceBtn, pressed && { opacity: 0.7 }]}>
+              <View style={[s.serviceIcon, { backgroundColor: "rgba(66,165,245,0.1)" }]}>
+                <IconSymbol name="magnifyingglass" size={20} color="#42A5F5" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.serviceTitle}>TASSO</Text>
+                <Text style={s.serviceSub}>Europas groesstes Haustierregister</Text>
+              </View>
+              <IconSymbol name="chevron.right" size={14} color="#42A5F5" />
             </Pressable>
-          </GlassCard>
+            <Pressable onPress={() => Linking.openURL("https://www.findefix.com/")} style={({ pressed }) => [s.serviceBtn, pressed && { opacity: 0.7 }]}>
+              <View style={[s.serviceIcon, { backgroundColor: "rgba(102,187,106,0.1)" }]}>
+                <IconSymbol name="location.fill" size={20} color="#66BB6A" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.serviceTitle}>FINDEFIX</Text>
+                <Text style={s.serviceSub}>Deutscher Tierschutzbund</Text>
+              </View>
+              <IconSymbol name="chevron.right" size={14} color="#66BB6A" />
+            </Pressable>
+            <Pressable onPress={() => setShowLostPetForm(false)} style={({ pressed }) => [{ marginTop: 16, alignItems: "center" }, pressed && { opacity: 0.6 }]}>
+              <Text style={{ fontSize: 13, color: "#6B6B6B" }}>Abbrechen</Text>
+            </Pressable>
+          </View>
         )}
 
-        {/* Poison Bait Warnings */}
-        <View className="flex-row items-center justify-between mb-3 mt-4">
-          <Text className="text-foreground text-lg font-semibold">
-            Giftköder-Warnungen
-          </Text>
-          <View className="bg-error/20 px-2 py-1 rounded-full">
-            <Text className="text-error text-xs font-medium">{poisonWarnings.length} aktiv</Text>
-          </View>
-        </View>
-        
-        {poisonWarnings.map((warning) => (
-          <GlassCard key={warning.id} className="mb-3 border-warning/50">
-            <View className="flex-row items-start">
-              <View className="w-12 h-12 rounded-full bg-warning/20 items-center justify-center mr-3">
-                <IconSymbol name="exclamationmark.triangle.fill" size={24} color={colors.warning} />
+        {/* Poison Warnings */}
+        <Text style={s.sectionTitle}>Giftkoeder-Warnungen</Text>
+        {poisonWarnings.map((w) => (
+          <View key={w.id} style={[s.card, { marginBottom: 8, borderColor: "rgba(255,183,77,0.12)" }]}>
+            <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 14 }}>
+              <View style={[s.warnIcon]}>
+                <IconSymbol name="exclamationmark.triangle.fill" size={20} color="#FFB74D" />
               </View>
-              <View className="flex-1">
-                <Text className="text-foreground font-semibold">{warning.type}</Text>
-                <Text className="text-muted text-sm">{warning.location}</Text>
-                <View className="flex-row mt-1">
-                  <Text className="text-muted text-xs">{warning.date}</Text>
-                  <Text className="text-muted text-xs mx-2">•</Text>
-                  <Text className="text-warning text-xs font-medium">{warning.distance} entfernt</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.cardTitle}>{w.type}</Text>
+                <Text style={s.cardSub2}>{w.location}</Text>
+                <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+                  <Text style={{ fontSize: 11, color: "#6B6B6B" }}>{w.date}</Text>
+                  <Text style={{ fontSize: 11, color: "#FFB74D", fontWeight: "500" }}>{w.distance} entfernt</Text>
                 </View>
               </View>
             </View>
-          </GlassCard>
+          </View>
         ))}
 
         {/* Emergency Contacts */}
-        <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
-          Notfallkontakte
-        </Text>
-        
-        <GlassCard className="mb-3">
-          <Pressable
-            onPress={() => Linking.openURL("tel:112")}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-          >
-            <View className="flex-row items-center">
-              <View className="w-12 h-12 rounded-full bg-error/20 items-center justify-center mr-3">
-                <IconSymbol name="phone.fill" size={24} color={colors.error} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-foreground font-semibold">Notruf</Text>
-                <Text className="text-muted text-sm">112</Text>
-              </View>
-            </View>
-          </Pressable>
-        </GlassCard>
-
-        <GlassCard className="mb-3">
-          <Pressable
-            onPress={() => Linking.openURL("tel:+4915735990000")}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-          >
-            <View className="flex-row items-center">
-              <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mr-3">
-                <IconSymbol name="phone.fill" size={24} color={colors.primary} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-foreground font-semibold">Giftnotruf</Text>
-                <Text className="text-muted text-sm">+49 157 3599 0000</Text>
-              </View>
-            </View>
-          </Pressable>
-        </GlassCard>
+        <Text style={s.sectionTitle}>Notfallkontakte</Text>
+        <Pressable onPress={() => Linking.openURL("tel:112")} style={({ pressed }) => [s.contactCard, pressed && { opacity: 0.7 }]}>
+          <View style={[s.contactIcon, { backgroundColor: "rgba(239,83,80,0.1)" }]}>
+            <IconSymbol name="phone.fill" size={20} color="#EF5350" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.cardTitle}>Notruf</Text>
+            <Text style={s.cardSub2}>112</Text>
+          </View>
+        </Pressable>
+        <Pressable onPress={() => Linking.openURL("tel:+4915735990000")} style={({ pressed }) => [s.contactCard, pressed && { opacity: 0.7 }]}>
+          <View style={[s.contactIcon, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
+            <IconSymbol name="phone.fill" size={20} color="#D4A843" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.cardTitle}>Giftnotruf</Text>
+            <Text style={s.cardSub2}>+49 157 3599 0000</Text>
+          </View>
+        </Pressable>
 
         {/* Disclaimer */}
-        <GlassCard className="mt-4 border-warning/30">
-          <View className="flex-row items-start">
-            <IconSymbol name="info.circle.fill" size={20} color={colors.warning} />
-            <View className="flex-1 ml-3">
-              <Text className="text-foreground font-medium text-sm">Wichtig</Text>
-              <Text className="text-muted text-xs mt-1">
-                Bei akuten Vergiftungen oder schweren Verletzungen sofort den Tierarzt oder die Tierklinik aufsuchen. Jede Minute zählt!
-              </Text>
-            </View>
-          </View>
-        </GlassCard>
+        <View style={s.disclaimer}>
+          <IconSymbol name="info.circle.fill" size={16} color="#D4A843" />
+          <Text style={s.disclaimerText}>
+            Bei akuten Vergiftungen oder schweren Verletzungen sofort den Tierarzt oder die Tierklinik aufsuchen. Jede Minute zaehlt!
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
+  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+  header: { marginBottom: 32 },
+  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
+  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
+  sectionTitle: { fontSize: 11, fontWeight: "600", color: "#D4A843", letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, marginTop: 24 },
+  emergencyCard: {
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: "rgba(239,83,80,0.08)", padding: 20,
+    borderWidth: 1, borderColor: "rgba(239,83,80,0.2)",
+  },
+  emergencyIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: "#EF5350", alignItems: "center", justifyContent: "center" },
+  emergencyTitle: { fontSize: 18, fontWeight: "500", color: "#EF5350", letterSpacing: 0.5 },
+  emergencySub: { fontSize: 12, fontWeight: "400", color: "#8B8B80", marginTop: 2 },
+  card: { backgroundColor: "#141418", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  cardTitle: { fontSize: 15, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3 },
+  cardSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginBottom: 12 },
+  cardSub2: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
+  emptyText: { fontSize: 13, color: "#6B6B6B" },
+  serviceBtn: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: "rgba(212,168,67,0.04)", marginBottom: 8 },
+  serviceIcon: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  serviceTitle: { fontSize: 14, fontWeight: "600", color: "#FAFAF8", letterSpacing: 1 },
+  serviceSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 1 },
+  warnIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,183,77,0.1)", alignItems: "center", justifyContent: "center" },
+  contactCard: { flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: "#141418", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.08)", marginBottom: 8 },
+  contactIcon: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" },
+  disclaimer: { flexDirection: "row", gap: 10, marginTop: 32, backgroundColor: "rgba(212,168,67,0.05)", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.1)" },
+  disclaimerText: { flex: 1, fontSize: 12, fontWeight: "400", color: "#6B6B6B", lineHeight: 18 },
+});

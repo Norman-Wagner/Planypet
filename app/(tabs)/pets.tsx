@@ -1,141 +1,185 @@
-import { ScrollView, Text, View, Pressable, Image } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView, Text, View, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useEffect } from "react";
 
-import { ScreenContainer } from "@/components/screen-container";
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { PetAvatar } from "@/components/ui/pet-avatar";
-import { useColors } from "@/hooks/use-colors";
-
-// Demo pets - will be replaced with real data
-const demoPets = [
-  {
-    id: "1",
-    name: "Luna",
-    type: "cat" as const,
-    breed: "Europäisch Kurzhaar",
-    age: "2 Jahre",
-    weight: "4 kg",
-    nextFeeding: "17:30",
-  },
-  {
-    id: "2",
-    name: "Max",
-    type: "dog" as const,
-    breed: "Golden Retriever",
-    age: "3 Jahre",
-    weight: "28 kg",
-    nextWalk: "17:30",
-  },
-];
+import { usePetStore } from "@/lib/pet-store";
 
 export default function PetsScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { pets, loadData } = usePetStore();
+
+  useEffect(() => { loadData(); }, []);
 
   return (
-    <View className="flex-1">
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={["#0066CC", "#00A3FF", "#F0F7FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.6 }}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-      
-      <ScrollView 
-        className="flex-1"
-        contentContainerStyle={{ 
-          paddingTop: insets.top + 20,
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingTop: insets.top + 24,
           paddingBottom: insets.bottom + 100,
           paddingHorizontal: 20,
         }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6">
+        <View style={s.header}>
           <View>
-            <Text className="text-white text-2xl font-bold">Meine Tiere</Text>
-            <Text className="text-white/70 text-base">{demoPets.length} Haustiere</Text>
+            <Text style={s.headerTitle}>Meine Tiere</Text>
+            <Text style={s.headerSub}>{pets.length} registriert</Text>
           </View>
-          <Pressable 
-            className="w-12 h-12 rounded-full bg-white/20 items-center justify-center"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
+          <Pressable
+            onPress={() => router.push("/onboarding")}
+            style={({ pressed }) => [s.addBtn, pressed && { opacity: 0.7 }]}
           >
-            <IconSymbol name="plus.circle.fill" size={28} color="#FFFFFF" />
+            <IconSymbol name="plus.circle.fill" size={20} color="#D4A843" />
           </Pressable>
         </View>
 
+        <View style={s.goldDivider} />
+
         {/* Pet Cards */}
-        {demoPets.map((pet) => (
-          <Pressable 
-            key={pet.id}
-            style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}
+        {pets.length === 0 ? (
+          <Pressable
+            onPress={() => router.push("/onboarding")}
+            style={({ pressed }) => [s.emptyCard, pressed && { transform: [{ scale: 0.98 }] }]}
           >
-            <GlassCard className="mb-4">
-              <View className="flex-row items-center">
-                <PetAvatar name={pet.name} type={pet.type} size="lg" />
-                <View className="flex-1 ml-4">
-                  <Text className="text-foreground text-xl font-bold">{pet.name}</Text>
-                  <Text className="text-muted text-sm">{pet.breed}</Text>
-                  <View className="flex-row mt-2 gap-4">
-                    <View className="flex-row items-center">
-                      <IconSymbol name="calendar" size={14} color={colors.muted} />
-                      <Text className="text-muted text-xs ml-1">{pet.age}</Text>
-                    </View>
-                    <View className="flex-row items-center">
-                      <IconSymbol name="info.circle.fill" size={14} color={colors.muted} />
-                      <Text className="text-muted text-xs ml-1">{pet.weight}</Text>
-                    </View>
+            <View style={s.emptyIcon}>
+              <IconSymbol name="pawprint.fill" size={32} color="#D4A843" />
+            </View>
+            <Text style={s.emptyTitle}>Noch keine Tiere registriert</Text>
+            <Text style={s.emptySubtitle}>Tippe hier, um dein erstes Tier hinzuzufuegen</Text>
+          </Pressable>
+        ) : (
+          pets.map((pet) => (
+            <Pressable
+              key={pet.id}
+              onPress={() => router.push({ pathname: "/pet-detail", params: { petId: pet.id } })}
+              style={({ pressed }) => [s.petCard, pressed && { transform: [{ scale: 0.98 }] }]}
+            >
+              <View style={s.petRow}>
+                {/* Avatar */}
+                <View style={s.avatar}>
+                  <Text style={s.avatarText}>{pet.name.charAt(0).toUpperCase()}</Text>
+                </View>
+
+                {/* Info */}
+                <View style={{ flex: 1 }}>
+                  <Text style={s.petName}>{pet.name}</Text>
+                  <Text style={s.petType}>{pet.breed || pet.type}</Text>
+                  <View style={s.metaRow}>
+                    {pet.weight && (
+                      <View style={s.metaItem}>
+                        <Text style={s.metaText}>{pet.weight} kg</Text>
+                      </View>
+                    )}
+                    {pet.birthDate && (
+                      <View style={s.metaItem}>
+                        <Text style={s.metaText}>{pet.birthDate}</Text>
+                      </View>
+                    )}
                   </View>
                 </View>
-                <IconSymbol name="chevron.right" size={24} color={colors.muted} />
+
+                <IconSymbol name="chevron.right" size={16} color="#4A4A4A" />
               </View>
-              
+
               {/* Quick Actions */}
-              <View className="flex-row mt-4 pt-4 border-t border-border gap-2">
-                <Pressable 
-                  className="flex-1 flex-row items-center justify-center py-2 rounded-xl bg-primary/10"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                >
-                  <IconSymbol name="fork.knife" size={18} color={colors.primary} />
-                  <Text className="text-primary font-medium ml-2">Füttern</Text>
+              <View style={s.actionsRow}>
+                <Pressable style={({ pressed }) => [s.actionBtn, pressed && { opacity: 0.6 }]}>
+                  <IconSymbol name="fork.knife" size={16} color="#D4A843" />
+                  <Text style={s.actionText}>Fuettern</Text>
                 </Pressable>
-                {pet.type === "dog" && (
-                  <Pressable 
-                    className="flex-1 flex-row items-center justify-center py-2 rounded-xl bg-success/10"
-                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                  >
-                    <IconSymbol name="figure.walk" size={18} color={colors.success} />
-                    <Text className="text-success font-medium ml-2">Gassi</Text>
+                {(pet.type === "dog" || pet.type === "horse") && (
+                  <Pressable style={({ pressed }) => [s.actionBtn, pressed && { opacity: 0.6 }]}>
+                    <IconSymbol name="figure.walk" size={16} color="#66BB6A" />
+                    <Text style={[s.actionText, { color: "#66BB6A" }]}>Gassi</Text>
                   </Pressable>
                 )}
-                <Pressable 
-                  className="flex-1 flex-row items-center justify-center py-2 rounded-xl bg-warning/10"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                >
-                  <IconSymbol name="camera.fill" size={18} color={colors.warning} />
-                  <Text className="text-warning font-medium ml-2">Foto</Text>
+                <Pressable style={({ pressed }) => [s.actionBtn, pressed && { opacity: 0.6 }]}>
+                  <IconSymbol name="camera.fill" size={16} color="#8B8B80" />
+                  <Text style={[s.actionText, { color: "#8B8B80" }]}>Foto</Text>
+                </Pressable>
+                <Pressable style={({ pressed }) => [s.actionBtn, pressed && { opacity: 0.6 }]}>
+                  <IconSymbol name="cross.case.fill" size={16} color="#EF5350" />
+                  <Text style={[s.actionText, { color: "#EF5350" }]}>Gesundheit</Text>
                 </Pressable>
               </View>
-            </GlassCard>
-          </Pressable>
-        ))}
+            </Pressable>
+          ))
+        )}
 
-        {/* Add Pet Button */}
-        <Pressable
-          style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}
-        >
-          <GlassCard className="items-center py-6 border-dashed border-2 border-primary/30">
-            <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center mb-3">
-              <IconSymbol name="plus.circle.fill" size={32} color={colors.primary} />
-            </View>
-            <Text className="text-primary font-semibold text-lg">Neues Haustier hinzufügen</Text>
-            <Text className="text-muted text-sm mt-1">Katze, Hund, Fisch, Vogel und mehr</Text>
-          </GlassCard>
-        </Pressable>
+        {/* Add Pet */}
+        {pets.length > 0 && (
+          <Pressable
+            onPress={() => router.push("/onboarding")}
+            style={({ pressed }) => [s.addCard, pressed && { opacity: 0.7 }]}
+          >
+            <IconSymbol name="plus.circle.fill" size={24} color="#D4A843" />
+            <Text style={s.addCardText}>Weiteres Tier hinzufuegen</Text>
+          </Pressable>
+        )}
       </ScrollView>
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
+  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
+  addBtn: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: "rgba(212,168,67,0.1)",
+    borderWidth: 1, borderColor: "rgba(212,168,67,0.2)",
+    alignItems: "center", justifyContent: "center",
+  },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginBottom: 32 },
+
+  emptyCard: {
+    backgroundColor: "#141418",
+    borderWidth: 1, borderColor: "rgba(212,168,67,0.1)",
+    padding: 40, alignItems: "center",
+  },
+  emptyIcon: {
+    width: 64, height: 64, borderRadius: 32,
+    backgroundColor: "rgba(212,168,67,0.1)",
+    alignItems: "center", justifyContent: "center", marginBottom: 16,
+  },
+  emptyTitle: { fontSize: 16, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.5 },
+  emptySubtitle: { fontSize: 13, fontWeight: "400", color: "#6B6B6B", marginTop: 8 },
+
+  petCard: {
+    backgroundColor: "#141418",
+    borderWidth: 1, borderColor: "rgba(212,168,67,0.08)",
+    marginBottom: 12,
+  },
+  petRow: { flexDirection: "row", alignItems: "center", padding: 16, gap: 14 },
+  avatar: {
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: "rgba(212,168,67,0.1)",
+    borderWidth: 1, borderColor: "rgba(212,168,67,0.2)",
+    alignItems: "center", justifyContent: "center",
+  },
+  avatarText: { fontSize: 24, fontWeight: "300", color: "#D4A843" },
+  petName: { fontSize: 18, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.5 },
+  petType: { fontSize: 12, fontWeight: "400", color: "#8B8B80", marginTop: 2, letterSpacing: 0.5 },
+  metaRow: { flexDirection: "row", gap: 12, marginTop: 6 },
+  metaItem: { backgroundColor: "rgba(212,168,67,0.06)", paddingHorizontal: 8, paddingVertical: 2 },
+  metaText: { fontSize: 11, fontWeight: "400", color: "#6B6B6B", letterSpacing: 0.5 },
+
+  actionsRow: {
+    flexDirection: "row", gap: 8,
+    paddingHorizontal: 16, paddingBottom: 14, paddingTop: 4,
+    borderTopWidth: 1, borderTopColor: "rgba(212,168,67,0.05)",
+  },
+  actionBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 8 },
+  actionText: { fontSize: 12, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+
+  addCard: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10,
+    borderWidth: 1, borderColor: "rgba(212,168,67,0.15)", borderStyle: "dashed",
+    paddingVertical: 20, marginTop: 8,
+  },
+  addCardText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+});

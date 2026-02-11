@@ -109,7 +109,7 @@ export async function cancelAllNotifications() {
 // Helper to schedule feeding reminder
 export async function scheduleFeedingReminder(petName: string, time: Date) {
   return scheduleNotification({
-    title: `Fütterungszeit für ${petName}! 🍽️`,
+    title: `Fuetterungszeit fuer ${petName}`,
     body: `Es ist Zeit, ${petName} zu füttern.`,
     data: { type: "feeding", petName },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: time },
@@ -119,7 +119,7 @@ export async function scheduleFeedingReminder(petName: string, time: Date) {
 // Helper to schedule walk reminder
 export async function scheduleWalkReminder(petName: string, time: Date) {
   return scheduleNotification({
-    title: `Gassi-Zeit für ${petName}! 🐾`,
+    title: `Gassi-Zeit fuer ${petName}`,
     body: `${petName} freut sich auf einen Spaziergang.`,
     data: { type: "walk", petName },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: time },
@@ -129,7 +129,7 @@ export async function scheduleWalkReminder(petName: string, time: Date) {
 // Helper to schedule vet appointment reminder
 export async function scheduleVetReminder(petName: string, time: Date, description?: string) {
   return scheduleNotification({
-    title: `Tierarzttermin für ${petName} 🏥`,
+    title: `Tierarzttermin fuer ${petName}`,
     body: description || `Vergiss nicht den Tierarzttermin für ${petName}.`,
     data: { type: "vet", petName },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: time },

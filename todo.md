@@ -243,7 +243,7 @@
 - [ ] KI-Assistent prominent sichtbar - Tipps & Empfehlungen
 - [ ] Community-Challenges Feature - Foto-Aufgaben
 - [ ] Sichtbare "Alles gespeichert ✓" Button
-- [ ] Luxuriöses Premium-Design (nicht wie Lego)
+- [x] Luxuriöses Premium-Design (nicht wie Lego)
 - [ ] Persönliche Benutzer-Profil erweitern (Lydia)
 - [ ] Gamification & Rewards System
 
@@ -286,3 +286,19 @@
 - [ ] Smart-Kamera Integration (Petcube, etc.)
 - [ ] Automatische Wasserspender-Erinnerung
 
+
+## Familien-/Team-Verwaltung & Automatisierung
+- [ ] Familien-/Team-Verwaltung mit Rollen (Mutter, Vater, Kind, Chef, Mitarbeiter, Sekretärin, Vorarbeiter)
+- [ ] Rollen-basierte Aufgabenverteilung (wer füttert, wer geht Gassi)
+- [ ] Automatische Futter-Bestellung wenn Vorrat leer
+- [ ] Vorrats-Tracking für Futter und Zubehör
+- [ ] Benutzer-Profil erweitern (Name, Rolle, Kontakt)
+
+## Ultra-Premium Redesign
+- [x] Theme: Dunkles Premium mit Gold-Akzenten, 3D-Tiefe
+- [x] Onboarding: Haustier auf dem Thron, luxurioes
+- [x] Dashboard: Premium 3D-Karten, edle Uebersicht
+- [x] Alle Screens: Kein kindisches Design, keine Emojis
+- [x] Typografie: Elegant, serioes, gut lesbar
+- [x] Kontrast: Maximaler Kontrast ueberall
+- [ ] KI-Assistent: Prominent sichtbar

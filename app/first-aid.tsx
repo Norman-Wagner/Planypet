@@ -1,407 +1,200 @@
 import { useState } from "react";
-import { ScrollView, Text, View, Pressable, Linking, Platform } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView, Text, View, Pressable, Linking, Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
 
-// Erste-Hilfe Kategorien
 const emergencyCategories = [
   {
-    id: "urgent",
-    title: "Sofort zum Tierarzt!",
-    emoji: "🚨",
-    color: "#EF4444",
+    id: "urgent", title: "Sofort zum Tierarzt!", color: "#EF5350",
     situations: [
-      {
-        title: "Bewusstlosigkeit",
-        symptoms: ["Tier reagiert nicht", "Keine Bewegung", "Flache Atmung"],
-        actions: ["Atemwege freimachen", "Auf die Seite legen", "Sofort Tierarzt rufen"],
-      },
-      {
-        title: "Starke Blutung",
-        symptoms: ["Blut spritzt", "Große Wunde", "Blut hört nicht auf"],
-        actions: ["Sauberes Tuch auf Wunde drücken", "Hochlagern wenn möglich", "Sofort zum Tierarzt"],
-      },
-      {
-        title: "Vergiftung",
-        symptoms: ["Erbrechen", "Zittern", "Speicheln", "Krämpfe"],
-        actions: ["NICHT zum Erbrechen bringen", "Gift sicherstellen", "Sofort Tierarzt/Giftnotruf"],
-      },
-      {
-        title: "Hitzschlag",
-        symptoms: ["Hecheln", "Taumeln", "Rote Zunge", "Bewusstlosigkeit"],
-        actions: ["In den Schatten bringen", "Mit lauwarmem Wasser kühlen", "Sofort zum Tierarzt"],
-      },
+      { title: "Bewusstlosigkeit", symptoms: ["Tier reagiert nicht", "Keine Bewegung", "Flache Atmung"], actions: ["Atemwege freimachen", "Auf die Seite legen", "Sofort Tierarzt rufen"] },
+      { title: "Starke Blutung", symptoms: ["Blut spritzt", "Grosse Wunde", "Blut hoert nicht auf"], actions: ["Sauberes Tuch auf Wunde druecken", "Hochlagern wenn moeglich", "Sofort zum Tierarzt"] },
+      { title: "Vergiftung", symptoms: ["Erbrechen", "Zittern", "Speicheln", "Kraempfe"], actions: ["NICHT zum Erbrechen bringen", "Gift sicherstellen", "Sofort Tierarzt/Giftnotruf"] },
+      { title: "Hitzschlag", symptoms: ["Hecheln", "Taumeln", "Rote Zunge", "Bewusstlosigkeit"], actions: ["In den Schatten bringen", "Mit lauwarmem Wasser kuehlen", "Sofort zum Tierarzt"] },
     ],
   },
   {
-    id: "common",
-    title: "Häufige Notfälle",
-    emoji: "⚠️",
-    color: "#F59E0B",
+    id: "common", title: "Haeufige Notfaelle", color: "#FFB74D",
     situations: [
-      {
-        title: "Durchfall",
-        symptoms: ["Wässriger Stuhl", "Häufiger Stuhlgang", "Appetitlosigkeit"],
-        actions: ["24h Futterentzug", "Viel Wasser anbieten", "Bei Blut sofort zum Tierarzt"],
-      },
-      {
-        title: "Erbrechen",
-        symptoms: ["Würgen", "Speicheln", "Unruhe"],
-        actions: ["Futter entziehen", "Kleine Mengen Wasser", "Bei Blut/Dauer >24h zum Tierarzt"],
-      },
-      {
-        title: "Insektenstich",
-        symptoms: ["Schwellung", "Juckreiz", "Lecken der Stelle"],
-        actions: ["Kühlen", "Beobachten", "Bei Atemnot sofort zum Tierarzt"],
-      },
-      {
-        title: "Zecke gefunden",
-        symptoms: ["Kleiner dunkler Punkt", "Tier kratzt sich"],
-        actions: ["Mit Zeckenzange entfernen", "Drehen, nicht ziehen", "Stelle desinfizieren"],
-      },
+      { title: "Durchfall", symptoms: ["Waessriger Stuhl", "Haeufiger Stuhlgang", "Appetitlosigkeit"], actions: ["24h Futterentzug", "Viel Wasser anbieten", "Bei Blut sofort zum Tierarzt"] },
+      { title: "Erbrechen", symptoms: ["Wuergen", "Speicheln", "Unruhe"], actions: ["Futter entziehen", "Kleine Mengen Wasser", "Bei Blut/Dauer >24h zum Tierarzt"] },
+      { title: "Insektenstich", symptoms: ["Schwellung", "Juckreiz", "Lecken der Stelle"], actions: ["Kuehlen", "Beobachten", "Bei Atemnot sofort zum Tierarzt"] },
+      { title: "Zecke gefunden", symptoms: ["Kleiner dunkler Punkt", "Tier kratzt sich"], actions: ["Mit Zeckenzange entfernen", "Drehen, nicht ziehen", "Stelle desinfizieren"] },
     ],
   },
   {
-    id: "wounds",
-    title: "Verletzungen",
-    emoji: "🩹",
-    color: "#10B981",
+    id: "wounds", title: "Verletzungen", color: "#66BB6A",
     situations: [
-      {
-        title: "Kleine Schnittwunde",
-        symptoms: ["Kleine Blutung", "Oberflächlich"],
-        actions: ["Wunde reinigen", "Desinfizieren", "Sauber halten"],
-      },
-      {
-        title: "Bisswunde",
-        symptoms: ["Punktförmige Wunden", "Schwellung"],
-        actions: ["Wunde reinigen", "Immer zum Tierarzt (Infektionsgefahr!)"],
-      },
-      {
-        title: "Verbrennungen",
-        symptoms: ["Rote Haut", "Blasen", "Haarausfall"],
-        actions: ["Mit kühlem Wasser kühlen", "Nicht reiben", "Zum Tierarzt"],
-      },
-      {
-        title: "Fremdkörper im Auge",
-        symptoms: ["Auge zugekniffen", "Tränen", "Reiben"],
-        actions: ["Nicht reiben lassen", "Mit Wasser spülen", "Zum Tierarzt"],
-      },
+      { title: "Kleine Schnittwunde", symptoms: ["Kleine Blutung", "Oberflaechlich"], actions: ["Wunde reinigen", "Desinfizieren", "Sauber halten"] },
+      { title: "Bisswunde", symptoms: ["Punktfoermige Wunden", "Schwellung"], actions: ["Wunde reinigen", "Immer zum Tierarzt (Infektionsgefahr!)"] },
+      { title: "Verbrennungen", symptoms: ["Rote Haut", "Blasen", "Haarausfall"], actions: ["Mit kuehlem Wasser kuehlen", "Nicht reiben", "Zum Tierarzt"] },
+      { title: "Fremdkoerper im Auge", symptoms: ["Auge zugekniffen", "Traenen", "Reiben"], actions: ["Nicht reiben lassen", "Mit Wasser spuelen", "Zum Tierarzt"] },
     ],
   },
 ];
 
-// Giftige Substanzen
 const toxicItems = {
   food: [
-    { name: "Schokolade", danger: "hoch", emoji: "🍫" },
-    { name: "Zwiebeln/Knoblauch", danger: "hoch", emoji: "🧅" },
-    { name: "Weintrauben/Rosinen", danger: "hoch", emoji: "🍇" },
-    { name: "Avocado", danger: "mittel", emoji: "🥑" },
-    { name: "Alkohol", danger: "hoch", emoji: "🍺" },
-    { name: "Koffein", danger: "hoch", emoji: "☕" },
-    { name: "Xylitol (Süßstoff)", danger: "sehr hoch", emoji: "🍬" },
-    { name: "Macadamia-Nüsse", danger: "mittel", emoji: "🥜" },
+    { name: "Schokolade", danger: "hoch" }, { name: "Zwiebeln/Knoblauch", danger: "hoch" },
+    { name: "Weintrauben/Rosinen", danger: "hoch" }, { name: "Avocado", danger: "mittel" },
+    { name: "Alkohol", danger: "hoch" }, { name: "Koffein", danger: "hoch" },
+    { name: "Xylitol (Suessstoff)", danger: "sehr hoch" }, { name: "Macadamia-Nuesse", danger: "mittel" },
   ],
   plants: [
-    { name: "Lilien (für Katzen)", danger: "sehr hoch", emoji: "🌸" },
-    { name: "Oleander", danger: "sehr hoch", emoji: "🌺" },
-    { name: "Weihnachtsstern", danger: "mittel", emoji: "🌟" },
-    { name: "Efeu", danger: "mittel", emoji: "🌿" },
-    { name: "Tulpen", danger: "mittel", emoji: "🌷" },
-    { name: "Azalee", danger: "hoch", emoji: "🌺" },
+    { name: "Lilien (fuer Katzen)", danger: "sehr hoch" }, { name: "Oleander", danger: "sehr hoch" },
+    { name: "Weihnachtsstern", danger: "mittel" }, { name: "Efeu", danger: "mittel" },
+    { name: "Tulpen", danger: "mittel" }, { name: "Azalee", danger: "hoch" },
   ],
   household: [
-    { name: "Rattengift", danger: "sehr hoch", emoji: "☠️" },
-    { name: "Frostschutzmittel", danger: "sehr hoch", emoji: "❄️" },
-    { name: "Reinigungsmittel", danger: "hoch", emoji: "🧴" },
-    { name: "Medikamente", danger: "hoch", emoji: "💊" },
-    { name: "Schneckenkorn", danger: "sehr hoch", emoji: "🐌" },
+    { name: "Rattengift", danger: "sehr hoch" }, { name: "Frostschutzmittel", danger: "sehr hoch" },
+    { name: "Reinigungsmittel", danger: "hoch" }, { name: "Medikamente", danger: "hoch" },
+    { name: "Schneckenkorn", danger: "sehr hoch" },
   ],
 };
 
+const getDangerColor = (danger: string) => {
+  switch (danger) { case "sehr hoch": return "#EF5350"; case "hoch": return "#FF7043"; case "mittel": return "#FFB74D"; default: return "#6B6B6B"; }
+};
+
 export default function FirstAidScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = useState(emergencyCategories[0]);
   const [expandedSituation, setExpandedSituation] = useState<string | null>(null);
   const [showToxic, setShowToxic] = useState(false);
 
   const callEmergency = () => {
-    if (Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    }
-    // In Produktion: Tierarzt-Notruf oder lokale Nummer
+    if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Linking.openURL("tel:112");
   };
 
-  const getDangerColor = (danger: string) => {
-    switch (danger) {
-      case "sehr hoch":
-        return "#DC2626";
-      case "hoch":
-        return "#EF4444";
-      case "mittel":
-        return "#F59E0B";
-      default:
-        return "#6B7280";
-    }
-  };
-
   return (
-    <View className="flex-1">
-      <LinearGradient
-        colors={["#EF4444", "#F87171", "#FCA5A5"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.8 }}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingTop: insets.top + 20,
-          paddingBottom: insets.bottom + 40,
-          paddingHorizontal: 20,
-        }}
-      >
-        {/* Header */}
-        <View className="flex-row items-center mb-6">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <IconSymbol name="chevron.left" size={24} color="#FFFFFF" />
-          </Pressable>
-          <View className="flex-1">
-            <Text className="text-white text-2xl font-bold">Erste Hilfe</Text>
-            <Text className="text-white/70 text-base">Notfall-Anleitungen</Text>
-          </View>
-          <Text className="text-4xl">🏥</Text>
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 40, paddingHorizontal: 20 }}>
+        <Pressable onPress={() => router.back()} style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}>
+          <IconSymbol name="chevron.left" size={20} color="#D4A843" />
+          <Text style={s.backText}>Zurueck</Text>
+        </Pressable>
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Erste Hilfe</Text>
+          <Text style={s.headerSub}>Notfall-Anleitungen fuer dein Tier</Text>
+          <View style={s.goldDivider} />
         </View>
 
-        {/* Notfall-Button */}
-        <Pressable
-          onPress={callEmergency}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.9 : 1,
-            transform: [{ scale: pressed ? 0.98 : 1 }],
-          })}
-        >
-          <GlassCard className="mb-6 flex-row items-center justify-center py-4 bg-red-500/30">
-            <Text className="text-3xl mr-3">📞</Text>
-            <View>
-              <Text className="text-white text-lg font-bold">Tierarzt-Notruf</Text>
-              <Text className="text-white/80 text-sm">Tippe für Notfall-Anruf</Text>
-            </View>
-          </GlassCard>
+        {/* Emergency Call */}
+        <Pressable onPress={callEmergency} style={({ pressed }) => [s.emergencyBtn, pressed && { opacity: 0.8 }]}>
+          <View style={s.emergencyIcon}><IconSymbol name="phone.fill" size={24} color="#FAFAF8" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.emergencyTitle}>Tierarzt-Notruf</Text>
+            <Text style={s.emergencySub}>Tippe fuer Notfall-Anruf</Text>
+          </View>
         </Pressable>
 
-        {/* Tab-Auswahl */}
-        <View className="flex-row mb-6 gap-2">
-          <Pressable
-            onPress={() => setShowToxic(false)}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, flex: 1 })}
-          >
-            <View
-              className={`py-3 rounded-xl items-center ${
-                !showToxic ? "bg-white" : "bg-white/20"
-              }`}
-            >
-              <Text className={!showToxic ? "text-primary font-bold" : "text-white"}>
-                🚑 Notfälle
-              </Text>
-            </View>
+        {/* Tabs */}
+        <View style={s.tabRow}>
+          <Pressable onPress={() => setShowToxic(false)} style={({ pressed }) => [s.tab, !showToxic && s.tabActive, pressed && { opacity: 0.7 }]}>
+            <Text style={[s.tabText, !showToxic && s.tabTextActive]}>Notfaelle</Text>
           </Pressable>
-          <Pressable
-            onPress={() => setShowToxic(true)}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, flex: 1 })}
-          >
-            <View
-              className={`py-3 rounded-xl items-center ${
-                showToxic ? "bg-white" : "bg-white/20"
-              }`}
-            >
-              <Text className={showToxic ? "text-primary font-bold" : "text-white"}>
-                ☠️ Giftig
-              </Text>
-            </View>
+          <Pressable onPress={() => setShowToxic(true)} style={({ pressed }) => [s.tab, showToxic && s.tabActive, pressed && { opacity: 0.7 }]}>
+            <Text style={[s.tabText, showToxic && s.tabTextActive]}>Giftstoffe</Text>
           </Pressable>
         </View>
 
         {!showToxic ? (
           <>
-            {/* Kategorie-Auswahl */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-6"
-              contentContainerStyle={{ gap: 12 }}
-            >
-              {emergencyCategories.map((category) => (
-                <Pressable
-                  key={category.id}
-                  onPress={() => setSelectedCategory(category)}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-                >
-                  <View
-                    className={`px-4 py-3 rounded-xl flex-row items-center ${
-                      selectedCategory.id === category.id
-                        ? "bg-white"
-                        : "bg-white/20"
-                    }`}
-                  >
-                    <Text className="text-xl mr-2">{category.emoji}</Text>
-                    <Text
-                      className={
-                        selectedCategory.id === category.id
-                          ? "text-primary font-bold"
-                          : "text-white font-medium"
-                      }
-                    >
-                      {category.title}
-                    </Text>
-                  </View>
+            {/* Category Selection */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginBottom: 20 }}>
+              {emergencyCategories.map((cat) => (
+                <Pressable key={cat.id} onPress={() => setSelectedCategory(cat)} style={({ pressed }) => [s.catBtn, selectedCategory.id === cat.id && { borderColor: cat.color, backgroundColor: `${cat.color}10` }, pressed && { opacity: 0.7 }]}>
+                  <Text style={[s.catText, selectedCategory.id === cat.id && { color: cat.color }]}>{cat.title}</Text>
                 </Pressable>
               ))}
             </ScrollView>
 
-            {/* Situationen */}
-            {selectedCategory.situations.map((situation, index) => (
-              <Pressable
-                key={index}
-                onPress={() =>
-                  setExpandedSituation(
-                    expandedSituation === situation.title ? null : situation.title
-                  )
-                }
-              >
-                <GlassCard className="mb-3">
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-foreground text-lg font-bold flex-1">
-                      {situation.title}
-                    </Text>
-                    <IconSymbol
-                      name={expandedSituation === situation.title ? "chevron.up" : "chevron.down"}
-                      size={20}
-                      color={colors.muted}
-                    />
+            {/* Situations */}
+            {selectedCategory.situations.map((sit, index) => (
+              <Pressable key={index} onPress={() => setExpandedSituation(expandedSituation === sit.title ? null : sit.title)}>
+                <View style={[s.card, { marginBottom: 8 }]}>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <Text style={s.cardTitle}>{sit.title}</Text>
+                    <IconSymbol name={expandedSituation === sit.title ? "chevron.up" : "chevron.down"} size={16} color="#4A4A4A" />
                   </View>
-
-                  {expandedSituation === situation.title && (
-                    <View className="mt-4">
-                      <Text className="text-muted font-medium mb-2">Symptome:</Text>
-                      {situation.symptoms.map((symptom, i) => (
-                        <Text key={i} className="text-foreground text-sm mb-1">
-                          • {symptom}
-                        </Text>
+                  {expandedSituation === sit.title && (
+                    <View style={{ marginTop: 16 }}>
+                      <Text style={s.subLabel}>Symptome</Text>
+                      {sit.symptoms.map((sym, i) => (
+                        <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
+                          <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FFB74D" }} />
+                          <Text style={s.itemText}>{sym}</Text>
+                        </View>
                       ))}
-
-                      <Text className="text-muted font-medium mt-3 mb-2">Was tun:</Text>
-                      {situation.actions.map((action, i) => (
-                        <View key={i} className="flex-row items-start mb-2">
-                          <View className="w-6 h-6 rounded-full bg-primary items-center justify-center mr-2">
-                            <Text className="text-white text-xs font-bold">{i + 1}</Text>
-                          </View>
-                          <Text className="text-foreground text-sm flex-1">{action}</Text>
+                      <Text style={[s.subLabel, { marginTop: 12 }]}>Massnahmen</Text>
+                      {sit.actions.map((act, i) => (
+                        <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
+                          <Text style={{ fontSize: 12, fontWeight: "600", color: "#66BB6A", width: 16 }}>{i + 1}.</Text>
+                          <Text style={s.itemText}>{act}</Text>
                         </View>
                       ))}
                     </View>
                   )}
-                </GlassCard>
+                </View>
               </Pressable>
             ))}
           </>
         ) : (
           <>
-            {/* Giftige Lebensmittel */}
-            <GlassCard className="mb-4">
-              <Text className="text-foreground font-bold text-lg mb-3">🍽️ Giftige Lebensmittel</Text>
-              {toxicItems.food.map((item, index) => (
-                <View
-                  key={index}
-                  className={`flex-row items-center py-2 ${
-                    index > 0 ? "border-t border-border" : ""
-                  }`}
-                >
-                  <Text className="text-xl mr-3">{item.emoji}</Text>
-                  <Text className="text-foreground flex-1">{item.name}</Text>
-                  <View
-                    style={{ backgroundColor: getDangerColor(item.danger) + "20" }}
-                    className="px-2 py-1 rounded"
-                  >
-                    <Text style={{ color: getDangerColor(item.danger) }} className="text-xs font-medium">
-                      {item.danger}
-                    </Text>
-                  </View>
+            {/* Toxic Items */}
+            {(["food", "plants", "household"] as const).map((category) => (
+              <View key={category}>
+                <Text style={s.sectionTitle}>{category === "food" ? "Lebensmittel" : category === "plants" ? "Pflanzen" : "Haushalt"}</Text>
+                <View style={s.card}>
+                  {toxicItems[category].map((item, i) => (
+                    <View key={i} style={[{ flexDirection: "row", alignItems: "center", paddingVertical: 10 }, i > 0 && { borderTopWidth: 1, borderTopColor: "rgba(212,168,67,0.05)" }]}>
+                      <Text style={{ flex: 1, fontSize: 14, fontWeight: "400", color: "#FAFAF8" }}>{item.name}</Text>
+                      <View style={{ backgroundColor: `${getDangerColor(item.danger)}15`, paddingHorizontal: 10, paddingVertical: 3 }}>
+                        <Text style={{ fontSize: 11, fontWeight: "500", color: getDangerColor(item.danger), letterSpacing: 0.5 }}>{item.danger}</Text>
+                      </View>
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </GlassCard>
-
-            {/* Giftige Pflanzen */}
-            <GlassCard className="mb-4">
-              <Text className="text-foreground font-bold text-lg mb-3">🌿 Giftige Pflanzen</Text>
-              {toxicItems.plants.map((item, index) => (
-                <View
-                  key={index}
-                  className={`flex-row items-center py-2 ${
-                    index > 0 ? "border-t border-border" : ""
-                  }`}
-                >
-                  <Text className="text-xl mr-3">{item.emoji}</Text>
-                  <Text className="text-foreground flex-1">{item.name}</Text>
-                  <View
-                    style={{ backgroundColor: getDangerColor(item.danger) + "20" }}
-                    className="px-2 py-1 rounded"
-                  >
-                    <Text style={{ color: getDangerColor(item.danger) }} className="text-xs font-medium">
-                      {item.danger}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </GlassCard>
-
-            {/* Haushaltsgegenstände */}
-            <GlassCard className="mb-4">
-              <Text className="text-foreground font-bold text-lg mb-3">🏠 Haushaltsgefahren</Text>
-              {toxicItems.household.map((item, index) => (
-                <View
-                  key={index}
-                  className={`flex-row items-center py-2 ${
-                    index > 0 ? "border-t border-border" : ""
-                  }`}
-                >
-                  <Text className="text-xl mr-3">{item.emoji}</Text>
-                  <Text className="text-foreground flex-1">{item.name}</Text>
-                  <View
-                    style={{ backgroundColor: getDangerColor(item.danger) + "20" }}
-                    className="px-2 py-1 rounded"
-                  >
-                    <Text style={{ color: getDangerColor(item.danger) }} className="text-xs font-medium">
-                      {item.danger}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </GlassCard>
+              </View>
+            ))}
           </>
         )}
 
-        {/* Disclaimer */}
-        <View className="mt-4 p-4 bg-white/10 rounded-xl">
-          <Text className="text-white text-xs text-center">
-            ⚠️ Diese Informationen ersetzen keinen Tierarzt! Bei Unsicherheit immer professionelle Hilfe suchen.
-          </Text>
+        <View style={s.disclaimer}>
+          <IconSymbol name="info.circle.fill" size={16} color="#D4A843" />
+          <Text style={s.disclaimerText}>Diese Informationen ersetzen keinen Tierarzt. Bei Notfaellen immer sofort professionelle Hilfe suchen.</Text>
         </View>
       </ScrollView>
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
+  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+  header: { marginBottom: 32 },
+  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
+  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
+  sectionTitle: { fontSize: 11, fontWeight: "600", color: "#D4A843", letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, marginTop: 24 },
+  emergencyBtn: { flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: "rgba(239,83,80,0.08)", padding: 20, borderWidth: 1, borderColor: "rgba(239,83,80,0.2)", marginBottom: 24 },
+  emergencyIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#EF5350", alignItems: "center", justifyContent: "center" },
+  emergencyTitle: { fontSize: 16, fontWeight: "500", color: "#EF5350", letterSpacing: 0.5 },
+  emergencySub: { fontSize: 12, fontWeight: "400", color: "#8B8B80", marginTop: 2 },
+  tabRow: { flexDirection: "row", gap: 12, marginBottom: 24 },
+  tab: { flex: 1, paddingVertical: 14, alignItems: "center", backgroundColor: "#141418", borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  tabActive: { borderColor: "#D4A843", backgroundColor: "rgba(212,168,67,0.08)" },
+  tabText: { fontSize: 14, fontWeight: "500", color: "#6B6B6B", letterSpacing: 1 },
+  tabTextActive: { color: "#D4A843" },
+  catBtn: { paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: "rgba(212,168,67,0.1)" },
+  catText: { fontSize: 12, fontWeight: "500", color: "#6B6B6B", letterSpacing: 0.5 },
+  card: { backgroundColor: "#141418", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  cardTitle: { fontSize: 15, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3 },
+  subLabel: { fontSize: 11, fontWeight: "600", color: "#D4A843", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 },
+  itemText: { fontSize: 13, fontWeight: "400", color: "#C8C8C0" },
+  disclaimer: { flexDirection: "row", gap: 10, marginTop: 24, backgroundColor: "rgba(212,168,67,0.05)", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.1)" },
+  disclaimerText: { flex: 1, fontSize: 12, fontWeight: "400", color: "#6B6B6B", lineHeight: 18 },
+});

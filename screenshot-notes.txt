@@ -1,0 +1,9 @@
+Screenshot 2026-02-11: Onboarding Screen zeigt das Premium-Design korrekt an:
+- Dunkler Hintergrund (#0A0A0F)
+- Goldenes Icon oben
+- "PLANYPET" in eleganter Schrift mit Letter-Spacing
+- Gold-Divider
+- "Dein Tier verdient das Beste. Wir sorgen dafuer."
+- Gold "BEGINNEN" Button
+- Kein Emoji, keine kindischen Elemente
+- Sieht hochwertig und luxuriös aus

@@ -1,23 +1,28 @@
 import { useState } from "react";
-import { ScrollView, Text, View, Pressable, TextInput } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView, Text, View, Pressable, TextInput, StyleSheet, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
 
-import { GlassCard } from "@/components/ui/glass-card";
-import { GradientButton } from "@/components/ui/gradient-button";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { PetAvatar } from "@/components/ui/pet-avatar";
-import { useColors } from "@/hooks/use-colors";
 import { usePetStore, Pet } from "@/lib/pet-store";
 
+const COLORS = {
+  background: "#0A0A0F",
+  gold: "#D4A843",
+  card: "#141418",
+  cardBorder: "rgba(212, 168, 67, 0.08)",
+  textPrimary: "#FAFAF8",
+  textSecondary: "#8B8B80",
+  textMuted: "#6B6B6B",
+  textDimmer: "#4A4A4A",
+};
+
 export default function FeedingScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   const { pets, addFeeding, feedings, completeFeeding } = usePetStore();
-  
+
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [foodType, setFoodType] = useState("");
   const [amount, setAmount] = useState("");
@@ -25,7 +30,7 @@ export default function FeedingScreen() {
 
   const handleAddFeeding = () => {
     if (!selectedPet || !foodType) return;
-    
+
     addFeeding({
       petId: selectedPet.id,
       time: new Date().toISOString(),
@@ -33,11 +38,11 @@ export default function FeedingScreen() {
       amount: amount || "1 Portion",
       completed: false,
     });
-    
+
     if (Platform.OS !== "web") {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    
+
     setSelectedPet(null);
     setFoodType("");
     setAmount("");
@@ -57,47 +62,37 @@ export default function FeedingScreen() {
   );
 
   return (
-    <View className="flex-1">
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={["#F59E0B", "#FBBF24", "#F0F7FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.6 }}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-      
-      <ScrollView 
-        className="flex-1"
-        contentContainerStyle={{ 
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingBottom: insets.bottom + 40,
           paddingHorizontal: 20,
         }}
       >
         {/* Header */}
-        <View className="flex-row items-center mb-6">
+        <View style={styles.headerContainer}>
           <Pressable
             onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <IconSymbol name="chevron.left" size={24} color="#FFFFFF" />
+            <IconSymbol name="chevron.left" size={24} color={COLORS.gold} />
           </Pressable>
-          <View className="flex-1">
-            <Text className="text-white text-2xl font-bold">Fütterung</Text>
-            <Text className="text-white/70 text-base">Fütterungszeiten verwalten</Text>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Fütterung</Text>
+            <Text style={styles.headerSubtitle}>Fütterungszeiten verwalten</Text>
           </View>
         </View>
+        <View style={styles.divider} />
 
         {/* Quick Feed Buttons */}
-        <Text className="text-foreground text-lg font-semibold mb-3">
-          Schnell füttern
-        </Text>
-        
-        <ScrollView 
-          horizontal 
+        <Text style={styles.sectionTitle}>Schnell füttern</Text>
+
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
-          className="mb-6"
+          style={styles.quickFeedScrollView}
           contentContainerStyle={{ gap: 12 }}
         >
           {pets.map((pet) => (
@@ -109,110 +104,98 @@ export default function FeedingScreen() {
               }}
               style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
             >
-              <GlassCard className="w-28 items-center py-4">
+              <View style={styles.quickFeedCard}>
                 <PetAvatar name={pet.name} type={pet.type} size="lg" />
-                <Text className="text-foreground font-medium mt-2" numberOfLines={1}>
+                <Text style={styles.quickFeedPetName} numberOfLines={1}>
                   {pet.name}
                 </Text>
-                <Text className="text-primary text-xs font-medium mt-1">Füttern</Text>
-              </GlassCard>
+                <Text style={styles.quickFeedActionText}>Füttern</Text>
+              </View>
             </Pressable>
           ))}
         </ScrollView>
 
         {/* Add Feeding Form */}
         {showAddForm && selectedPet && (
-          <GlassCard className="mb-6">
-            <View className="flex-row items-center mb-4">
+          <View style={styles.card}>
+            <View style={styles.addFormHeader}>
               <PetAvatar name={selectedPet.name} type={selectedPet.type} size="md" />
-              <Text className="text-foreground font-semibold text-lg ml-3">
-                {selectedPet.name} füttern
-              </Text>
+              <Text style={styles.addFormTitle}>{selectedPet.name} füttern</Text>
             </View>
-            
-            <Text className="text-muted text-sm mb-2">Futterart</Text>
-            <View className="flex-row gap-2 mb-4">
+
+            <Text style={styles.inputLabel}>Futterart</Text>
+            <View style={styles.foodTypeContainer}>
               {["Nassfutter", "Trockenfutter", "Leckerli", "Wasser"].map((type) => (
                 <Pressable
                   key={type}
                   onPress={() => setFoodType(type)}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  style={({ pressed }) => [styles.foodTypeButton, foodType === type && styles.foodTypeButtonActive, { opacity: pressed ? 0.7 : 1 }]}
                 >
-                  <View 
-                    className={`px-3 py-2 rounded-full ${
-                      foodType === type ? "bg-primary" : "bg-surface border border-border"
-                    }`}
-                  >
-                    <Text className={foodType === type ? "text-white font-medium" : "text-foreground"}>
-                      {type}
-                    </Text>
-                  </View>
+                  <Text style={[styles.foodTypeText, foodType === type && styles.foodTypeTextActive]}>
+                    {type}
+                  </Text>
                 </Pressable>
               ))}
             </View>
-            
-            <Text className="text-muted text-sm mb-2">Menge (optional)</Text>
+
+            <Text style={styles.inputLabel}>Menge (optional)</Text>
             <TextInput
               value={amount}
               onChangeText={setAmount}
               placeholder="z.B. 150g oder 1 Portion"
-              placeholderTextColor={colors.muted}
-              className="bg-surface border border-border rounded-xl px-4 py-3 text-foreground mb-4"
+              placeholderTextColor={COLORS.textMuted}
+              style={styles.textInput}
             />
-            
-            <View className="flex-row gap-3">
+
+            <View style={styles.formButtonsContainer}>
               <Pressable
                 onPress={() => {
                   setShowAddForm(false);
                   setSelectedPet(null);
                 }}
-                className="flex-1 py-3 rounded-xl border border-border items-center"
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                style={({ pressed }) => [styles.formButton, styles.cancelButton, { opacity: pressed ? 0.7 : 1 }]}
               >
-                <Text className="text-muted font-medium">Abbrechen</Text>
+                <Text style={styles.cancelButtonText}>Abbrechen</Text>
               </Pressable>
-              <View className="flex-1">
-                <GradientButton
-                  title="Speichern"
-                  onPress={handleAddFeeding}
-                  disabled={!foodType}
-                />
-              </View>
+              <Pressable
+                onPress={handleAddFeeding}
+                disabled={!foodType}
+                style={({ pressed }) => [styles.formButton, styles.saveButton, { opacity: !foodType || pressed ? 0.5 : 1 }]}
+              >
+                <Text style={styles.saveButtonText}>Speichern</Text>
+              </Pressable>
             </View>
-          </GlassCard>
+          </View>
         )}
 
         {/* Pending Feedings */}
-        <Text className="text-foreground text-lg font-semibold mb-3">
-          Anstehende Fütterungen
-        </Text>
-        
+        <Text style={styles.sectionTitle}>Anstehende Fütterungen</Text>
+
         {pendingFeedings.length === 0 ? (
-          <GlassCard className="items-center py-6 mb-6">
-            <IconSymbol name="checkmark.circle.fill" size={40} color={colors.success} />
-            <Text className="text-foreground font-medium mt-2">Alle gefüttert!</Text>
-            <Text className="text-muted text-sm">Keine ausstehenden Fütterungen</Text>
-          </GlassCard>
+          <View style={[styles.card, styles.emptyStateCard]}>
+            <IconSymbol name="checkmark.circle.fill" size={40} color={COLORS.gold} />
+            <Text style={styles.emptyStateText}>Alle gefüttert!</Text>
+            <Text style={styles.emptyStateSubtext}>Keine ausstehenden Fütterungen</Text>
+          </View>
         ) : (
           pendingFeedings.map((feeding) => {
             const pet = pets.find((p) => p.id === feeding.petId);
             return (
-              <GlassCard key={feeding.id} className="mb-3">
-                <View className="flex-row items-center">
+              <View key={feeding.id} style={styles.card}>
+                <View style={styles.feedingItemContainer}>
                   {pet && <PetAvatar name={pet.name} type={pet.type} size="md" />}
-                  <View className="flex-1 ml-3">
-                    <Text className="text-foreground font-semibold">{pet?.name || "Tier"}</Text>
-                    <Text className="text-muted text-sm">{feeding.food} • {feeding.amount}</Text>
+                  <View style={styles.feedingItemDetails}>
+                    <Text style={styles.petName}>{pet?.name || "Tier"}</Text>
+                    <Text style={styles.feedingInfo}>{feeding.food} • {feeding.amount}</Text>
                   </View>
                   <Pressable
                     onPress={() => handleCompleteFeeding(feeding.id)}
-                    className="bg-success/20 px-4 py-2 rounded-full"
-                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                    style={({ pressed }) => [styles.completeButton, { opacity: pressed ? 0.7 : 1 }]}
                   >
-                    <Text className="text-success font-medium">Erledigt</Text>
+                    <Text style={styles.completeButtonText}>Erledigt</Text>
                   </Pressable>
                 </View>
-              </GlassCard>
+              </View>
             );
           })
         )}
@@ -220,22 +203,20 @@ export default function FeedingScreen() {
         {/* Today's Completed */}
         {completedToday.length > 0 && (
           <>
-            <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
-              Heute erledigt
-            </Text>
+            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Heute erledigt</Text>
             {completedToday.map((feeding) => {
               const pet = pets.find((p) => p.id === feeding.petId);
               return (
-                <GlassCard key={feeding.id} className="mb-3 opacity-70">
-                  <View className="flex-row items-center">
+                <View key={feeding.id} style={[styles.card, { opacity: 0.7 }]}>
+                  <View style={styles.feedingItemContainer}>
                     {pet && <PetAvatar name={pet.name} type={pet.type} size="md" />}
-                    <View className="flex-1 ml-3">
-                      <Text className="text-foreground font-semibold">{pet?.name || "Tier"}</Text>
-                      <Text className="text-muted text-sm">{feeding.food} • {feeding.amount}</Text>
+                    <View style={styles.feedingItemDetails}>
+                      <Text style={styles.petName}>{pet?.name || "Tier"}</Text>
+                      <Text style={styles.feedingInfo}>{feeding.food} • {feeding.amount}</Text>
                     </View>
-                    <IconSymbol name="checkmark.circle.fill" size={24} color={colors.success} />
+                    <IconSymbol name="checkmark.circle.fill" size={24} color={COLORS.gold} />
                   </View>
-                </GlassCard>
+                </View>
               );
             })}
           </>
@@ -244,3 +225,202 @@ export default function FeedingScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(212, 168, 67, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 24,
+    fontWeight: "300",
+    letterSpacing: 2,
+  },
+  headerSubtitle: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+  },
+  divider: {
+    width: 40,
+    height: 1,
+    backgroundColor: COLORS.gold,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: COLORS.gold,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    marginBottom: 12,
+  },
+  quickFeedScrollView: {
+    marginBottom: 24,
+  },
+  quickFeedCard: {
+    width: 112,
+    alignItems: "center",
+    paddingVertical: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  quickFeedPetName: {
+    color: COLORS.textPrimary,
+    fontWeight: "500",
+    marginTop: 8,
+  },
+  quickFeedActionText: {
+    color: COLORS.gold,
+    fontSize: 12,
+    fontWeight: "500",
+    marginTop: 4,
+  },
+  card: {
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    padding: 16,
+    marginBottom: 12,
+  },
+  addFormHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  addFormTitle: {
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+    fontSize: 18,
+    marginLeft: 12,
+  },
+  inputLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  foodTypeContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 16,
+  },
+  foodTypeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: COLORS.textDimmer,
+  },
+  foodTypeButtonActive: {
+    backgroundColor: COLORS.gold,
+    borderColor: COLORS.gold,
+  },
+  foodTypeText: {
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+  },
+  foodTypeTextActive: {
+    color: COLORS.background,
+  },
+  textInput: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: COLORS.textDimmer,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: COLORS.textPrimary,
+    marginBottom: 16,
+    fontSize: 16,
+  },
+  formButtonsContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  formButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelButton: {
+    borderWidth: 1,
+    borderColor: COLORS.textDimmer,
+  },
+  cancelButtonText: {
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+  },
+  saveButton: {
+    backgroundColor: COLORS.gold,
+  },
+  saveButtonText: {
+    color: COLORS.background,
+    fontWeight: "600",
+  },
+  emptyStateCard: {
+    alignItems: "center",
+    paddingVertical: 24,
+  },
+  emptyStateText: {
+    color: COLORS.textPrimary,
+    fontWeight: "500",
+    marginTop: 8,
+  },
+  emptyStateSubtext: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+  },
+  feedingItemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  feedingItemDetails: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  petName: {
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+  },
+  feedingInfo: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+  },
+  completeButton: {
+    backgroundColor: "rgba(212, 168, 67, 0.15)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  completeButtonText: {
+    color: COLORS.gold,
+    fontWeight: "600",
+  },
+});

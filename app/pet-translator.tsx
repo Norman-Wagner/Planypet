@@ -1,272 +1,179 @@
 import { useState } from "react";
-import { ScrollView, Text, View, Pressable, Platform, Alert } from "react-native";
+import { ScrollView, Text, View, Pressable, Platform, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
 
-// Mögliche Übersetzungen für verschiedene Tiergeräusche
 const catTranslations = [
-  { sound: "Kurzes Miau", meanings: ["Hallo!", "Aufmerksamkeit bitte", "Ich grüße dich"], emoji: "😺" },
-  { sound: "Langes Miau", meanings: ["Ich habe Hunger", "Ich will raus", "Ich brauche etwas"], emoji: "😿" },
-  { sound: "Mehrfaches Miau", meanings: ["Ich bin aufgeregt", "Spiel mit mir!", "Etwas Interessantes!"], emoji: "😸" },
-  { sound: "Tiefes Miau", meanings: ["Ich bin unzufrieden", "Das gefällt mir nicht", "Lass mich in Ruhe"], emoji: "😾" },
-  { sound: "Schnurren", meanings: ["Ich bin glücklich", "Ich fühle mich wohl", "Weitermachen!"], emoji: "😻" },
-  { sound: "Fauchen", meanings: ["Ich habe Angst", "Bleib weg!", "Warnung!"], emoji: "🙀" },
-  { sound: "Trillern", meanings: ["Ich freue mich dich zu sehen", "Komm mit!", "Aufregung"], emoji: "😽" },
+  { sound: "Kurzes Miau", meanings: ["Hallo!", "Aufmerksamkeit bitte", "Ich gruesse dich"] },
+  { sound: "Langes Miau", meanings: ["Ich habe Hunger", "Ich will raus", "Ich brauche etwas"] },
+  { sound: "Mehrfaches Miau", meanings: ["Ich bin aufgeregt", "Spiel mit mir!", "Etwas Interessantes!"] },
+  { sound: "Tiefes Miau", meanings: ["Ich bin unzufrieden", "Das gefaellt mir nicht", "Lass mich in Ruhe"] },
+  { sound: "Schnurren", meanings: ["Ich bin gluecklich", "Ich fuehle mich wohl", "Weitermachen!"] },
+  { sound: "Fauchen", meanings: ["Ich habe Angst", "Bleib weg!", "Warnung!"] },
+  { sound: "Trillern", meanings: ["Ich freue mich dich zu sehen", "Komm mit!", "Aufregung"] },
 ];
 
 const dogTranslations = [
-  { sound: "Kurzes Bellen", meanings: ["Hallo!", "Aufmerksamkeit", "Jemand ist da"], emoji: "🐕" },
-  { sound: "Anhaltendes Bellen", meanings: ["Alarm!", "Gefahr erkannt", "Beschützer-Modus"], emoji: "🐕‍🦺" },
-  { sound: "Hohes Bellen", meanings: ["Ich bin aufgeregt", "Spielen!", "Freude"], emoji: "🐶" },
-  { sound: "Tiefes Bellen", meanings: ["Warnung", "Bleib weg", "Ich bin wachsam"], emoji: "🦮" },
-  { sound: "Winseln", meanings: ["Ich bin traurig", "Ich vermisse dich", "Aufmerksamkeit bitte"], emoji: "🥺" },
-  { sound: "Heulen", meanings: ["Einsamkeit", "Kommunikation", "Ich rufe"], emoji: "🐺" },
-  { sound: "Knurren", meanings: ["Warnung", "Das ist meins", "Ich bin unwohl"], emoji: "😤" },
-  { sound: "Fiepen", meanings: ["Ich habe Schmerzen", "Ich bin ängstlich", "Hilfe"], emoji: "😢" },
+  { sound: "Kurzes Bellen", meanings: ["Hallo!", "Aufmerksamkeit", "Jemand ist da"] },
+  { sound: "Anhaltendes Bellen", meanings: ["Alarm!", "Gefahr erkannt", "Beschuetzer-Modus"] },
+  { sound: "Hohes Bellen", meanings: ["Ich bin aufgeregt", "Spielen!", "Freude"] },
+  { sound: "Tiefes Bellen", meanings: ["Warnung", "Bleib weg", "Ich bin wachsam"] },
+  { sound: "Winseln", meanings: ["Ich bin traurig", "Ich vermisse dich", "Aufmerksamkeit bitte"] },
+  { sound: "Heulen", meanings: ["Einsamkeit", "Kommunikation", "Ich rufe"] },
+  { sound: "Knurren", meanings: ["Warnung", "Das ist meins", "Ich bin unwohl"] },
+  { sound: "Fiepen", meanings: ["Ich habe Schmerzen", "Ich bin aengstlich", "Hilfe"] },
 ];
 
 export default function PetTranslatorScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { pets } = usePetStore();
-  
   const [isListening, setIsListening] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedPetType, setSelectedPetType] = useState<"cat" | "dog">("cat");
-  const [translation, setTranslation] = useState<{
-    sound: string;
-    meaning: string;
-    confidence: number;
-    emoji: string;
-  } | null>(null);
+  const [translation, setTranslation] = useState<{ sound: string; meaning: string; confidence: number } | null>(null);
   const [listenDuration, setListenDuration] = useState(0);
 
   const startListening = async () => {
     setIsListening(true);
     setListenDuration(0);
     setTranslation(null);
-
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-
-    // Simuliere Aufnahme für 3 Sekunden
+    if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     let duration = 0;
     const interval = setInterval(() => {
       duration += 1;
       setListenDuration(duration);
-      if (duration >= 3) {
-        clearInterval(interval);
-        analyzeSound();
-      }
+      if (duration >= 3) { clearInterval(interval); analyzeSound(); }
     }, 1000);
   };
 
   const analyzeSound = async () => {
     setIsListening(false);
     setIsAnalyzing(true);
-
-    if (Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-
-    // Simulierte KI-Analyse
+    if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
     const translations = selectedPetType === "cat" ? catTranslations : dogTranslations;
-    const randomTranslation = translations[Math.floor(Math.random() * translations.length)];
-    const randomMeaning = randomTranslation.meanings[Math.floor(Math.random() * randomTranslation.meanings.length)];
-
-    setTranslation({
-      sound: randomTranslation.sound,
-      meaning: randomMeaning,
-      confidence: Math.floor(Math.random() * 30) + 70,
-      emoji: randomTranslation.emoji,
-    });
-
+    const r = translations[Math.floor(Math.random() * translations.length)];
+    setTranslation({ sound: r.sound, meaning: r.meanings[Math.floor(Math.random() * r.meanings.length)], confidence: Math.floor(Math.random() * 30) + 70 });
     setIsAnalyzing(false);
   };
 
   return (
-    <View className="flex-1">
-      <LinearGradient
-        colors={["#0066CC", "#00A3FF", "#8B5CF6"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.8 }}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 40, paddingHorizontal: 20 }}>
+        <Pressable onPress={() => router.back()} style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}>
+          <IconSymbol name="chevron.left" size={20} color="#D4A843" />
+          <Text style={s.backText}>Zurueck</Text>
+        </Pressable>
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingTop: insets.top + 20,
-          paddingBottom: insets.bottom + 40,
-          paddingHorizontal: 20,
-        }}
-      >
-        {/* Header */}
-        <View className="flex-row items-center mb-6">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <IconSymbol name="chevron.left" size={24} color="#FFFFFF" />
-          </Pressable>
-          <View className="flex-1">
-            <Text className="text-white text-2xl font-bold">Tier-Übersetzer</Text>
-            <Text className="text-white/70 text-base">Verstehe was dein Tier sagt</Text>
-          </View>
-          <Text className="text-4xl">🎤</Text>
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Tier-Uebersetzer</Text>
+          <Text style={s.headerSub}>Verstehe was dein Tier sagt</Text>
+          <View style={s.goldDivider} />
         </View>
 
-        {/* Tier-Auswahl */}
-        <GlassCard className="mb-6">
-          <Text className="text-foreground font-semibold mb-3">Welches Tier möchtest du übersetzen?</Text>
-          <View className="flex-row gap-3">
-            <Pressable
-              onPress={() => setSelectedPetType("cat")}
-              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, flex: 1 })}
-            >
-              <View
-                className={`p-4 rounded-xl items-center ${
-                  selectedPetType === "cat" ? "bg-primary" : "bg-surface"
-                }`}
-              >
-                <Text className="text-3xl mb-2">🐱</Text>
-                <Text className={selectedPetType === "cat" ? "text-white font-bold" : "text-foreground"}>
-                  Katze
-                </Text>
-              </View>
-            </Pressable>
-            <Pressable
-              onPress={() => setSelectedPetType("dog")}
-              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, flex: 1 })}
-            >
-              <View
-                className={`p-4 rounded-xl items-center ${
-                  selectedPetType === "dog" ? "bg-primary" : "bg-surface"
-                }`}
-              >
-                <Text className="text-3xl mb-2">🐕</Text>
-                <Text className={selectedPetType === "dog" ? "text-white font-bold" : "text-foreground"}>
-                  Hund
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-        </GlassCard>
+        {/* Pet Type Selection */}
+        <View style={s.typeRow}>
+          <Pressable onPress={() => setSelectedPetType("cat")} style={({ pressed }) => [s.typeBtn, selectedPetType === "cat" && s.typeBtnActive, pressed && { opacity: 0.7 }]}>
+            <IconSymbol name="cat" size={20} color={selectedPetType === "cat" ? "#D4A843" : "#6B6B6B"} />
+            <Text style={[s.typeText, selectedPetType === "cat" && s.typeTextActive]}>Katze</Text>
+          </Pressable>
+          <Pressable onPress={() => setSelectedPetType("dog")} style={({ pressed }) => [s.typeBtn, selectedPetType === "dog" && s.typeBtnActive, pressed && { opacity: 0.7 }]}>
+            <IconSymbol name="dog" size={20} color={selectedPetType === "dog" ? "#D4A843" : "#6B6B6B"} />
+            <Text style={[s.typeText, selectedPetType === "dog" && s.typeTextActive]}>Hund</Text>
+          </Pressable>
+        </View>
 
-        {/* Aufnahme-Button */}
-        <GlassCard className="mb-6 items-center py-8">
-          <Text className="text-muted text-sm mb-4">
-            {isListening
-              ? `Höre zu... ${listenDuration}s`
-              : isAnalyzing
-              ? "Analysiere Geräusch..."
-              : "Tippe zum Zuhören"}
+        {/* Record Button */}
+        <View style={s.recordSection}>
+          <Text style={s.recordLabel}>
+            {isListening ? `Hoere zu... ${listenDuration}s` : isAnalyzing ? "Analysiere Geraeusch..." : "Tippe zum Zuhoeren"}
           </Text>
-
-          <Pressable
-            onPress={startListening}
-            disabled={isListening || isAnalyzing}
-            style={({ pressed }) => ({
-              opacity: pressed || isListening || isAnalyzing ? 0.7 : 1,
-              transform: [{ scale: pressed ? 0.95 : 1 }],
-            })}
-          >
+          <Pressable onPress={startListening} disabled={isListening || isAnalyzing} style={({ pressed }) => [pressed && { opacity: 0.8 }]}>
             <LinearGradient
-              colors={isListening ? ["#10B981", "#34D399"] : isAnalyzing ? ["#F59E0B", "#FBBF24"] : ["#0066CC", "#00A3FF"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: 60,
-                alignItems: "center",
-                justifyContent: "center",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 8,
-              }}
+              colors={isListening ? ["#66BB6A", "#388E3C"] : isAnalyzing ? ["#FFB74D", "#F57C00"] : ["#D4A843", "#B8860B"]}
+              style={s.recordBtn}
             >
-              {isAnalyzing ? (
-                <Text className="text-white text-4xl">🔍</Text>
-              ) : isListening ? (
-                <Text className="text-white text-4xl">👂</Text>
-              ) : (
-                <IconSymbol name="mic.fill" size={48} color="#FFFFFF" />
-              )}
+              <IconSymbol name={isListening ? "waveform" : "mic.fill"} size={40} color={isListening || isAnalyzing ? "#FAFAF8" : "#0A0A0F"} />
             </LinearGradient>
           </Pressable>
+          <Text style={s.recordHint}>Halte das Handy nah an dein Tier</Text>
+        </View>
 
-          <Text className="text-muted text-xs mt-4 text-center">
-            Halte das Handy nah an dein Tier
-          </Text>
-        </GlassCard>
-
-        {/* Übersetzung */}
+        {/* Translation Result */}
         {translation && (
-          <GlassCard className="mb-6">
-            <View className="items-center mb-4">
-              <Text className="text-5xl mb-2">{translation.emoji}</Text>
-              <Text className="text-muted text-sm">Erkanntes Geräusch:</Text>
-              <Text className="text-foreground text-lg font-bold">{translation.sound}</Text>
+          <View style={s.resultCard}>
+            <Text style={s.resultLabel}>Erkanntes Geraeusch</Text>
+            <Text style={s.resultSound}>{translation.sound}</Text>
+            <View style={s.resultMeaningBox}>
+              <Text style={s.resultMeaningLabel}>Dein Tier sagt:</Text>
+              <Text style={s.resultMeaning}>"{translation.meaning}"</Text>
             </View>
-
-            <View className="bg-primary/10 rounded-xl p-4 mb-4">
-              <Text className="text-muted text-sm text-center mb-1">Dein Tier sagt:</Text>
-              <Text className="text-foreground text-xl font-bold text-center">
-                "{translation.meaning}"
-              </Text>
+            <View style={s.confidenceBadge}>
+              <Text style={s.confidenceText}>{translation.confidence}% Konfidenz</Text>
             </View>
-
-            <View className="flex-row items-center justify-center">
-              <View className="bg-success/20 px-3 py-1 rounded-full">
-                <Text className="text-success text-sm font-medium">
-                  {translation.confidence}% Konfidenz
-                </Text>
-              </View>
-            </View>
-          </GlassCard>
+          </View>
         )}
 
-        {/* Geräusch-Guide */}
-        <GlassCard>
-          <Text className="text-foreground font-semibold mb-3">
-            {selectedPetType === "cat" ? "Katzen" : "Hunde"}-Geräusche verstehen
-          </Text>
+        {/* Sound Guide */}
+        <Text style={s.sectionTitle}>{selectedPetType === "cat" ? "Katzen" : "Hunde"}-Geraeusche verstehen</Text>
+        <View style={s.card}>
           {(selectedPetType === "cat" ? catTranslations : dogTranslations).map((item, index) => (
-            <View
-              key={index}
-              className={`flex-row items-center py-3 ${index > 0 ? "border-t border-border" : ""}`}
-            >
-              <Text className="text-2xl mr-3">{item.emoji}</Text>
-              <View className="flex-1">
-                <Text className="text-foreground font-medium">{item.sound}</Text>
-                <Text className="text-muted text-sm">{item.meanings.join(" • ")}</Text>
+            <View key={index} style={[s.guideRow, index > 0 && { borderTopWidth: 1, borderTopColor: "rgba(212,168,67,0.05)" }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.guideSound}>{item.sound}</Text>
+                <Text style={s.guideMeaning}>{item.meanings.join(" / ")}</Text>
               </View>
             </View>
           ))}
-        </GlassCard>
+        </View>
 
-        {/* Disclaimer */}
-        <View className="mt-4 p-4 bg-warning/10 rounded-xl">
-          <Text className="text-warning text-xs text-center">
-            ⚠️ Die Übersetzungen sind KI-basierte Interpretationen und dienen der Unterhaltung.
-            Bei Verhaltensänderungen deines Tieres konsultiere bitte einen Tierarzt.
-          </Text>
+        <View style={s.disclaimer}>
+          <IconSymbol name="info.circle.fill" size={16} color="#D4A843" />
+          <Text style={s.disclaimerText}>Die Uebersetzungen sind KI-basierte Interpretationen und dienen der Unterhaltung. Bei Verhaltensaenderungen konsultiere bitte einen Tierarzt.</Text>
         </View>
       </ScrollView>
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
+  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+  header: { marginBottom: 32 },
+  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
+  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
+  sectionTitle: { fontSize: 11, fontWeight: "600", color: "#D4A843", letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, marginTop: 28 },
+
+  typeRow: { flexDirection: "row", gap: 12, marginBottom: 32 },
+  typeBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 16, backgroundColor: "#141418", borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  typeBtnActive: { borderColor: "#D4A843", backgroundColor: "rgba(212,168,67,0.08)" },
+  typeText: { fontSize: 15, fontWeight: "500", color: "#6B6B6B", letterSpacing: 1 },
+  typeTextActive: { color: "#D4A843" },
+
+  recordSection: { alignItems: "center", marginBottom: 32 },
+  recordLabel: { fontSize: 13, fontWeight: "400", color: "#8B8B80", letterSpacing: 1, marginBottom: 20 },
+  recordBtn: { width: 120, height: 120, borderRadius: 60, alignItems: "center", justifyContent: "center" },
+  recordHint: { fontSize: 12, fontWeight: "400", color: "#4A4A4A", marginTop: 16 },
+
+  resultCard: { backgroundColor: "#141418", borderWidth: 1, borderColor: "rgba(212,168,67,0.15)", padding: 24, alignItems: "center", marginBottom: 8 },
+  resultLabel: { fontSize: 11, fontWeight: "500", color: "#6B6B6B", letterSpacing: 2, textTransform: "uppercase" },
+  resultSound: { fontSize: 20, fontWeight: "300", color: "#FAFAF8", letterSpacing: 1, marginTop: 8 },
+  resultMeaningBox: { backgroundColor: "rgba(212,168,67,0.06)", padding: 20, marginTop: 16, width: "100%", alignItems: "center" },
+  resultMeaningLabel: { fontSize: 11, fontWeight: "500", color: "#8B8B80", letterSpacing: 1 },
+  resultMeaning: { fontSize: 20, fontWeight: "400", color: "#D4A843", marginTop: 8, textAlign: "center" },
+  confidenceBadge: { backgroundColor: "rgba(102,187,106,0.1)", paddingHorizontal: 16, paddingVertical: 6, marginTop: 16 },
+  confidenceText: { fontSize: 12, fontWeight: "500", color: "#66BB6A", letterSpacing: 0.5 },
+
+  card: { backgroundColor: "#141418", borderWidth: 1, borderColor: "rgba(212,168,67,0.08)" },
+  guideRow: { paddingHorizontal: 16, paddingVertical: 14 },
+  guideSound: { fontSize: 14, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3 },
+  guideMeaning: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 4 },
+
+  disclaimer: { flexDirection: "row", gap: 10, marginTop: 24, backgroundColor: "rgba(212,168,67,0.05)", padding: 16, borderWidth: 1, borderColor: "rgba(212,168,67,0.1)" },
+  disclaimerText: { flex: 1, fontSize: 12, fontWeight: "400", color: "#6B6B6B", lineHeight: 18 },
+});

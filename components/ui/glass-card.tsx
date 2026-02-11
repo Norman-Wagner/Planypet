@@ -1,47 +1,51 @@
-import { View, type ViewProps } from "react-native";
-import { cn } from "@/lib/utils";
+import { View, type ViewProps, StyleSheet } from "react-native";
 
 export interface GlassCardProps extends ViewProps {
-  variant?: "default" | "solid" | "gradient";
-  className?: string;
+  variant?: "default" | "solid" | "accent";
 }
 
 /**
- * Glassmorphism card component with frosted glass effect
+ * Premium glass card component with dark luxury styling
  */
 export function GlassCard({
   children,
   variant = "default",
-  className,
   style,
   ...props
 }: GlassCardProps) {
-  const variantStyles = {
-    default: "bg-glass border border-glassBorder",
-    solid: "bg-surface border border-border",
-    gradient: "bg-glass border border-glassBorder",
-  };
+  const variantStyle =
+    variant === "accent" ? styles.accent :
+    variant === "solid" ? styles.solid :
+    styles.default;
 
   return (
     <View
-      className={cn(
-        "rounded-2xl p-4 overflow-hidden",
-        variantStyles[variant],
-        className
-      )}
-      style={[
-        {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-          elevation: 4,
-        },
-        style,
-      ]}
+      style={[styles.base, variantStyle, style]}
       {...props}
     >
       {children}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  base: {
+    padding: 16,
+    overflow: "hidden",
+  },
+  default: {
+    backgroundColor: "#141418",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.08)",
+  },
+  solid: {
+    backgroundColor: "#1A1A20",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.12)",
+  },
+  accent: {
+    backgroundColor: "rgba(212,168,67,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.15)",
+  },
+});

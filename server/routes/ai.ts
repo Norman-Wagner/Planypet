@@ -69,7 +69,7 @@ Antworte auf Deutsch, freundlich und verständlich.`;
       return {
         analysis,
         disclaimer:
-          "⚠️ Wichtig: Diese Einschätzung ersetzt keine tierärztliche Diagnose. Bei Unsicherheit oder sich verschlimmernden Symptomen bitte sofort einen Tierarzt aufsuchen!",
+          "Wichtig: Diese Einschätzung ersetzt keine tierärztliche Diagnose. Bei Unsicherheit oder sich verschlimmernden Symptomen bitte sofort einen Tierarzt aufsuchen!",
         recommendVet: analysis.toLowerCase().includes("tierarzt"),
       };
     }),

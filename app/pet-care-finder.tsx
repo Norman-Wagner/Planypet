@@ -1,11 +1,20 @@
-import { ScrollView, Text, View, Pressable, TextInput, Linking, Alert } from "react-native";
+
+import { ScrollView, Text, View, Pressable, TextInput, Linking, Alert, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
-import { ScreenContainer } from "@/components/screen-container";
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
+
+const design = {
+  background: '#0A0A0F',
+  gold: '#D4A843',
+  card: '#141418',
+  cardBorder: 'rgba(212,168,67,0.08)',
+  textPrimary: '#FAFAF8',
+  textSecondary: '#8B8B80',
+  textMuted: '#6B6B6B',
+  textDimmer: '#4A4A4A',
+};
 
 interface CareProvider {
   id: string;
@@ -23,7 +32,7 @@ interface CareProvider {
 }
 
 const MOCK_PROVIDERS: CareProvider[] = [
-  {
+    {
     id: "1",
     name: "Tierbetreuung Müller",
     type: "sitter",
@@ -82,7 +91,6 @@ const MOCK_PROVIDERS: CareProvider[] = [
 ];
 
 export default function PetCareFinderScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -125,202 +133,320 @@ export default function PetCareFinderScreen() {
 
   const getTypeLabel = (type: string): string => {
     switch (type) {
-      case "sitter":
-        return "Tiersitter";
-      case "pension":
-        return "Tierpension";
-      case "daycare":
-        return "Tagesstätte";
-      default:
-        return type;
+      case "sitter": return "Tiersitter";
+      case "pension": return "Tierpension";
+      case "daycare": return "Tagesstätte";
+      default: return type;
     }
   };
 
   const getTypeIcon = (type: string): any => {
     switch (type) {
-      case "sitter":
-        return "person.fill";
-      case "pension":
-        return "house.fill";
-      case "daycare":
-        return "building.2.fill";
-      default:
-        return "person.2.fill";
+      case "sitter": return "person.fill";
+      case "pension": return "house.fill";
+      case "daycare": return "building.2.fill";
+      default: return "person.2.fill";
     }
   };
 
   return (
-    <ScreenContainer className="p-6">
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 20, paddingHorizontal: 24 }}
       >
         {/* Header */}
-        <View className="flex-row items-center mb-6">
+        <View style={styles.headerContainer}>
           <Pressable
             onPress={() => router.back()}
-            className="mr-4"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
-            <IconSymbol name="chevron.left" size={28} color={colors.primary} />
+            <IconSymbol name="chevron.left" size={28} color={design.gold} />
           </Pressable>
-          <Text className="text-3xl font-bold text-foreground">Tierbetreuung</Text>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>TIERBETREUUNG</Text>
+            <Text style={styles.headerSubtitle}>Professionelle Betreuer in deiner Nähe finden</Text>
+            <View style={styles.headerDivider} />
+          </View>
         </View>
 
         {/* Search */}
-        <GlassCard className="mb-4">
-          <View className="flex-row items-center">
-            <IconSymbol name="magnifyingglass" size={20} color={colors.muted} />
-            <TextInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder="Suche nach Name oder Tierart..."
-              placeholderTextColor={colors.muted}
-              className="flex-1 ml-3 text-foreground"
-            />
-          </View>
-        </GlassCard>
+        <View style={styles.searchCard}>
+          <IconSymbol name="magnifyingglass" size={20} color={design.textMuted} />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Suche nach Name oder Tierart..."
+            placeholderTextColor={design.textMuted}
+            style={styles.searchInput}
+          />
+        </View>
 
         {/* Type Filter */}
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
-          className="mb-6"
+          style={styles.filterScroll}
           contentContainerStyle={{ gap: 8 }}
         >
           <Pressable
             onPress={() => setSelectedType(null)}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+            style={({ pressed }) => [styles.filterButton, selectedType === null && styles.filterButtonActive, { opacity: pressed ? 0.8 : 1 }]}
           >
-            <View
-              className={`px-4 py-2 rounded-full ${
-                selectedType === null ? "bg-primary" : "bg-surface"
-              }`}
-            >
-              <Text
-                className={`font-medium ${
-                  selectedType === null ? "text-white" : "text-foreground"
-                }`}
-              >
-                Alle
-              </Text>
-            </View>
+            <Text style={[styles.filterButtonText, selectedType === null && styles.filterButtonTextActive]}>Alle</Text>
           </Pressable>
           {["sitter", "pension", "daycare"].map((type) => (
             <Pressable
               key={type}
               onPress={() => setSelectedType(type)}
-              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+              style={({ pressed }) => [styles.filterButton, selectedType === type && styles.filterButtonActive, { opacity: pressed ? 0.8 : 1 }]}
             >
-              <View
-                className={`px-4 py-2 rounded-full ${
-                  selectedType === type ? "bg-primary" : "bg-surface"
-                }`}
-              >
-                <Text
-                  className={`font-medium ${
-                    selectedType === type ? "text-white" : "text-foreground"
-                  }`}
-                >
-                  {getTypeLabel(type)}
-                </Text>
-              </View>
+              <Text style={[styles.filterButtonText, selectedType === type && styles.filterButtonTextActive]}>{getTypeLabel(type)}</Text>
             </Pressable>
           ))}
         </ScrollView>
 
         {/* Providers */}
         {filteredProviders.length === 0 ? (
-          <GlassCard className="p-8 items-center">
-            <IconSymbol name="magnifyingglass" size={48} color={colors.muted} />
-            <Text className="text-muted text-center mt-4">
-              Keine Anbieter gefunden
-            </Text>
-          </GlassCard>
+          <View style={[styles.card, styles.emptyStateContainer]}>
+            <IconSymbol name="magnifyingglass" size={48} color={design.textMuted} />
+            <Text style={styles.emptyStateText}>Keine Anbieter gefunden</Text>
+          </View>
         ) : (
-          <View className="gap-3">
+          <View style={{ gap: 12 }}>
             {filteredProviders.map((provider) => (
-              <GlassCard key={provider.id} className="p-4">
-                <View className="flex-row items-start">
-                  <View
-                    className="w-12 h-12 rounded-xl items-center justify-center mr-3"
-                    style={{ backgroundColor: `${colors.primary}15` }}
-                  >
-                    <IconSymbol
-                      name={getTypeIcon(provider.type)}
-                      size={24}
-                      color={colors.primary}
-                    />
+              <View key={provider.id} style={styles.card}>
+                <View style={styles.providerCardInner}>
+                  <View style={[styles.providerIconContainer, { backgroundColor: `${design.gold}15` }]}>
+                    <IconSymbol name={getTypeIcon(provider.type)} size={24} color={design.gold} />
                   </View>
-                  <View className="flex-1">
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-foreground font-semibold text-base flex-1">
-                        {provider.name}
-                      </Text>
-                      <Pressable
-                        onPress={() => toggleFavorite(provider.id)}
-                        style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-                      >
-                        <IconSymbol
-                          name={provider.isFavorite ? "heart.fill" : "heart"}
-                          size={20}
-                          color={provider.isFavorite ? colors.error : colors.muted}
-                        />
+                  <View style={styles.providerDetails}>
+                    <View style={styles.providerHeader}>
+                      <Text style={styles.providerName}>{provider.name}</Text>
+                      <Pressable onPress={() => toggleFavorite(provider.id)} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+                        <IconSymbol name={provider.isFavorite ? "heart.fill" : "heart"} size={20} color={provider.isFavorite ? design.gold : design.textMuted} />
                       </Pressable>
                     </View>
-                    <View className="flex-row items-center mt-1">
-                      <Text className="text-warning text-sm">★</Text>
-                      <Text className="text-muted text-sm ml-1">
-                        {provider.rating} ({provider.reviews} Bewertungen)
-                      </Text>
+                    <View style={styles.ratingContainer}>
+                      <IconSymbol name="star.fill" size={12} color={design.gold} />
+                      <Text style={styles.ratingText}>{provider.rating} ({provider.reviews} Bewertungen)</Text>
                     </View>
-                    <View className="flex-row items-center mt-1">
-                      <IconSymbol name="location.fill" size={12} color={colors.muted} />
-                      <Text className="text-muted text-xs ml-1">
-                        {provider.distance} • {provider.price}
-                      </Text>
+                    <View style={styles.locationContainer}>
+                      <IconSymbol name="location.fill" size={12} color={design.textMuted} />
+                      <Text style={styles.locationText}>{provider.distance} • {provider.price}</Text>
                     </View>
-                    <View className="flex-row flex-wrap gap-1 mt-2">
+                    <View style={styles.specialtiesContainer}>
                       {provider.specialties.map((specialty, idx) => (
-                        <View
-                          key={idx}
-                          className="bg-primary/10 px-2 py-1 rounded-full"
-                        >
-                          <Text className="text-primary text-xs">{specialty}</Text>
+                        <View key={idx} style={styles.specialtyBadge}>
+                          <Text style={styles.specialtyText}>{specialty}</Text>
                         </View>
                       ))}
                     </View>
-                    <Pressable
-                      onPress={() => handleContact(provider)}
-                      className="mt-3"
-                      style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-                    >
-                      <View className="bg-primary px-4 py-2 rounded-full items-center">
-                        <Text className="text-white font-medium text-sm">
-                          Kontakt aufnehmen
-                        </Text>
-                      </View>
+                    <Pressable onPress={() => handleContact(provider)} style={({ pressed }) => [styles.contactButton, { opacity: pressed ? 0.8 : 1 }]}>
+                      <Text style={styles.contactButtonText}>Kontakt aufnehmen</Text>
                     </Pressable>
                   </View>
                 </View>
-              </GlassCard>
+              </View>
             ))}
           </View>
         )}
 
         {/* Info */}
-        <GlassCard className="mt-6 border-warning/30">
-          <View className="flex-row items-start">
-            <IconSymbol name="info.circle.fill" size={20} color={colors.warning} />
-            <View className="flex-1 ml-3">
-              <Text className="text-foreground font-medium text-sm">Hinweis</Text>
-              <Text className="text-muted text-xs mt-1">
-                Die Anbieter sind Beispiele. In der finalen Version werden echte Anbieter in deiner Nähe angezeigt.
-              </Text>
+        <View style={[styles.card, styles.infoCard]}>
+            <IconSymbol name="info.circle.fill" size={20} color={design.gold} />
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoTitle}>Hinweis</Text>
+              <Text style={styles.infoText}>Die Anbieter sind Beispiele. In der finalen Version werden echte Anbieter in deiner Nähe angezeigt.</Text>
             </View>
-          </View>
-        </GlassCard>
+        </View>
       </ScrollView>
-    </ScreenContainer>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: design.background,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 0, // Removed padding from here
+  },
+  headerTitleContainer: {
+    marginLeft: 16,
+  },
+  headerTitle: {
+    color: design.textPrimary,
+    fontSize: 28,
+    fontWeight: '300',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  headerSubtitle: {
+    color: design.textMuted,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  headerDivider: {
+    height: 1,
+    width: 40,
+    backgroundColor: design.gold,
+    marginTop: 8,
+  },
+  searchCard: {
+    backgroundColor: design.card,
+    borderColor: design.cardBorder,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 12,
+    color: design.textPrimary,
+    fontSize: 16,
+  },
+  filterScroll: {
+    marginBottom: 24,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: design.card,
+    borderColor: design.cardBorder,
+    borderWidth: 1,
+  },
+  filterButtonActive: {
+    backgroundColor: design.gold,
+    borderColor: design.gold,
+  },
+  filterButtonText: {
+    color: design.textSecondary,
+    fontWeight: '500',
+  },
+  filterButtonTextActive: {
+    color: design.background,
+  },
+  card: {
+    backgroundColor: design.card,
+    borderColor: design.cardBorder,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+  },
+  emptyStateContainer: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  emptyStateText: {
+    color: design.textMuted,
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  providerCardInner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  providerIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  providerDetails: {
+    flex: 1,
+  },
+  providerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  providerName: {
+    color: design.textPrimary,
+    fontWeight: '600',
+    fontSize: 17,
+    flex: 1,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  ratingText: {
+    color: design.textSecondary,
+    fontSize: 13,
+    marginLeft: 4,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  locationText: {
+    color: design.textMuted,
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  specialtiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+  },
+  specialtyBadge: {
+    backgroundColor: `${design.gold}20`,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  specialtyText: {
+    color: design.gold,
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  contactButton: {
+    marginTop: 12,
+    backgroundColor: design.gold,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  contactButtonText: {
+    color: design.background,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  infoCard: {
+    marginTop: 24,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    borderColor: `${design.gold}30`,
+  },
+  infoTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  infoTitle: {
+    color: design.textPrimary,
+    fontWeight: '600',
+    fontSize: 14,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  infoText: {
+    color: design.textSecondary,
+    fontSize: 13,
+    marginTop: 4,
+  },
+});

@@ -1,36 +1,23 @@
-import { ScrollView, Text, View, Pressable, ActivityIndicator } from "react-native";
+import { ScrollView, Text, View, Pressable, ActivityIndicator, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 
-import { ScreenContainer } from "@/components/screen-container";
-import { GlassCard } from "@/components/ui/glass-card";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { PetAvatar } from "@/components/ui/pet-avatar";
-import { useColors } from "@/hooks/use-colors";
 import { usePetStore } from "@/lib/pet-store";
-import { useWeather } from "@/hooks/use-weather";
 
 export default function DashboardScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
   const { userName, pets, feedings, walks, onboardingComplete, loadData } = usePetStore();
-  const [aiReminder, setAiReminder] = useState<string | null>(null);
-  const [isLoadingReminder, setIsLoadingReminder] = useState(false);
-  const { weather, loading: weatherLoading, walkRecommendation, getWeatherIcon, getWeatherColor } = useWeather();
+  const [aiTip, setAiTip] = useState<string | null>(null);
+  const [isLoadingTip, setIsLoadingTip] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
-  // Check if onboarding is needed
   useEffect(() => {
     if (!onboardingComplete && pets.length === 0) {
-      // Small delay to ensure navigation is ready
-      const timer = setTimeout(() => {
-        router.push("/onboarding");
-      }, 100);
+      const timer = setTimeout(() => router.push("/onboarding"), 100);
       return () => clearTimeout(timer);
     }
   }, [onboardingComplete, pets.length]);
@@ -39,311 +26,337 @@ export default function DashboardScreen() {
   const greeting = currentHour < 12 ? "Guten Morgen" : currentHour < 18 ? "Guten Tag" : "Guten Abend";
   const displayName = userName || "Tierfreund";
 
-  // Get pending feedings and walks
-  const pendingFeedings = feedings.filter((f) => !f.completed);
-  const pendingWalks = walks.filter((w) => !w.completed);
-
-  // Load AI reminder
   useEffect(() => {
     if (pets.length > 0) {
-      loadAIReminder();
+      setIsLoadingTip(true);
+      const timer = setTimeout(() => {
+        const pet = pets[0];
+        const tips = [
+          `${pet.name} sollte heute frisches Wasser bekommen.`,
+          `Denke an die naechste Impfung fuer ${pet.name}.`,
+          `${pet.name} braucht regelmaessige Bewegung fuer ein gesundes Leben.`,
+          `Vorrat pruefen: Ist noch genug Futter fuer ${pet.name} da?`,
+        ];
+        setAiTip(tips[Math.floor(Math.random() * tips.length)]);
+        setIsLoadingTip(false);
+      }, 800);
+      return () => clearTimeout(timer);
     }
   }, [pets.length]);
 
-  const loadAIReminder = async () => {
-    if (pets.length === 0) return;
-
-    setIsLoadingReminder(true);
-    try {
-      setTimeout(() => {
-        const pet = pets[0];
-        const reminders = [
-          `Hast du ${pet.name} heute schon gefüttert? 🍽️`,
-          `Zeit für einen Spaziergang mit ${pet.name}! 🐾`,
-          `Denk dran: ${pet.name}s Vorrat wird langsam knapp.`,
-          `${pet.name} freut sich bestimmt über eine Spielrunde! 🎾`,
-        ];
-        const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
-        setAiReminder(randomReminder);
-        setIsLoadingReminder(false);
-      }, 1000);
-    } catch (error) {
-      console.error("Failed to load AI reminder:", error);
-      setIsLoadingReminder(false);
-    }
-  };
-
   return (
-    <View className="flex-1">
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={["#0066CC", "#00A3FF", "#F0F7FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.6 }}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-      
-      <ScrollView 
-        className="flex-1"
-        contentContainerStyle={{ 
-          paddingTop: insets.top + 20,
+    <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingTop: insets.top + 24,
           paddingBottom: insets.bottom + 100,
           paddingHorizontal: 20,
         }}
       >
         {/* Header */}
-        <View className="mb-6">
-          <Text className="text-white text-lg opacity-80">{greeting},</Text>
-          <Text className="text-white text-3xl font-bold">{displayName}</Text>
-          <Text className="text-white text-base opacity-70 mt-1">
-            {pets.length > 0 
-              ? `So geht es deinen ${pets.length} Lieblingen heute`
-              : "Füge dein erstes Haustier hinzu"
-            }
-          </Text>
+        <View style={s.header}>
+          <Text style={s.greeting}>{greeting},</Text>
+          <Text style={s.userName}>{displayName}</Text>
+          <View style={s.goldDivider} />
         </View>
 
-        {/* Quick Stats */}
-        <View className="flex-row gap-3 mb-6">
-          <GlassCard className="flex-1 items-center py-4">
-            <Text className="text-3xl font-bold text-primary">{pets.length}</Text>
-            <Text className="text-muted text-sm">Haustiere</Text>
-          </GlassCard>
-          <GlassCard className="flex-1 items-center py-4">
-            <Text className="text-3xl font-bold text-warning">{pendingFeedings.length}</Text>
-            <Text className="text-muted text-sm">Fütterungen</Text>
-          </GlassCard>
-          <GlassCard className="flex-1 items-center py-4">
-            <Text className="text-3xl font-bold text-success">{pendingWalks.length}</Text>
-            <Text className="text-muted text-sm">Gassi</Text>
-          </GlassCard>
+        {/* Stats Row */}
+        <View style={s.statsRow}>
+          <View style={s.statCard}>
+            <Text style={s.statNumber}>{pets.length}</Text>
+            <Text style={s.statLabel}>Tiere</Text>
+          </View>
+          <View style={[s.statCard, { borderLeftWidth: 1, borderRightWidth: 1, borderColor: "rgba(212,168,67,0.1)" }]}>
+            <Text style={s.statNumber}>{feedings.filter((f) => !f.completed).length}</Text>
+            <Text style={s.statLabel}>Offen</Text>
+          </View>
+          <View style={s.statCard}>
+            <Text style={s.statNumber}>{walks.filter((w) => !w.completed).length}</Text>
+            <Text style={s.statLabel}>Gassi</Text>
+          </View>
         </View>
 
-        {/* AI Reminder Card */}
-        {(isLoadingReminder || aiReminder) && (
-          <GlassCard className="mb-6 border-primary/30">
-            <View className="flex-row items-center">
-              <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mr-3">
-                {isLoadingReminder ? (
-                  <ActivityIndicator color={colors.primary} />
-                ) : (
-                  <Text className="text-2xl">🤖</Text>
-                )}
-              </View>
-              <View className="flex-1">
-                <Text className="text-foreground font-semibold mb-1">KI-Assistent</Text>
-                <Text className="text-foreground text-sm">
-                  {isLoadingReminder ? "Denke nach..." : aiReminder}
-                </Text>
-              </View>
-            </View>
-          </GlassCard>
-        )}
-
-        {/* Weather Widget */}
-        {weather && (
-          <GlassCard className="mb-6" style={{ borderColor: `${getWeatherColor(weather.condition)}30` }}>
-            <View className="flex-row items-center">
-              <View
-                className="w-16 h-16 rounded-2xl items-center justify-center mr-3"
-                style={{ backgroundColor: `${getWeatherColor(weather.condition)}20` }}
+        {/* KI-Assistent - PROMINENT */}
+        <Pressable
+          style={({ pressed }) => [s.aiCard, pressed && { opacity: 0.9 }]}
+        >
+          <LinearGradient
+            colors={["rgba(212,168,67,0.12)", "rgba(212,168,67,0.04)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={s.aiCardGradient}
+          >
+            <View style={s.aiIconContainer}>
+              <LinearGradient
+                colors={["#D4A843", "#B8860B"]}
+                style={s.aiIconGradient}
               >
-                <Text className="text-4xl">{getWeatherIcon(weather.condition)}</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="text-foreground font-semibold text-base">
-                  {weather.temperature}°C • {weather.location}
-                </Text>
-                <Text className="text-muted text-sm mt-1">
-                  {walkRecommendation.reason}
-                </Text>
-                {walkRecommendation.warning && (
-                  <View className="mt-2 bg-warning/10 px-2 py-1 rounded-lg">
-                    <Text className="text-warning text-xs">
-                      ⚠️ {walkRecommendation.warning}
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <View
-                className="w-10 h-10 rounded-full items-center justify-center"
-                style={{
-                  backgroundColor: walkRecommendation.suitable
-                    ? `${colors.success}20`
-                    : `${colors.error}20`,
-                }}
-              >
-                <IconSymbol
-                  name={walkRecommendation.suitable ? "checkmark" : "xmark"}
-                  size={20}
-                  color={walkRecommendation.suitable ? colors.success : colors.error}
-                />
-              </View>
+                <IconSymbol name="crown.fill" size={20} color="#0A0A0F" />
+              </LinearGradient>
             </View>
-          </GlassCard>
-        )}
+            <View style={{ flex: 1 }}>
+              <Text style={s.aiTitle}>KI-Assistent</Text>
+              {isLoadingTip ? (
+                <ActivityIndicator color="#D4A843" size="small" style={{ alignSelf: "flex-start", marginTop: 4 }} />
+              ) : (
+                <Text style={s.aiText}>{aiTip || "Bereit, dir zu helfen."}</Text>
+              )}
+            </View>
+            <IconSymbol name="chevron.right" size={16} color="#D4A843" />
+          </LinearGradient>
+        </Pressable>
 
-        {/* My Pets Quick View */}
+        {/* Meine Tiere */}
         {pets.length > 0 && (
           <>
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-foreground text-lg font-semibold">
-                Meine Tiere
-              </Text>
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>Meine Tiere</Text>
               <Pressable
                 onPress={() => router.push("/(tabs)/pets")}
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
-                <Text className="text-primary font-medium">Alle anzeigen</Text>
+                <Text style={s.sectionLink}>Alle</Text>
               </Pressable>
             </View>
-            
-            <ScrollView 
-              horizontal 
+
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
-              className="mb-6"
-              contentContainerStyle={{ gap: 12 }}
+              contentContainerStyle={{ gap: 12, paddingRight: 20 }}
+              style={{ marginBottom: 32 }}
             >
-              {pets.slice(0, 4).map((pet) => (
+              {pets.slice(0, 5).map((pet) => (
                 <Pressable
                   key={pet.id}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
+                  onPress={() => router.push({ pathname: "/pet-detail", params: { petId: pet.id } })}
+                  style={({ pressed }) => [s.petCard, pressed && { transform: [{ scale: 0.97 }] }]}
                 >
-                  <GlassCard className="w-28 items-center py-4">
-                    <PetAvatar name={pet.name} type={pet.type} size="lg" />
-                    <Text className="text-foreground font-medium mt-2" numberOfLines={1}>
-                      {pet.name}
-                    </Text>
-                  </GlassCard>
+                  <View style={s.petCardAvatar}>
+                    <Text style={s.petCardInitial}>{pet.name.charAt(0).toUpperCase()}</Text>
+                  </View>
+                  <Text style={s.petCardName} numberOfLines={1}>{pet.name}</Text>
+                  <Text style={s.petCardType} numberOfLines={1}>{pet.type}</Text>
                 </Pressable>
               ))}
-              
-              {/* Add Pet Button */}
+
+              {/* Add Pet */}
               <Pressable
                 onPress={() => router.push("/onboarding")}
-                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
+                style={({ pressed }) => [s.petCardAdd, pressed && { opacity: 0.7 }]}
               >
-                <GlassCard className="w-28 items-center py-4 border-dashed border-2 border-primary/30">
-                  <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center">
-                    <IconSymbol name="plus.circle.fill" size={32} color={colors.primary} />
-                  </View>
-                  <Text className="text-primary font-medium mt-2">Hinzufügen</Text>
-                </GlassCard>
+                <IconSymbol name="plus.circle.fill" size={28} color="#D4A843" />
+                <Text style={s.petCardAddText}>Hinzufuegen</Text>
               </Pressable>
             </ScrollView>
           </>
         )}
 
-        {/* Next Actions */}
-        <Text className="text-foreground text-lg font-semibold mb-3">
-          Nächste Aktionen
-        </Text>
-        
-        {pets.length === 0 ? (
-          <Pressable
-            onPress={() => router.push("/onboarding")}
-            style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}
-          >
-            <GlassCard className="items-center py-8 border-dashed border-2 border-primary/30">
-              <View className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center mb-4">
-                <Text className="text-4xl">🐾</Text>
+        {/* Aktionen */}
+        <Text style={s.sectionTitle}>Aktionen</Text>
+        <View style={{ gap: 12, marginTop: 16 }}>
+          {pets.length === 0 ? (
+            <Pressable
+              onPress={() => router.push("/onboarding")}
+              style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}
+            >
+              <View style={[s.actionIcon, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
+                <IconSymbol name="plus.circle.fill" size={24} color="#D4A843" />
               </View>
-              <Text className="text-foreground font-semibold text-lg">Erstes Haustier hinzufügen</Text>
-              <Text className="text-muted text-sm mt-1">Tippe hier, um loszulegen</Text>
-            </GlassCard>
-          </Pressable>
-        ) : (
-          <>
-            {/* Demo feeding action */}
-            <GlassCard className="mb-4">
-              <View className="flex-row items-center">
-                <View className="w-12 h-12 rounded-full bg-warning/20 items-center justify-center mr-3">
-                  <IconSymbol name="fork.knife" size={24} color={colors.warning} />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-foreground font-semibold">{pets[0]?.name || "Tier"} füttern</Text>
-                  <Text className="text-muted text-sm">In 30 Minuten • Nassfutter</Text>
-                </View>
-                <Pressable 
-                  className="bg-warning/20 px-3 py-1.5 rounded-full"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                >
-                  <Text className="text-warning font-medium text-sm">Erledigt</Text>
-                </Pressable>
+              <View style={{ flex: 1 }}>
+                <Text style={s.actionTitle}>Erstes Tier registrieren</Text>
+                <Text style={s.actionSubtitle}>Beginne mit deinem Liebling</Text>
               </View>
-            </GlassCard>
+              <IconSymbol name="chevron.right" size={16} color="#6B6B6B" />
+            </Pressable>
+          ) : (
+            <>
+              {/* Fuettern */}
+              <Pressable style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
+                <View style={[s.actionIcon, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
+                  <IconSymbol name="fork.knife" size={22} color="#D4A843" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.actionTitle}>{pets[0]?.name} fuettern</Text>
+                  <Text style={s.actionSubtitle}>Naechste Mahlzeit faellig</Text>
+                </View>
+                <View style={s.actionBadge}>
+                  <Text style={s.actionBadgeText}>Erledigt</Text>
+                </View>
+              </Pressable>
 
-            {/* Demo walk action for dogs */}
-            {pets.some((p) => p.type === "dog") && (
-              <GlassCard className="mb-4">
-                <View className="flex-row items-center">
-                  <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mr-3">
-                    <IconSymbol name="figure.walk" size={24} color={colors.primary} />
+              {/* Gassi */}
+              {pets.some((p) => p.type === "dog") && (
+                <Pressable style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
+                  <View style={[s.actionIcon, { backgroundColor: "rgba(102,187,106,0.1)" }]}>
+                    <IconSymbol name="figure.walk" size={22} color="#66BB6A" />
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-foreground font-semibold">
-                      {pets.find((p) => p.type === "dog")?.name || "Hund"} Gassi gehen
-                    </Text>
-                    <Text className="text-muted text-sm">17:30 Uhr • 45 Min geplant</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.actionTitle}>{pets.find((p) => p.type === "dog")?.name} Gassi</Text>
+                    <Text style={s.actionSubtitle}>45 Min geplant</Text>
                   </View>
-                  <Pressable 
-                    className="bg-primary/20 px-3 py-1.5 rounded-full"
-                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                  >
-                    <Text className="text-primary font-medium text-sm">Starten</Text>
-                  </Pressable>
-                </View>
-              </GlassCard>
-            )}
-          </>
-        )}
-
-        {/* Hints Section */}
-        {pets.length > 0 && (
-          <>
-            <Text className="text-foreground text-lg font-semibold mb-3 mt-4">
-              Hinweise
-            </Text>
-            
-            <GlassCard className="mb-4 border-warning/50">
-              <View className="flex-row items-center">
-                <View className="w-12 h-12 rounded-full bg-warning/20 items-center justify-center mr-3">
-                  <IconSymbol name="exclamationmark.triangle.fill" size={24} color={colors.warning} />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-foreground font-semibold">Niedriger Vorrat</Text>
-                  <Text className="text-muted text-sm">Premium Futter • Noch 2 kg</Text>
-                </View>
-                <Pressable 
-                  className="bg-warning/20 px-3 py-1.5 rounded-full"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                >
-                  <Text className="text-warning font-medium text-sm">Bestellen</Text>
+                  <View style={[s.actionBadge, { backgroundColor: "rgba(102,187,106,0.1)" }]}>
+                    <Text style={[s.actionBadgeText, { color: "#66BB6A" }]}>Starten</Text>
+                  </View>
                 </Pressable>
-              </View>
-            </GlassCard>
-          </>
-        )}
+              )}
 
-        {/* Emergency Card */}
+              {/* Vorrat */}
+              <Pressable style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
+                <View style={[s.actionIcon, { backgroundColor: "rgba(255,183,77,0.1)" }]}>
+                  <IconSymbol name="exclamationmark.triangle.fill" size={22} color="#FFB74D" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.actionTitle}>Vorrat niedrig</Text>
+                  <Text style={s.actionSubtitle}>Premium Futter -- Noch 2 kg</Text>
+                </View>
+                <View style={[s.actionBadge, { backgroundColor: "rgba(255,183,77,0.1)" }]}>
+                  <Text style={[s.actionBadgeText, { color: "#FFB74D" }]}>Bestellen</Text>
+                </View>
+              </Pressable>
+            </>
+          )}
+        </View>
+
+        {/* Notfall */}
         <Pressable
           onPress={() => router.push("/emergency")}
-          style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}
+          style={({ pressed }) => [s.emergencyCard, pressed && { transform: [{ scale: 0.98 }] }]}
         >
-          <GlassCard className="border-error/30 mt-4">
-            <View className="flex-row items-center">
-              <View className="w-12 h-12 rounded-full bg-error/20 items-center justify-center mr-3">
-                <IconSymbol name="exclamationmark.triangle.fill" size={24} color={colors.error} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-foreground font-semibold">Notfall-Hilfe</Text>
-                <Text className="text-muted text-sm">Tier vermisst oder Notfall?</Text>
-              </View>
-              <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-            </View>
-          </GlassCard>
+          <View style={s.emergencyIcon}>
+            <IconSymbol name="exclamationmark.triangle.fill" size={22} color="#EF5350" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.emergencyTitle}>Notfall-Hilfe</Text>
+            <Text style={s.emergencySubtitle}>Tier vermisst oder medizinischer Notfall</Text>
+          </View>
+          <IconSymbol name="chevron.right" size={16} color="#EF5350" />
         </Pressable>
       </ScrollView>
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  header: { marginBottom: 32 },
+  greeting: { fontSize: 15, fontWeight: "400", color: "#8B8B80", letterSpacing: 1 },
+  userName: { fontSize: 32, fontWeight: "300", color: "#FAFAF8", letterSpacing: 3, marginTop: 4 },
+  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
+
+  statsRow: {
+    flexDirection: "row",
+    backgroundColor: "#141418",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.1)",
+    marginBottom: 24,
+  },
+  statCard: { flex: 1, alignItems: "center", paddingVertical: 20 },
+  statNumber: { fontSize: 28, fontWeight: "300", color: "#D4A843", letterSpacing: 1 },
+  statLabel: { fontSize: 11, fontWeight: "500", color: "#6B6B6B", letterSpacing: 2, textTransform: "uppercase", marginTop: 4 },
+
+  aiCard: { marginBottom: 32, overflow: "hidden" },
+  aiCardGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.15)",
+    gap: 16,
+  },
+  aiIconContainer: {},
+  aiIconGradient: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  aiTitle: { fontSize: 13, fontWeight: "600", color: "#D4A843", letterSpacing: 2, textTransform: "uppercase" },
+  aiText: { fontSize: 14, fontWeight: "400", color: "#C8C8C0", marginTop: 4, lineHeight: 20 },
+
+  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+  sectionTitle: { fontSize: 13, fontWeight: "600", color: "#8B8B80", letterSpacing: 3, textTransform: "uppercase" },
+  sectionLink: { fontSize: 13, fontWeight: "500", color: "#D4A843", letterSpacing: 1 },
+
+  petCard: {
+    width: 110,
+    backgroundColor: "#141418",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.1)",
+    paddingVertical: 20,
+    alignItems: "center",
+    gap: 8,
+  },
+  petCardAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "rgba(212,168,67,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  petCardInitial: { fontSize: 22, fontWeight: "300", color: "#D4A843", letterSpacing: 1 },
+  petCardName: { fontSize: 14, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.5 },
+  petCardType: { fontSize: 11, fontWeight: "400", color: "#6B6B6B", letterSpacing: 0.5 },
+
+  petCardAdd: {
+    width: 110,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.15)",
+    borderStyle: "dashed",
+    paddingVertical: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  petCardAddText: { fontSize: 12, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
+
+  actionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#141418",
+    borderWidth: 1,
+    borderColor: "rgba(212,168,67,0.08)",
+    padding: 16,
+    gap: 14,
+  },
+  actionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionTitle: { fontSize: 15, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.5 },
+  actionSubtitle: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
+  actionBadge: {
+    backgroundColor: "rgba(212,168,67,0.1)",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  actionBadgeText: { fontSize: 12, fontWeight: "600", color: "#D4A843", letterSpacing: 1, textTransform: "uppercase" },
+
+  emergencyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(239,83,80,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(239,83,80,0.15)",
+    padding: 16,
+    marginTop: 32,
+    gap: 14,
+  },
+  emergencyIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(239,83,80,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emergencyTitle: { fontSize: 15, fontWeight: "500", color: "#EF5350", letterSpacing: 0.5 },
+  emergencySubtitle: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
+});

@@ -5,10 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export type Language = "de" | "en" | "fr" | "es";
 
 export const LANGUAGES: { code: Language; name: string; flag: string }[] = [
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
+  { code: "de", name: "Deutsch", flag: "DE" },
+  { code: "en", name: "English", flag: "EN" },
+  { code: "fr", name: "Français", flag: "FR" },
+  { code: "es", name: "Español", flag: "ES" },
 ];
 
 // Translation keys
