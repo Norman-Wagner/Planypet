@@ -90,8 +90,8 @@ export default function MoreScreen() {
         <SectionTitle text="Einstellungen" />
         <View style={s.section}>
           <MenuItem icon="person.fill" iconColor="#8B8B80" title="Profil" subtitle="Deine Daten bearbeiten" />
-          <MenuItem icon="person.2.fill" iconColor="#D4A843" title="Familie & Team" subtitle="Rollen & Aufgaben verwalten" />
-          <MenuItem icon="bell.fill" iconColor="#FFB74D" title="Benachrichtigungen" subtitle="Push-Erinnerungen einstellen" />
+          <MenuItem icon="person.2.fill" iconColor="#D4A843" title="Familie & Team" subtitle="Rollen & Aufgaben verwalten" onPress={() => router.push("/family")} />
+          <MenuItem icon="bell.fill" iconColor="#FFB74D" title="Benachrichtigungen" subtitle="Push-Erinnerungen einstellen" onPress={() => router.push("/reminders")} />
           <MenuItem icon="gearshape.fill" iconColor="#8B8B80" title="App-Einstellungen" subtitle="Theme, Sprache, Export" onPress={() => router.push("/settings")} />
         </View>
 

@@ -104,6 +104,8 @@ export default function RootLayout() {
               <Stack.Screen name="privacy-center" options={{ presentation: "card" }} />
               <Stack.Screen name="reminders" options={{ presentation: "card" }} />
               <Stack.Screen name="health-history" options={{ presentation: "card" }} />
+              <Stack.Screen name="family" options={{ presentation: "card" }} />
+              <Stack.Screen name="feeding-log" options={{ presentation: "card" }} />
               <Stack.Screen name="settings" options={{ presentation: "card" }} />
               <Stack.Screen name="oauth/callback" />
           </Stack>

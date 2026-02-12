@@ -329,3 +329,11 @@
 - [x] AGB aktualisieren
 - [x] Consent-Status persistent speichern
 - [x] Widerruf der Einwilligung jederzeit moeglich (Art. 7 Abs. 3 DSGVO)
+
+## Premium-Erweiterungen Phase 5
+- [x] GPS-Tracking fuer Spaziergaenge (Live-Karte, Distanz, Dauer)
+- [x] Gassi-Verlauf mit Streckenaufzeichnung
+- [x] Familien-Sharing mit Rollen und Berechtigungen
+- [x] Familienmitglieder einladen und verwalten
+- [x] Fuetterungs-Protokollierung mit Ein-Tap-Bestaetigung
+- [x] Fuetterungs-Verlauf und Statistiken

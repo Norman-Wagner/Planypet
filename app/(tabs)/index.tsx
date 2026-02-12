@@ -263,7 +263,7 @@ export default function DashboardScreen() {
                 </Pressable>
               ) : (
                 <>
-                  <Pressable style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
+                  <Pressable onPress={() => router.push("/feeding-log")} style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
                     <View style={[s.actionIcon, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
                       <IconSymbol name="fork.knife" size={22} color="#D4A843" />
                     </View>
@@ -272,18 +272,18 @@ export default function DashboardScreen() {
                       <Text style={s.actionSubtitle}>Naechste Mahlzeit faellig</Text>
                     </View>
                     <View style={s.actionBadge}>
-                      <Text style={s.actionBadgeText}>Erledigt</Text>
+                      <Text style={s.actionBadgeText}>Protokoll</Text>
                     </View>
                   </Pressable>
 
                   {pets.some((p) => p.type === "dog") && (
-                    <Pressable style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
+                    <Pressable onPress={() => router.push("/walk")} style={({ pressed }) => [s.actionCard, pressed && { transform: [{ scale: 0.98 }] }]}>
                       <View style={[s.actionIcon, { backgroundColor: "rgba(102,187,106,0.1)" }]}>
                         <IconSymbol name="figure.walk" size={22} color="#66BB6A" />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={s.actionTitle}>{pets.find((p) => p.type === "dog")?.name} Gassi</Text>
-                        <Text style={s.actionSubtitle}>45 Min geplant</Text>
+                        <Text style={s.actionSubtitle}>GPS-Tracking starten</Text>
                       </View>
                       <View style={[s.actionBadge, { backgroundColor: "rgba(102,187,106,0.1)" }]}>
                         <Text style={[s.actionBadgeText, { color: "#66BB6A" }]}>Starten</Text>
