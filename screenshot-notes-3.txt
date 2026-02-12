@@ -1,0 +1,16 @@
+Screenshot zeigt den DSGVO Consent-Dialog beim ersten App-Start:
+- Dunkler Premium-Hintergrund (#0A0A0F)
+- Goldenes Schild-Icon oben
+- "DATENSCHUTZ" als Titel in Gold
+- Erklaerungstext ueber lokale Datenspeicherung
+- Verantwortlich: Joachim Norman Wagner
+- Kontakt: info@wagnerconnect.com
+- 4 Consent-Optionen mit Icons:
+  1. Lokale Datenspeicherung auf Ihrem Geraet
+  2. KI-Analyse (optional)
+  3. Push-Benachrichtigungen (optional)
+  4. Kamera & Fotos (optional)
+- "ALLE AKZEPTIEREN" Button in Gold
+- "Einstellungen anpassen" Button
+- "Nur erforderliche" Link
+- Design ist konsistent mit dem Premium-Theme

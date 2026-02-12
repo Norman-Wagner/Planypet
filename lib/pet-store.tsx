@@ -99,6 +99,10 @@ export interface HealthRecord {
   date: string;
   images?: string[];
   audioNote?: string;
+  symptoms?: string[];
+  severity?: "mild" | "moderate" | "severe";
+  notes?: string;
+  weight?: number;
 }
 
 interface PetStoreState {

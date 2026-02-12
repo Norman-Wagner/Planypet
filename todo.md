@@ -143,7 +143,7 @@
 - [x] expo-image-picker integrieren
 - [x] Kamera-Berechtigung anfordern
 - [x] Foto-Upload für Symptome
-- [ ] Foto-Upload für Tierprofile
+- [x] Foto-Upload für Tierprofile
 - [ ] Foto-Galerie anzeigen
 - [ ] Fotos in S3 speichern
 
@@ -308,3 +308,24 @@
 - [x] KI-Assistent Chat/Tipps-Screen mit Premium-Design
 - [x] Animierte Screen-Uebergaenge (Fade-In, Slide, 200-300ms)
 - [x] Personalisiertes Dashboard mit Hero-Tierfoto und Gold-Rahmen
+
+## Premium-Erweiterungen Phase 4
+- [x] Foto-Upload fuer Haustiere (Kamera + Galerie)
+- [x] Foto im Pet-Detail und Dashboard-Hero anzeigen
+- [x] Push-Benachrichtigungen fuer Fuetterung/Gassi/Tierarzt
+- [x] Benachrichtigungs-Einstellungen im Settings-Screen
+- [x] Gesundheitsverlauf mit Gewichts-Diagramm
+- [x] Symptom-Verlauf als Timeline
+- [x] Impf-Kalender Uebersicht
+
+## DSGVO-Konformitaet
+- [x] Consent-Management: Datenschutz-Einwilligung beim ersten Start
+- [x] Privacy-Banner mit granularen Einstellungen (Kamera, Benachrichtigungen, Standort)
+- [x] Datenexport-Funktion (Art. 20 DSGVO - Datenportabilitaet)
+- [x] Daten-Loeschung komplett (Art. 17 DSGVO - Recht auf Loeschung)
+- [x] Auskunftsrecht (Art. 15 DSGVO - welche Daten gespeichert sind)
+- [x] Datenschutzerklaerung aktualisieren (vollstaendig DSGVO-konform)
+- [x] Impressum aktualisieren (UG haftungsbeschraenkt)
+- [x] AGB aktualisieren
+- [x] Consent-Status persistent speichern
+- [x] Widerruf der Einwilligung jederzeit moeglich (Art. 7 Abs. 3 DSGVO)

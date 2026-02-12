@@ -116,6 +116,24 @@ export default function SettingsScreen() {
           />
         </View>
 
+        {/* Datenschutz & Rechte */}
+        <Text style={s.sectionTitle}>Datenschutz & Ihre Rechte</Text>
+        <Pressable
+          onPress={() => router.push("/privacy-center")}
+          style={({ pressed }) => [s.card, pressed && { opacity: 0.7 }]}
+        >
+          <View style={s.row}>
+            <View style={[s.iconCircle, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
+              <IconSymbol name="shield.fill" size={18} color="#D4A843" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.cardTitle}>Datenschutz-Center</Text>
+              <Text style={s.cardSub}>Einwilligungen, Datenexport, Loeschung</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
+          </View>
+        </Pressable>
+
         {/* Rechtliches */}
         <Text style={s.sectionTitle}>Rechtliches</Text>
         <View style={s.card}>

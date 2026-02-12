@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, Pressable, StyleSheet } from "react-native";
+import { ScrollView, Text, View, Pressable, StyleSheet, Linking } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -20,16 +20,27 @@ export default function ImpressumScreen() {
 
         <View style={s.card}>
           <Text style={s.bold}>Angaben gemaess Paragraph 5 TMG</Text>
-          <Text style={s.text}>Joachim Norman Wagner</Text>
+          <Text style={s.text}>Wagnerconnect UG (haftungsbeschraenkt)</Text>
+          <Text style={s.text}>Vertreten durch: Joachim Norman Wagner</Text>
           <Text style={s.muted}>Deutschland</Text>
 
           <View style={s.divider} />
           <Text style={s.bold}>Kontakt:</Text>
-          <Text style={s.text}>E-Mail: info@wagnerconnect.com</Text>
+          <Pressable onPress={() => Linking.openURL("mailto:info@wagnerconnect.com")} style={({ pressed }) => pressed && { opacity: 0.6 }}>
+            <Text style={[s.text, { color: "#D4A843" }]}>E-Mail: info@wagnerconnect.com</Text>
+          </Pressable>
 
           <View style={s.divider} />
           <Text style={s.bold}>Verantwortlich fuer den Inhalt nach Paragraph 55 Abs. 2 RStV:</Text>
           <Text style={s.text}>Joachim Norman Wagner</Text>
+
+          <View style={s.divider} />
+          <Text style={s.bold}>EU-Streitschlichtung</Text>
+          <Text style={s.muted}>Die Europaeische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:</Text>
+          <Pressable onPress={() => Linking.openURL("https://ec.europa.eu/consumers/odr/")} style={({ pressed }) => pressed && { opacity: 0.6 }}>
+            <Text style={[s.muted, { color: "#D4A843", marginTop: 4 }]}>https://ec.europa.eu/consumers/odr/</Text>
+          </Pressable>
+          <Text style={[s.muted, { marginTop: 8 }]}>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</Text>
 
           <View style={s.divider} />
           <Text style={s.bold}>Haftungsausschluss:</Text>
@@ -41,7 +52,7 @@ export default function ImpressumScreen() {
           <Text style={s.muted}>Die in dieser App bereitgestellten KI-gestuetzten Gesundheitshinweise dienen ausschliesslich Informationszwecken und ersetzen in keinem Fall die professionelle Beratung oder Behandlung durch einen approbierten Tierarzt. Bei gesundheitlichen Problemen Ihres Haustieres konsultieren Sie bitte immer einen Tierarzt.</Text>
 
           <Text style={[s.semibold, { marginTop: 12 }]}>Datenschutz</Text>
-          <Text style={s.muted}>Die Nutzung unserer App ist ohne Angabe personenbezogener Daten moeglich. Soweit auf unseren Seiten personenbezogene Daten erhoben werden, erfolgt dies stets auf freiwilliger Basis. Diese Daten werden ohne Ihre ausdrueckliche Zustimmung nicht an Dritte weitergegeben. Weitere Informationen finden Sie in unserer Datenschutzerklaerung.</Text>
+          <Text style={s.muted}>Die Nutzung unserer App ist ohne Angabe personenbezogener Daten moeglich. Soweit auf unseren Seiten personenbezogene Daten erhoben werden, erfolgt dies stets auf freiwilliger Basis und nach Ihrer ausdruecklichen Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Diese Daten werden ohne Ihre ausdrueckliche Zustimmung nicht an Dritte weitergegeben. Weitere Informationen finden Sie in unserer Datenschutzerklaerung.</Text>
 
           <View style={s.divider} />
           <Text style={{ fontSize: 11, fontWeight: "400", color: "#4A4A4A", fontStyle: "italic", textAlign: "center" }}>

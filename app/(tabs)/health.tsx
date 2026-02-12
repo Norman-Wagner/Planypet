@@ -66,6 +66,28 @@ export default function HealthScreen() {
           </Pressable>
         </View>
 
+        {/* Gesundheitsverlauf & Erinnerungen */}
+        <View style={[s.actionsRow, { marginTop: 12 }]}>
+          <Pressable
+            onPress={() => router.push("/health-history")}
+            style={({ pressed }) => [s.actionCard, pressed && { opacity: 0.7 }]}
+          >
+            <View style={[s.actionIcon, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
+              <IconSymbol name="chart.line.uptrend.xyaxis" size={20} color="#D4A843" />
+            </View>
+            <Text style={s.actionText}>Verlauf</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push("/reminders")}
+            style={({ pressed }) => [s.actionCard, pressed && { opacity: 0.7 }]}
+          >
+            <View style={[s.actionIcon, { backgroundColor: "rgba(171,71,188,0.1)" }]}>
+              <IconSymbol name="bell.fill" size={20} color="#AB47BC" />
+            </View>
+            <Text style={s.actionText}>Erinnerungen</Text>
+          </Pressable>
+        </View>
+
         {/* Anstehende Termine */}
         <Text style={s.sectionTitle}>Anstehende Termine</Text>
         <View style={s.card}>

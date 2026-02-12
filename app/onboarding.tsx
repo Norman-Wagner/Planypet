@@ -8,8 +8,10 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { PetType } from "@/components/ui/pet-avatar";
+import { ConsentDialog } from "@/components/consent-dialog";
+import { useConsent } from "@/lib/consent-store";
 
-type OnboardingStep = "welcome" | "name" | "petType" | "petName" | "petGroup" | "complete";
+type OnboardingStep = "consent" | "welcome" | "name" | "petType" | "petName" | "petGroup" | "complete";
 
 interface PetTypeOption {
   type: PetType;
@@ -80,7 +82,8 @@ function PetInitial({ label, selected }: { label: string; selected: boolean }) {
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  const [step, setStep] = useState<OnboardingStep>("welcome");
+  const { consentGiven } = useConsent();
+  const [step, setStep] = useState<OnboardingStep>(consentGiven ? "welcome" : "consent");
   const [userName, setUserName] = useState("");
   const [selectedPetType, setSelectedPetType] = useState<PetTypeOption | null>(null);
   const [petName, setPetName] = useState("");
@@ -105,6 +108,11 @@ export default function OnboardingScreen() {
 
   const renderStep = () => {
     switch (step) {
+      case "consent":
+        return (
+          <ConsentDialog onComplete={() => setStep("welcome")} />
+        );
+
       case "welcome":
         return (
           <View style={styles.centerContainer}>
