@@ -1,0 +1,6 @@
+Screenshot nach Phase 3 Erweiterungen:
+- Onboarding-Screen sichtbar: Dunkler Hintergrund, Gold-Kreis-Icon mit Sternen, "PLANYPET" in weisser Schrift, Gold-Linie, Claim "Dein Tier verdient das Beste. Wir sorgen dafuer.", Gold "BEGINNEN" Button
+- Premium-Design korrekt angewendet
+- Keine Emojis sichtbar
+- TypeScript: 0 Fehler
+- Tests: 22 bestanden, 1 uebersprungen

@@ -98,6 +98,7 @@ export default function RootLayout() {
               <Stack.Screen name="vet-mode" options={{ presentation: "card" }} />
               <Stack.Screen name="add-symptom" options={{ presentation: "card" }} />
               <Stack.Screen name="emergency" options={{ presentation: "card" }} />
+              <Stack.Screen name="ai-chat" options={{ presentation: "card" }} />
               <Stack.Screen name="settings" options={{ presentation: "card" }} />
               <Stack.Screen name="oauth/callback" />
           </Stack>
