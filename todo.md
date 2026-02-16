@@ -337,3 +337,16 @@
 - [x] Familienmitglieder einladen und verwalten
 - [x] Fuetterungs-Protokollierung mit Ein-Tap-Bestaetigung
 - [x] Fuetterungs-Verlauf und Statistiken
+
+
+## Erweiterte Einstellungen (Phase 6)
+- [x] Visuelle Einstellungen: App-Farbwahl (Themes)
+- [x] Kontrast-Regler (0-200%)
+- [x] Sättigung-Regler (0-200%)
+- [x] Schärfe-Regler (0-200%)
+- [x] Futtermenge pro Mahlzeit (g/ml) einstellen
+- [x] Anzahl Fütterungen pro Tag (1-5)
+- [x] Fastenzeitplan / Fastentage (wählbar/abwählbar)
+- [x] Warnung: "Nach dem Essen nicht sofort spazieren"
+- [x] Gassi-Vorschläge nach Zeitdauer (15/30/45/60+ min)
+- [x] Automatische Empfehlungen nach Tierart/Alter

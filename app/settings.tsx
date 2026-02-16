@@ -1,8 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { ScrollView, Text, View, Pressable, Switch, Linking, Platform, StyleSheet } from "react-native";
+import Slider from "@react-native-community/slider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { usePetStore } from "@/lib/pet-store";
@@ -16,11 +18,40 @@ export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticEnabled, setHapticEnabled] = useState(true);
+  
+  // Visual Settings
+  const [contrast, setContrast] = useState(100);
+  const [saturation, setSaturation] = useState(100);
+  const [sharpness, setSharpness] = useState(100);
+  const [appTheme, setAppTheme] = useState("blue");
+  
+  // Feeding Settings
+  const [portionSize, setPortionSize] = useState(200);
+  const [feedingsPerDay, setFeedingsPerDay] = useState(2);
+  const [fastingDaysEnabled, setFastingDaysEnabled] = useState(false);
+  const [fastingDays, setFastingDays] = useState<number[]>([]);
+  
+  // Walk Settings
+  const [walkDurationPreference, setWalkDurationPreference] = useState(30);
 
   const handleClearData = () => {
     clearAllData();
     router.replace("/onboarding");
   };
+
+  const toggleFastingDay = (day: number) => {
+    setFastingDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  const THEMES = [
+    { name: "Blau", color: "#1E40AF" },
+    { name: "Lila", color: "#7C3AED" },
+    { name: "Grün", color: "#059669" },
+    { name: "Orange", color: "#EA580C" },
+  ];
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
@@ -38,7 +69,7 @@ export default function SettingsScreen() {
           style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}
         >
           <IconSymbol name="chevron.left" size={20} color="#D4A843" />
-          <Text style={s.backText}>Zurueck</Text>
+          <Text style={s.backText}>Zurück</Text>
         </Pressable>
 
         <View style={s.header}>
@@ -47,25 +78,233 @@ export default function SettingsScreen() {
           <View style={s.goldDivider} />
         </View>
 
-        {/* Profil */}
-        <Text style={s.sectionTitle}>Profil</Text>
+        {/* VISUELLE EINSTELLUNGEN */}
+        <Text style={s.sectionTitle}>Visuelles Design</Text>
+        
+        {/* App Theme */}
         <View style={s.card}>
-          <View style={s.row}>
-            <View style={s.profileAvatar}>
-              <Text style={s.profileInitial}>{(userName || "T").charAt(0).toUpperCase()}</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={s.cardTitle}>{userName || "Tierfreund"}</Text>
-              <Text style={s.cardSub}>Profil bearbeiten</Text>
-            </View>
-            <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
+          <Text style={s.cardTitle}>App-Farbe</Text>
+          <View style={s.themeGrid}>
+            {THEMES.map((theme) => (
+              <Pressable
+                key={theme.name}
+                onPress={() => setAppTheme(theme.name.toLowerCase())}
+                style={({ pressed }) => [
+                  s.themeBtn,
+                  { backgroundColor: theme.color },
+                  appTheme === theme.name.toLowerCase() && s.themeBtnActive,
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                {appTheme === theme.name.toLowerCase() && (
+                  <IconSymbol name="checkmark" size={16} color="#FFF" />
+                )}
+              </Pressable>
+            ))}
           </View>
         </View>
 
-        {/* Sprache */}
-        <Text style={s.sectionTitle}>{t("language")}</Text>
+        {/* Contrast */}
         <View style={s.card}>
-          <Text style={s.cardSub2}>Waehle deine Sprache</Text>
+          <View style={s.sliderHeader}>
+            <Text style={s.cardTitle}>Kontrast</Text>
+            <Text style={s.sliderValue}>{Math.round(contrast)}%</Text>
+          </View>
+          <Slider
+            style={s.slider}
+            minimumValue={50}
+            maximumValue={200}
+            value={contrast}
+            onValueChange={setContrast}
+            minimumTrackTintColor="#D4A843"
+            maximumTrackTintColor="#2A2A2F"
+          />
+          <Text style={s.sliderHint}>50% - 200%</Text>
+        </View>
+
+        {/* Saturation */}
+        <View style={s.card}>
+          <View style={s.sliderHeader}>
+            <Text style={s.cardTitle}>Sättigung</Text>
+            <Text style={s.sliderValue}>{Math.round(saturation)}%</Text>
+          </View>
+          <Slider
+            style={s.slider}
+            minimumValue={0}
+            maximumValue={200}
+            value={saturation}
+            onValueChange={setSaturation}
+            minimumTrackTintColor="#D4A843"
+            maximumTrackTintColor="#2A2A2F"
+          />
+          <Text style={s.sliderHint}>0% - 200%</Text>
+        </View>
+
+        {/* Sharpness */}
+        <View style={s.card}>
+          <View style={s.sliderHeader}>
+            <Text style={s.cardTitle}>Schärfe</Text>
+            <Text style={s.sliderValue}>{Math.round(sharpness)}%</Text>
+          </View>
+          <Slider
+            style={s.slider}
+            minimumValue={50}
+            maximumValue={200}
+            value={sharpness}
+            onValueChange={setSharpness}
+            minimumTrackTintColor="#D4A843"
+            maximumTrackTintColor="#2A2A2F"
+          />
+          <Text style={s.sliderHint}>50% - 200%</Text>
+        </View>
+
+        {/* FÜTTERUNG */}
+        <Text style={s.sectionTitle}>Fütterung</Text>
+
+        {/* Portion Size */}
+        <View style={s.card}>
+          <View style={s.sliderHeader}>
+            <Text style={s.cardTitle}>Futtermenge pro Mahlzeit</Text>
+            <Text style={s.sliderValue}>{Math.round(portionSize)}g</Text>
+          </View>
+          <Slider
+            style={s.slider}
+            minimumValue={50}
+            maximumValue={500}
+            step={10}
+            value={portionSize}
+            onValueChange={setPortionSize}
+            minimumTrackTintColor="#D4A843"
+            maximumTrackTintColor="#2A2A2F"
+          />
+          <Text style={s.sliderHint}>50g - 500g</Text>
+        </View>
+
+        {/* Feedings Per Day */}
+        <View style={s.card}>
+          <View style={s.sliderHeader}>
+            <Text style={s.cardTitle}>Fütterungen pro Tag</Text>
+            <Text style={s.sliderValue}>{Math.round(feedingsPerDay)}x</Text>
+          </View>
+          <Slider
+            style={s.slider}
+            minimumValue={1}
+            maximumValue={5}
+            step={1}
+            value={feedingsPerDay}
+            onValueChange={setFeedingsPerDay}
+            minimumTrackTintColor="#D4A843"
+            maximumTrackTintColor="#2A2A2F"
+          />
+          <Text style={s.sliderHint}>1 - 5 Mahlzeiten</Text>
+        </View>
+
+        {/* Fasting Days */}
+        <View style={s.card}>
+          <View style={s.row}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.cardTitle}>Fastentage aktivieren</Text>
+              <Text style={s.cardSub}>Wähle Tage ohne Fütterung</Text>
+            </View>
+            <Switch
+              value={fastingDaysEnabled}
+              onValueChange={setFastingDaysEnabled}
+              trackColor={{ false: "#2A2A2F", true: "#D4A843" }}
+              thumbColor={fastingDaysEnabled ? "#0A0A0F" : "#4A4A4A"}
+            />
+          </View>
+
+          {fastingDaysEnabled && (
+            <View style={s.fastingDaysGrid}>
+              {DAYS.map((day, idx) => (
+                <Pressable
+                  key={day}
+                  onPress={() => toggleFastingDay(idx)}
+                  style={({ pressed }) => [
+                    s.dayBtn,
+                    fastingDays.includes(idx) && s.dayBtnActive,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      s.dayText,
+                      fastingDays.includes(idx) && s.dayTextActive,
+                    ]}
+                  >
+                    {day}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Warning: No Walk After Eating */}
+        <View style={s.warningCard}>
+          <IconSymbol name="exclamationmark.triangle" size={20} color="#D4A843" />
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={s.warningTitle}>Nach dem Essen nicht sofort spazieren</Text>
+            <Text style={s.warningText}>
+              Warte mindestens 30-60 Minuten nach der Fütterung, bevor du mit deinem Tier spazieren gehst.
+            </Text>
+          </View>
+        </View>
+
+        {/* GASSI */}
+        <Text style={s.sectionTitle}>Spaziergänge</Text>
+
+        {/* Walk Duration Preference */}
+        <View style={s.card}>
+          <View style={s.sliderHeader}>
+            <Text style={s.cardTitle}>Bevorzugte Spaziergang-Dauer</Text>
+            <Text style={s.sliderValue}>{Math.round(walkDurationPreference)}min</Text>
+          </View>
+          <Slider
+            style={s.slider}
+            minimumValue={15}
+            maximumValue={120}
+            step={15}
+            value={walkDurationPreference}
+            onValueChange={setWalkDurationPreference}
+            minimumTrackTintColor="#D4A843"
+            maximumTrackTintColor="#2A2A2F"
+          />
+          <Text style={s.sliderHint}>15 - 120 Minuten</Text>
+        </View>
+
+        {/* Walk Suggestions */}
+        <View style={s.card}>
+          <Text style={s.cardTitle}>Gassi-Vorschläge</Text>
+          <View style={s.suggestionGrid}>
+            {[15, 30, 45, 60].map((duration) => (
+              <Pressable
+                key={duration}
+                style={({ pressed }) => [
+                  s.suggestionBtn,
+                  walkDurationPreference === duration && s.suggestionBtnActive,
+                  pressed && { opacity: 0.7 },
+                ]}
+                onPress={() => setWalkDurationPreference(duration)}
+              >
+                <Text
+                  style={[
+                    s.suggestionText,
+                    walkDurationPreference === duration &&
+                      s.suggestionTextActive,
+                  ]}
+                >
+                  {duration}min
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* SPRACHE */}
+        <Text style={s.sectionTitle}>Sprache</Text>
+        <View style={s.card}>
+          <Text style={s.cardSub2}>Wähle deine Sprache</Text>
           <View style={s.langRow}>
             {LANGUAGES.map((lang) => (
               <Pressable
@@ -77,7 +316,12 @@ export default function SettingsScreen() {
                   pressed && { opacity: 0.7 },
                 ]}
               >
-                <Text style={[s.langText, language === lang.code && s.langTextActive]}>
+                <Text
+                  style={[
+                    s.langText,
+                    language === lang.code && s.langTextActive,
+                  ]}
+                >
                   {lang.name}
                 </Text>
               </Pressable>
@@ -85,178 +329,311 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Benachrichtigungen */}
+        {/* BENACHRICHTIGUNGEN */}
         <Text style={s.sectionTitle}>Benachrichtigungen</Text>
         <View style={s.card}>
-          <SettingToggle
-            icon="bell.fill"
-            iconColor="#D4A843"
-            title="Push-Benachrichtigungen"
-            subtitle="Erinnerungen erhalten"
-            value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
-          />
-          <View style={s.divider} />
-          <SettingToggle
-            icon="speaker.wave.2.fill"
-            iconColor="#FFB74D"
-            title="Toene"
-            subtitle="Benachrichtigungstoene"
-            value={soundEnabled}
-            onValueChange={setSoundEnabled}
-          />
-          <View style={s.divider} />
-          <SettingToggle
-            icon="iphone.radiowaves.left.and.right"
-            iconColor="#66BB6A"
-            title="Haptisches Feedback"
-            subtitle="Vibrationen bei Aktionen"
-            value={hapticEnabled}
-            onValueChange={setHapticEnabled}
-          />
+          <View style={s.row}>
+            <Text style={s.cardTitle}>Benachrichtigungen</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={setNotificationsEnabled}
+              trackColor={{ false: "#2A2A2F", true: "#D4A843" }}
+              thumbColor={notificationsEnabled ? "#0A0A0F" : "#4A4A4A"}
+            />
+          </View>
         </View>
 
-        {/* Datenschutz & Rechte */}
-        <Text style={s.sectionTitle}>Datenschutz & Ihre Rechte</Text>
+        <View style={s.card}>
+          <View style={s.row}>
+            <Text style={s.cardTitle}>Sound</Text>
+            <Switch
+              value={soundEnabled}
+              onValueChange={setSoundEnabled}
+              trackColor={{ false: "#2A2A2F", true: "#D4A843" }}
+              thumbColor={soundEnabled ? "#0A0A0F" : "#4A4A4A"}
+            />
+          </View>
+        </View>
+
+        <View style={s.card}>
+          <View style={s.row}>
+            <Text style={s.cardTitle}>Haptic Feedback</Text>
+            <Switch
+              value={hapticEnabled}
+              onValueChange={setHapticEnabled}
+              trackColor={{ false: "#2A2A2F", true: "#D4A843" }}
+              thumbColor={hapticEnabled ? "#0A0A0F" : "#4A4A4A"}
+            />
+          </View>
+        </View>
+
+        {/* LEGAL */}
+        <Text style={s.sectionTitle}>Rechtliches</Text>
         <Pressable
-          onPress={() => router.push("/privacy-center")}
+          onPress={() => router.push("/legal/privacy")}
           style={({ pressed }) => [s.card, pressed && { opacity: 0.7 }]}
         >
           <View style={s.row}>
-            <View style={[s.iconCircle, { backgroundColor: "rgba(212,168,67,0.1)" }]}>
-              <IconSymbol name="shield.fill" size={18} color="#D4A843" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={s.cardTitle}>Datenschutz-Center</Text>
-              <Text style={s.cardSub}>Einwilligungen, Datenexport, Loeschung</Text>
-            </View>
+            <Text style={s.cardTitle}>Datenschutz</Text>
             <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
           </View>
         </Pressable>
 
-        {/* Rechtliches */}
-        <Text style={s.sectionTitle}>Rechtliches</Text>
-        <View style={s.card}>
-          <LegalLink title="Datenschutzerklaerung" onPress={() => router.push("/legal/privacy")} />
-          <View style={s.divider} />
-          <LegalLink title="AGB" onPress={() => router.push("/legal/terms")} />
-          <View style={s.divider} />
-          <LegalLink title="Impressum" onPress={() => router.push("/legal/impressum")} />
-        </View>
-
-        {/* Daten */}
-        <Text style={s.sectionTitle}>Daten</Text>
         <Pressable
-          onPress={handleClearData}
+          onPress={() => router.push("/legal/terms")}
           style={({ pressed }) => [s.card, pressed && { opacity: 0.7 }]}
         >
           <View style={s.row}>
-            <View style={[s.iconCircle, { backgroundColor: "rgba(239,83,80,0.1)" }]}>
-              <IconSymbol name="trash.fill" size={18} color="#EF5350" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[s.cardTitle, { color: "#EF5350" }]}>Alle Daten loeschen</Text>
-              <Text style={s.cardSub}>App zuruecksetzen</Text>
-            </View>
+            <Text style={s.cardTitle}>AGB</Text>
+            <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
           </View>
         </Pressable>
 
-        {/* App Info */}
-        <View style={s.footer}>
-          <Text style={s.footerBrand}>Planypet</Text>
-          <Text style={s.footerSub}>by Wagnerconnect</Text>
-          <Text style={s.footerVersion}>Version 1.0.0</Text>
-        </View>
+        <Pressable
+          onPress={() => router.push("/legal/impressum")}
+          style={({ pressed }) => [s.card, pressed && { opacity: 0.7 }]}
+        >
+          <View style={s.row}>
+            <Text style={s.cardTitle}>Impressum</Text>
+            <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
+          </View>
+        </Pressable>
+
+        {/* DANGER ZONE */}
+        <Text style={s.sectionTitle}>Datenverwaltung</Text>
+        <Pressable
+          onPress={handleClearData}
+          style={({ pressed }) => [s.dangerCard, pressed && { opacity: 0.7 }]}
+        >
+          <IconSymbol name="trash" size={18} color="#EF4444" />
+          <Text style={s.dangerText}>Alle Daten löschen</Text>
+        </Pressable>
       </ScrollView>
     </View>
   );
 }
 
-function SettingToggle({ icon, iconColor, title, subtitle, value, onValueChange }: {
-  icon: string; iconColor: string; title: string; subtitle: string;
-  value: boolean; onValueChange: (v: boolean) => void;
-}) {
-  return (
-    <View style={s.row}>
-      <View style={[s.iconCircle, { backgroundColor: `${iconColor}15` }]}>
-        <IconSymbol name={icon as any} size={18} color={iconColor} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={s.cardTitle}>{title}</Text>
-        <Text style={s.cardSub}>{subtitle}</Text>
-      </View>
-      <Switch
-        value={value}
-        onValueChange={onValueChange}
-        trackColor={{ false: "#2A2A30", true: "#D4A843" }}
-        thumbColor="#FAFAF8"
-      />
-    </View>
-  );
-}
-
-function LegalLink({ title, onPress }: { title: string; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [s.row, pressed && { opacity: 0.6 }]}>
-      <Text style={s.cardTitle}>{title}</Text>
-      <IconSymbol name="chevron.right" size={14} color="#4A4A4A" />
-    </Pressable>
-  );
-}
-
 const s = StyleSheet.create({
-  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
-  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
-
-  header: { marginBottom: 32 },
-  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
-  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
-  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
-
+  backBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingVertical: 8,
+  },
+  backText: {
+    color: "#D4A843",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  header: {
+    marginBottom: 32,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#FFF",
+    marginBottom: 4,
+  },
+  headerSub: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    marginBottom: 16,
+  },
+  goldDivider: {
+    height: 2,
+    backgroundColor: "#D4A843",
+    width: 40,
+  },
   sectionTitle: {
-    fontSize: 11, fontWeight: "600", color: "#D4A843",
-    letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, marginTop: 24,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#D4A843",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginTop: 24,
+    marginBottom: 12,
   },
-
   card: {
-    backgroundColor: "#141418", padding: 16,
-    borderWidth: 1, borderColor: "rgba(212,168,67,0.08)",
+    backgroundColor: "#1A1A1F",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
   },
-
-  row: { flexDirection: "row", alignItems: "center", gap: 14 },
-
-  iconCircle: {
-    width: 40, height: 40, borderRadius: 20,
-    alignItems: "center", justifyContent: "center",
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-
-  profileAvatar: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: "rgba(212,168,67,0.1)",
-    borderWidth: 1, borderColor: "rgba(212,168,67,0.2)",
-    alignItems: "center", justifyContent: "center",
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFF",
+    marginBottom: 4,
   },
-  profileInitial: { fontSize: 22, fontWeight: "300", color: "#D4A843" },
-
-  cardTitle: { fontSize: 15, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3 },
-  cardSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
-  cardSub2: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginBottom: 12 },
-
-  divider: { height: 1, backgroundColor: "rgba(212,168,67,0.05)", marginVertical: 14 },
-
-  langRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  cardSub: {
+    fontSize: 13,
+    color: "#9CA3AF",
+  },
+  cardSub2: {
+    fontSize: 13,
+    color: "#9CA3AF",
+    marginBottom: 12,
+  },
+  sliderHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  sliderValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#D4A843",
+  },
+  slider: {
+    height: 40,
+    marginBottom: 8,
+  },
+  sliderHint: {
+    fontSize: 12,
+    color: "#6B7280",
+  },
+  themeGrid: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 12,
+  },
+  themeBtn: {
+    flex: 1,
+    height: 50,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  themeBtnActive: {
+    borderColor: "#D4A843",
+  },
+  fastingDaysGrid: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+    flexWrap: "wrap",
+  },
+  dayBtn: {
+    flex: 1,
+    minWidth: "30%",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: "#0A0A0F",
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
+  },
+  dayBtnActive: {
+    backgroundColor: "#D4A843",
+    borderColor: "#D4A843",
+  },
+  dayText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#9CA3AF",
+  },
+  dayTextActive: {
+    color: "#0A0A0F",
+  },
+  warningCard: {
+    backgroundColor: "#1F1F1F",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#D4A843",
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  warningTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#D4A843",
+    marginBottom: 4,
+  },
+  warningText: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    lineHeight: 18,
+  },
+  suggestionGrid: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+    flexWrap: "wrap",
+  },
+  suggestionBtn: {
+    flex: 1,
+    minWidth: "45%",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: "#0A0A0F",
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
+  },
+  suggestionBtnActive: {
+    backgroundColor: "#D4A843",
+    borderColor: "#D4A843",
+  },
+  suggestionText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#9CA3AF",
+  },
+  suggestionTextActive: {
+    color: "#0A0A0F",
+  },
+  langRow: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
   langBtn: {
-    paddingHorizontal: 16, paddingVertical: 8,
-    borderWidth: 1, borderColor: "rgba(212,168,67,0.15)",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: "#0A0A0F",
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
   },
   langBtnActive: {
-    backgroundColor: "rgba(212,168,67,0.15)", borderColor: "#D4A843",
+    backgroundColor: "#D4A843",
+    borderColor: "#D4A843",
   },
-  langText: { fontSize: 13, fontWeight: "500", color: "#6B6B6B", letterSpacing: 0.5 },
-  langTextActive: { color: "#D4A843" },
-
-  footer: { alignItems: "center", marginTop: 40, marginBottom: 20 },
-  footerBrand: { fontSize: 18, fontWeight: "300", color: "#FAFAF8", letterSpacing: 3 },
-  footerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 4 },
-  footerVersion: { fontSize: 11, fontWeight: "400", color: "#4A4A4A", marginTop: 4 },
+  langText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#9CA3AF",
+  },
+  langTextActive: {
+    color: "#0A0A0F",
+  },
+  dangerCard: {
+    backgroundColor: "#1A1A1F",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#EF4444",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  dangerText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#EF4444",
+  },
 });
