@@ -10,7 +10,7 @@ const sections = [
   },
   {
     title: "2. Verantwortliche Stelle (Art. 13 Abs. 1 lit. a DSGVO)",
-    content: "Verantwortlich fuer die Datenverarbeitung in dieser App ist:\n\nJoachim Norman Wagner\nDeutschland\n\nE-Mail: info@wagnerconnect.com\n\nVerantwortliche Stelle ist die natuerliche Person, die allein oder gemeinsam mit anderen ueber die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten entscheidet.",
+    content: "Verantwortlich fuer die Datenverarbeitung in dieser App ist:\n\nPlanypet - Tierpflege App\nDeutschland\n\nE-Mail: Planypet@icloud.com\n\nVerantwortliche Stelle ist die natuerliche Person, die allein oder gemeinsam mit anderen ueber die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten entscheidet.",
   },
   {
     title: "3. Welche Daten erfassen wir? (Art. 13 Abs. 1 lit. c, d DSGVO)",
@@ -34,7 +34,7 @@ const sections = [
   },
   {
     title: "8. Ihre Rechte (Art. 15-22 DSGVO)",
-    content: "Sie haben jederzeit folgende Rechte:\n\nArt. 15 DSGVO - Auskunftsrecht\nSie koennen im Datenschutz-Center der App einsehen, welche Daten gespeichert sind.\n\nArt. 16 DSGVO - Recht auf Berichtigung\nSie koennen Ihre Daten jederzeit in der App bearbeiten.\n\nArt. 17 DSGVO - Recht auf Loeschung\nSie koennen alle Daten ueber das Datenschutz-Center unwiderruflich loeschen.\n\nArt. 18 DSGVO - Recht auf Einschraenkung\nSie koennen einzelne Datenverarbeitungen im Datenschutz-Center deaktivieren.\n\nArt. 20 DSGVO - Recht auf Datenuebertragbarkeit\nSie koennen alle Ihre Daten im maschinenlesbaren JSON-Format ueber das Datenschutz-Center exportieren.\n\nArt. 21 DSGVO - Widerspruchsrecht\nSie koennen der Verarbeitung auf Grundlage berechtigter Interessen jederzeit widersprechen.\n\nArt. 7 Abs. 3 DSGVO - Widerruf der Einwilligung\nSie koennen Ihre Einwilligungen jederzeit im Datenschutz-Center widerrufen.\n\nKontakt: info@wagnerconnect.com",
+    content: "Sie haben jederzeit folgende Rechte:\n\nArt. 15 DSGVO - Auskunftsrecht\nSie koennen im Datenschutz-Center der App einsehen, welche Daten gespeichert sind.\n\nArt. 16 DSGVO - Recht auf Berichtigung\nSie koennen Ihre Daten jederzeit in der App bearbeiten.\n\nArt. 17 DSGVO - Recht auf Loeschung\nSie koennen alle Daten ueber das Datenschutz-Center unwiderruflich loeschen.\n\nArt. 18 DSGVO - Recht auf Einschraenkung\nSie koennen einzelne Datenverarbeitungen im Datenschutz-Center deaktivieren.\n\nArt. 20 DSGVO - Recht auf Datenuebertragbarkeit\nSie koennen alle Ihre Daten im maschinenlesbaren JSON-Format ueber das Datenschutz-Center exportieren.\n\nArt. 21 DSGVO - Widerspruchsrecht\nSie koennen der Verarbeitung auf Grundlage berechtigter Interessen jederzeit widersprechen.\n\nArt. 7 Abs. 3 DSGVO - Widerruf der Einwilligung\nSie koennen Ihre Einwilligungen jederzeit im Datenschutz-Center widerrufen.\n\nKontakt: Planypet@icloud.com",
   },
   {
     title: "9. Beschwerderecht (Art. 77 DSGVO)",

@@ -21,18 +21,18 @@ export default function ImpressumScreen() {
         <View style={s.card}>
           <Text style={s.bold}>Angaben gemaess Paragraph 5 TMG</Text>
           <Text style={s.text}>Wagnerconnect UG (haftungsbeschraenkt)</Text>
-          <Text style={s.text}>Vertreten durch: Joachim Norman Wagner</Text>
+          <Text style={s.text}>Vertreten durch: Privatperson</Text>
           <Text style={s.muted}>Deutschland</Text>
 
           <View style={s.divider} />
           <Text style={s.bold}>Kontakt:</Text>
-          <Pressable onPress={() => Linking.openURL("mailto:info@wagnerconnect.com")} style={({ pressed }) => pressed && { opacity: 0.6 }}>
-            <Text style={[s.text, { color: "#D4A843" }]}>E-Mail: info@wagnerconnect.com</Text>
+          <Pressable onPress={() => Linking.openURL("mailto:Planypet@icloud.com")} style={({ pressed }) => pressed && { opacity: 0.6 }}>
+            <Text style={[s.text, { color: "#D4A843" }]}>E-Mail: Planypet@icloud.com</Text>
           </Pressable>
 
           <View style={s.divider} />
           <Text style={s.bold}>Verantwortlich fuer den Inhalt nach Paragraph 55 Abs. 2 RStV:</Text>
-          <Text style={s.text}>Joachim Norman Wagner</Text>
+          <Text style={s.text}>Planypet - Tierpflege App</Text>
 
           <View style={s.divider} />
           <Text style={s.bold}>EU-Streitschlichtung</Text>

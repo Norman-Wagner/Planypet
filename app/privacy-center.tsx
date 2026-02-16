@@ -44,7 +44,7 @@ export default function PrivacyCenterScreen() {
       const exportData = {
         exportDatum: new Date().toISOString(),
         exportFormat: "JSON (maschinenlesbar gemaess Art. 20 DSGVO)",
-        verantwortlicher: "Joachim Norman Wagner, info@wagnerconnect.com",
+        verantwortlicher: "Planypet - Tierpflege App, Planypet@icloud.com",
         benutzerdaten: {
           name: store.userName,
           rolle: store.userRole,
@@ -286,8 +286,8 @@ export default function PrivacyCenterScreen() {
         {/* Verantwortlicher */}
         <Text style={s.sectionTitle}>Verantwortlicher (Art. 13 DSGVO)</Text>
         <View style={s.card}>
-          <Text style={s.cardTitle}>Joachim Norman Wagner</Text>
-          <Text style={s.cardSub}>E-Mail: info@wagnerconnect.com</Text>
+          <Text style={s.cardTitle}>Planypet - Tierpflege App</Text>
+          <Text style={s.cardSub}>E-Mail: Planypet@icloud.com</Text>
           <Text style={s.cardSub}>Deutschland</Text>
           <View style={[s.divider, { marginVertical: 12 }]} />
           <Text style={s.cardDesc}>
