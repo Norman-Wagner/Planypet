@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, ScrollView, Pressable, TextInput, Alert, StyleSheet, Platform, Switch } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -17,22 +17,45 @@ interface Reminder {
   petName: string;
   type: "feeding" | "walk" | "vet" | "medication" | "custom";
   title: string;
-  time: string; // HH:MM format
-  days: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
+  time: string;
+  days: number[];
   enabled: boolean;
   notificationId?: string;
   createdAt: string;
+  snoozedUntil?: number;
+}
+
+interface VetReminder {
+  id: string;
+  petId: string;
+  petName: string;
+  type: "vaccination" | "dental" | "checkup";
+  dueDate: string;
+  completed: boolean;
+  notes: string;
 }
 
 const REMINDERS_KEY = "planypet_reminders";
+const VET_REMINDERS_KEY = "planypet_vet_reminders";
 const DAY_LABELS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+const SNOOZE_OPTIONS = [
+  { label: "5 Min", value: 5 },
+  { label: "15 Min", value: 15 },
+  { label: "30 Min", value: 30 },
+];
 
 const REMINDER_TYPES = [
-  { type: "feeding" as const, label: "Fuetterung", icon: "fork.knife" as any, color: "#FFB74D" },
+  { type: "feeding" as const, label: "Fütterung", icon: "fork.knife" as any, color: "#FFB74D" },
   { type: "walk" as const, label: "Gassi", icon: "figure.walk" as any, color: "#66BB6A" },
   { type: "vet" as const, label: "Tierarzt", icon: "cross.case.fill" as any, color: "#EF5350" },
   { type: "medication" as const, label: "Medikament", icon: "pills.fill" as any, color: "#AB47BC" },
   { type: "custom" as const, label: "Sonstiges", icon: "bell.fill" as any, color: "#42A5F5" },
+];
+
+const VET_REMINDER_TYPES = [
+  { type: "vaccination" as const, label: "Impfung", icon: "syringe.fill" as any },
+  { type: "dental" as const, label: "Zahnreinigung", icon: "tooth.fill" as any },
+  { type: "checkup" as const, label: "Untersuchung", icon: "heart.fill" as any },
 ];
 
 export default function RemindersScreen() {
@@ -40,17 +63,26 @@ export default function RemindersScreen() {
   const store = usePetStore();
   const { pushNotifications } = useConsent();
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [vetReminders, setVetReminders] = useState<VetReminder[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showVetAdd, setShowVetAdd] = useState(false);
   const [newType, setNewType] = useState<Reminder["type"]>("feeding");
   const [newTitle, setNewTitle] = useState("");
   const [newTime, setNewTime] = useState("08:00");
-  const [newDays, setNewDays] = useState<number[]>([1, 2, 3, 4, 5]); // Mon-Fri
+  const [newDays, setNewDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [selectedPetId, setSelectedPetId] = useState(store.pets[0]?.id || "");
+  const [newVetType, setNewVetType] = useState<VetReminder["type"]>("vaccination");
+  const [newVetDate, setNewVetDate] = useState(new Date().toISOString().split("T")[0]);
+  const [newVetNotes, setNewVetNotes] = useState("");
 
   const loadReminders = useCallback(async () => {
     try {
-      const stored = await AsyncStorage.getItem(REMINDERS_KEY);
+      const [stored, vetStored] = await Promise.all([
+        AsyncStorage.getItem(REMINDERS_KEY),
+        AsyncStorage.getItem(VET_REMINDERS_KEY),
+      ]);
       if (stored) setReminders(JSON.parse(stored));
+      if (vetStored) setVetReminders(JSON.parse(vetStored));
     } catch (e) {
       console.error("Error loading reminders:", e);
     }
@@ -63,6 +95,11 @@ export default function RemindersScreen() {
   const saveReminders = async (updated: Reminder[]) => {
     setReminders(updated);
     await AsyncStorage.setItem(REMINDERS_KEY, JSON.stringify(updated));
+  };
+
+  const saveVetReminders = async (updated: VetReminder[]) => {
+    setVetReminders(updated);
+    await AsyncStorage.setItem(VET_REMINDERS_KEY, JSON.stringify(updated));
   };
 
   const scheduleReminderNotification = async (reminder: Reminder): Promise<string | undefined> => {
@@ -91,7 +128,7 @@ export default function RemindersScreen() {
           notifId = await Notifications.scheduleNotificationAsync({
             content: {
               title: reminder.title,
-              body: `Erinnerung fuer ${reminder.petName}`,
+              body: `Erinnerung für ${reminder.petName}`,
               sound: true,
             },
             trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: triggerDate },
@@ -141,6 +178,18 @@ export default function RemindersScreen() {
     setNewDays([1, 2, 3, 4, 5]);
   };
 
+  const handleSnoozeReminder = async (id: string, minutes: number) => {
+    const snoozedUntil = Date.now() + minutes * 60 * 1000;
+    const updated = reminders.map(r =>
+      r.id === id ? { ...r, snoozedUntil } : r
+    );
+    await saveReminders(updated);
+    
+    if (Platform.OS !== "web") {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  };
+
   const handleToggleReminder = async (id: string) => {
     const updated = reminders.map(r => {
       if (r.id === id) {
@@ -152,296 +201,487 @@ export default function RemindersScreen() {
       return r;
     });
     await saveReminders(updated);
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    const reminder = reminders.find(r => r.id === id);
+    if (reminder?.notificationId) {
+      cancelNotification(reminder.notificationId);
     }
+    const updated = reminders.filter(r => r.id !== id);
+    await saveReminders(updated);
   };
 
-  const handleDeleteReminder = (id: string) => {
-    Alert.alert("Erinnerung loeschen", "Moechtest du diese Erinnerung wirklich loeschen?", [
-      { text: "Abbrechen", style: "cancel" },
-      {
-        text: "Loeschen",
-        style: "destructive",
-        onPress: async () => {
-          const reminder = reminders.find(r => r.id === id);
-          if (reminder?.notificationId) {
-            await cancelNotification(reminder.notificationId);
-          }
-          const updated = reminders.filter(r => r.id !== id);
-          await saveReminders(updated);
-          if (Platform.OS !== "web") {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          }
-        },
-      },
-    ]);
+  const handleAddVetReminder = async () => {
+    const pet = store.pets.find(p => p.id === selectedPetId);
+    const vetReminder: VetReminder = {
+      id: Date.now().toString(),
+      petId: selectedPetId,
+      petName: pet?.name || "Tier",
+      type: newVetType,
+      dueDate: newVetDate,
+      completed: false,
+      notes: newVetNotes,
+    };
+
+    const updated = [...vetReminders, vetReminder];
+    await saveVetReminders(updated);
+
+    if (Platform.OS !== "web") {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+
+    setShowVetAdd(false);
+    setNewVetType("vaccination");
+    setNewVetDate(new Date().toISOString().split("T")[0]);
+    setNewVetNotes("");
   };
 
-  const toggleDay = (day: number) => {
-    setNewDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day].sort());
-  };
-
-  if (!pushNotifications) {
-    return (
-      <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 40, paddingTop: insets.top }}>
-          <Pressable onPress={() => router.back()} style={[s.backBtn, { position: "absolute", top: insets.top + 16, left: 20 }]}>
-            <IconSymbol name="chevron.left" size={20} color="#D4A843" />
-            <Text style={s.backText}>Zurueck</Text>
-          </Pressable>
-          <IconSymbol name="bell.slash.fill" size={48} color="#4A4A4A" />
-          <Text style={[s.headerTitle, { marginTop: 20, textAlign: "center" }]}>Benachrichtigungen deaktiviert</Text>
-          <Text style={[s.headerSub, { textAlign: "center", marginTop: 8 }]}>
-            Bitte aktiviere Push-Benachrichtigungen im Datenschutz-Center, um Erinnerungen zu nutzen.
-          </Text>
-          <Pressable
-            onPress={() => router.push("/privacy-center")}
-            style={({ pressed }) => [s.consentBtn, pressed && { opacity: 0.7 }]}
-          >
-            <Text style={s.consentBtnText}>Zum Datenschutz-Center</Text>
-          </Pressable>
-        </View>
-      </View>
+  const handleToggleVetReminder = async (id: string) => {
+    const updated = vetReminders.map(r =>
+      r.id === id ? { ...r, completed: !r.completed } : r
     );
-  }
+    await saveVetReminders(updated);
+  };
+
+  const handleDeleteVetReminder = async (id: string) => {
+    const updated = vetReminders.filter(r => r.id !== id);
+    await saveVetReminders(updated);
+  };
+
+  const isSnoozed = (reminder: Reminder) => reminder.snoozedUntil && reminder.snoozedUntil > Date.now();
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
       <ScrollView
-        style={{ flex: 1 }}
         contentContainerStyle={{
           paddingTop: insets.top + 16,
-          paddingBottom: insets.bottom + 100,
+          paddingBottom: insets.bottom + 40,
           paddingHorizontal: 20,
         }}
       >
-        {/* Back */}
-        <Pressable onPress={() => router.back()} style={({ pressed }) => [s.backBtn, pressed && { opacity: 0.6 }]}>
+        {/* Header */}
+        <Pressable
+          onPress={() => router.back()}
+          style={s.backBtn}
+        >
           <IconSymbol name="chevron.left" size={20} color="#D4A843" />
-          <Text style={s.backText}>Zurueck</Text>
+          <Text style={s.backText}>Zurück</Text>
         </Pressable>
 
-        {/* Header */}
         <View style={s.header}>
           <Text style={s.headerTitle}>Erinnerungen</Text>
-          <Text style={s.headerSub}>Fuetterung, Gassi, Tierarzt & mehr</Text>
+          <Text style={s.headerSub}>Fütterung, Gassi, Tierarzt</Text>
           <View style={s.goldDivider} />
         </View>
 
-        {/* Add Button */}
-        <Pressable
-          onPress={() => setShowAdd(!showAdd)}
-          style={({ pressed }) => [s.addBtn, pressed && { opacity: 0.7 }]}
-        >
-          <IconSymbol name={showAdd ? "xmark" : "plus"} size={16} color="#D4A843" />
-          <Text style={s.addBtnText}>{showAdd ? "Abbrechen" : "Neue Erinnerung"}</Text>
-        </Pressable>
+        {/* FEEDING & WALK REMINDERS */}
+        <View style={s.sectionHeader}>
+          <Text style={s.sectionTitle}>Regelmäßige Erinnerungen</Text>
+          <Pressable onPress={() => setShowAdd(!showAdd)}>
+            <IconSymbol name="plus.circle.fill" size={24} color="#D4A843" />
+          </Pressable>
+        </View>
 
-        {/* Add Form */}
         {showAdd && (
           <View style={s.addForm}>
-            {/* Type Selection */}
-            <Text style={s.formLabel}>Art</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
-              {REMINDER_TYPES.map(rt => (
+            <Text style={s.formLabel}>Typ</Text>
+            <View style={s.typeGrid}>
+              {REMINDER_TYPES.map((t) => (
                 <Pressable
-                  key={rt.type}
-                  onPress={() => setNewType(rt.type)}
-                  style={[s.typeChip, newType === rt.type && { borderColor: rt.color, backgroundColor: `${rt.color}15` }]}
+                  key={t.type}
+                  onPress={() => setNewType(t.type)}
+                  style={[
+                    s.typeBtn,
+                    { borderColor: t.color } as any,
+                    newType === t.type && { backgroundColor: t.color },
+                  ] as any}
                 >
-                  <IconSymbol name={rt.icon} size={14} color={newType === rt.type ? rt.color : "#6B6B6B"} />
-                  <Text style={[s.typeChipText, newType === rt.type && { color: rt.color }]}>{rt.label}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            {/* Pet Selection */}
-            {store.pets.length > 1 && (
-              <>
-                <Text style={[s.formLabel, { marginTop: 16 }]}>Tier</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-                  {store.pets.map(pet => (
-                    <Pressable
-                      key={pet.id}
-                      onPress={() => setSelectedPetId(pet.id)}
-                      style={[s.typeChip, selectedPetId === pet.id && { borderColor: "#D4A843", backgroundColor: "rgba(212,168,67,0.1)" }]}
-                    >
-                      <Text style={[s.typeChipText, selectedPetId === pet.id && { color: "#D4A843" }]}>{pet.name}</Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </>
-            )}
-
-            {/* Title (for custom) */}
-            {newType === "custom" && (
-              <>
-                <Text style={[s.formLabel, { marginTop: 16 }]}>Titel</Text>
-                <TextInput
-                  value={newTitle}
-                  onChangeText={setNewTitle}
-                  placeholder="z.B. Krallen schneiden"
-                  placeholderTextColor="#4A4A4A"
-                  style={s.formInput}
-                  returnKeyType="done"
-                />
-              </>
-            )}
-
-            {/* Time */}
-            <Text style={[s.formLabel, { marginTop: 16 }]}>Uhrzeit</Text>
-            <TextInput
-              value={newTime}
-              onChangeText={setNewTime}
-              placeholder="HH:MM"
-              placeholderTextColor="#4A4A4A"
-              style={s.formInput}
-              keyboardType="numbers-and-punctuation"
-              returnKeyType="done"
-            />
-
-            {/* Days */}
-            <Text style={[s.formLabel, { marginTop: 16 }]}>Tage</Text>
-            <View style={{ flexDirection: "row", gap: 6 }}>
-              {DAY_LABELS.map((label, i) => (
-                <Pressable
-                  key={i}
-                  onPress={() => toggleDay(i)}
-                  style={[s.dayChip, newDays.includes(i) && s.dayChipActive]}
-                >
-                  <Text style={[s.dayChipText, newDays.includes(i) && s.dayChipTextActive]}>{label}</Text>
+                  <Text style={[s.typeText, newType === t.type && s.typeTextActive]}>
+                    {t.label}
+                  </Text>
                 </Pressable>
               ))}
             </View>
 
-            {/* Save */}
-            <Pressable
-              onPress={handleAddReminder}
-              style={({ pressed }) => [s.saveBtn, pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }]}
-            >
-              <Text style={s.saveBtnText}>Erinnerung erstellen</Text>
+            <Text style={s.formLabel}>Zeit</Text>
+            <TextInput
+              style={s.input}
+              placeholder="HH:MM"
+              value={newTime}
+              onChangeText={setNewTime}
+              placeholderTextColor="#6B7280"
+            />
+
+            <Text style={s.formLabel}>Tage</Text>
+            <View style={s.daysGrid}>
+              {DAY_LABELS.map((day, idx) => (
+                <Pressable
+                  key={day}
+                  onPress={() =>
+                    setNewDays(
+                      newDays.includes(idx)
+                        ? newDays.filter((d) => d !== idx)
+                        : [...newDays, idx]
+                    )
+                  }
+                  style={[
+                    s.dayBtn,
+                    newDays.includes(idx) && s.dayBtnActive,
+                  ] as any}
+                >
+                  <Text
+                    style={[
+                      s.dayText,
+                      newDays.includes(idx) && s.dayTextActive,
+                    ]}
+                  >
+                    {day}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Pressable onPress={handleAddReminder} style={s.submitBtn}>
+              <Text style={s.submitText}>Erinnerung hinzufügen</Text>
             </Pressable>
           </View>
         )}
 
-        {/* Reminders List */}
-        {reminders.length === 0 && !showAdd && (
-          <View style={s.emptyState}>
-            <IconSymbol name="bell.fill" size={40} color="#2A2A30" />
-            <Text style={s.emptyText}>Noch keine Erinnerungen</Text>
-            <Text style={s.emptySub}>Erstelle Erinnerungen fuer Fuetterung, Gassi oder Tierarzttermine</Text>
-          </View>
-        )}
-
-        {reminders.map(reminder => {
-          const typeInfo = REMINDER_TYPES.find(t => t.type === reminder.type);
-          return (
-            <Pressable
-              key={reminder.id}
-              onLongPress={() => handleDeleteReminder(reminder.id)}
-              style={[s.reminderCard, !reminder.enabled && { opacity: 0.5 }]}
-            >
-              <View style={[s.reminderIcon, { backgroundColor: `${typeInfo?.color || "#D4A843"}15` }]}>
-                <IconSymbol name={typeInfo?.icon || ("bell.fill" as any)} size={18} color={typeInfo?.color || "#D4A843"} />
-              </View>
+        {reminders.map((reminder) => (
+          <View key={reminder.id} style={[s.card, isSnoozed(reminder) && s.cardSnoozed] as any}>
+            <View style={s.reminderHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={s.reminderTitle}>{reminder.title}</Text>
-                <Text style={s.reminderSub}>
-                  {reminder.time} | {reminder.days.map(d => DAY_LABELS[d]).join(", ")}
-                </Text>
+                <Text style={s.reminderTime}>{reminder.time} Uhr</Text>
               </View>
               <Switch
                 value={reminder.enabled}
                 onValueChange={() => handleToggleReminder(reminder.id)}
-                trackColor={{ false: "#2A2A30", true: "#D4A843" }}
-                thumbColor="#FAFAF8"
+                trackColor={{ false: "#2A2A2F", true: "#D4A843" }}
+                thumbColor={reminder.enabled ? "#0A0A0F" : "#4A4A4A"}
               />
+            </View>
+
+            {isSnoozed(reminder) && (
+              <Text style={s.snoozedText}>
+                Stummgeschaltet bis {new Date(reminder.snoozedUntil!).toLocaleTimeString("de-DE")}
+              </Text>
+            )}
+
+            <View style={s.snoozeButtons}>
+              {SNOOZE_OPTIONS.map((opt) => (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => handleSnoozeReminder(reminder.id, opt.value)}
+                  style={s.snoozeBtn}
+                >
+                  <Text style={s.snoozeText}>{opt.label}</Text>
+                </Pressable>
+              ))}
+              <Pressable
+                onPress={() => handleDeleteReminder(reminder.id)}
+                style={s.deleteBtn}
+              >
+                <IconSymbol name="trash" size={16} color="#EF4444" />
+              </Pressable>
+            </View>
+          </View>
+        ))}
+
+        {/* VET REMINDERS */}
+        <View style={s.sectionHeader}>
+          <Text style={s.sectionTitle}>Tierarzt-Termine</Text>
+          <Pressable onPress={() => setShowVetAdd(!showVetAdd)}>
+            <IconSymbol name="plus.circle.fill" size={24} color="#D4A843" />
+          </Pressable>
+        </View>
+
+        {showVetAdd && (
+          <View style={s.addForm}>
+            <Text style={s.formLabel}>Termin-Typ</Text>
+            <View style={s.typeGrid}>
+              {VET_REMINDER_TYPES.map((t) => (
+                <Pressable
+                  key={t.type}
+                  onPress={() => setNewVetType(t.type)}
+                  style={[
+                    s.typeBtn,
+                    newVetType === t.type && { backgroundColor: "#EF5350" },
+                  ] as any}
+                >
+                  <Text style={[s.typeText, newVetType === t.type && s.typeTextActive]}>
+                    {t.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Text style={s.formLabel}>Datum</Text>
+            <TextInput
+              style={s.input}
+              placeholder="YYYY-MM-DD"
+              value={newVetDate}
+              onChangeText={setNewVetDate}
+              placeholderTextColor="#6B7280"
+            />
+
+            <Text style={s.formLabel}>Notizen</Text>
+            <TextInput
+              style={[s.input, s.textarea]}
+              placeholder="z.B. Impfstoff, Zahnarzt-Adresse"
+              value={newVetNotes}
+              onChangeText={setNewVetNotes}
+              multiline
+              placeholderTextColor="#6B7280"
+            />
+
+            <Pressable onPress={handleAddVetReminder} style={s.submitBtn}>
+              <Text style={s.submitText}>Termin hinzufügen</Text>
             </Pressable>
-          );
-        })}
+          </View>
+        )}
+
+        {vetReminders.map((vet) => (
+          <View key={vet.id} style={[s.card, vet.completed && s.cardCompleted] as any}>
+            <View style={s.reminderHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.reminderTitle}>{vet.type === "vaccination" ? "Impfung" : vet.type === "dental" ? "Zahnreinigung" : "Untersuchung"}</Text>
+                <Text style={s.reminderTime}>{vet.dueDate}</Text>
+                {vet.notes && <Text style={s.reminderNotes}>{vet.notes}</Text>}
+              </View>
+              <Switch
+                value={vet.completed}
+                onValueChange={() => handleToggleVetReminder(vet.id)}
+                trackColor={{ false: "#2A2A2F", true: "#D4A843" }}
+                thumbColor={vet.completed ? "#0A0A0F" : "#4A4A4A"}
+              />
+            </View>
+
+            <Pressable
+              onPress={() => handleDeleteVetReminder(vet.id)}
+              style={s.deleteBtn}
+            >
+              <IconSymbol name="trash" size={16} color="#EF4444" />
+              <Text style={s.deleteText}>Löschen</Text>
+            </Pressable>
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  backBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
-  backText: { fontSize: 14, fontWeight: "500", color: "#D4A843", letterSpacing: 0.5 },
-
-  header: { marginBottom: 24 },
-  headerTitle: { fontSize: 28, fontWeight: "300", color: "#FAFAF8", letterSpacing: 2 },
-  headerSub: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", letterSpacing: 1, marginTop: 4 },
-  goldDivider: { width: 40, height: 1, backgroundColor: "#D4A843", marginTop: 16 },
-
-  addBtn: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: "rgba(212,168,67,0.08)", borderWidth: 1,
-    borderColor: "rgba(212,168,67,0.15)", paddingVertical: 14, paddingHorizontal: 20,
-    justifyContent: "center", marginBottom: 16,
+  backBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingVertical: 8,
   },
-  addBtnText: { fontSize: 13, fontWeight: "500", color: "#D4A843", letterSpacing: 1 },
-
+  backText: {
+    color: "#D4A843",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  header: {
+    marginBottom: 32,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#FFF",
+    marginBottom: 4,
+  },
+  headerSub: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    marginBottom: 16,
+  },
+  goldDivider: {
+    height: 2,
+    backgroundColor: "#D4A843",
+    width: 40,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#D4A843",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
   addForm: {
-    backgroundColor: "#141418", borderWidth: 1,
-    borderColor: "rgba(212,168,67,0.08)", padding: 20, marginBottom: 20,
+    backgroundColor: "#1A1A1F",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
   },
   formLabel: {
-    fontSize: 11, fontWeight: "600", color: "#D4A843",
-    letterSpacing: 2, textTransform: "uppercase", marginBottom: 8,
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#D4A843",
+    marginBottom: 8,
+    marginTop: 12,
   },
-  formInput: {
-    backgroundColor: "#0A0A0F", borderWidth: 1,
-    borderColor: "rgba(212,168,67,0.1)", paddingHorizontal: 16,
-    paddingVertical: 12, fontSize: 15, fontWeight: "400",
-    color: "#FAFAF8", letterSpacing: 0.3,
+  typeGrid: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
   },
-
-  typeChip: {
-    flexDirection: "row", alignItems: "center", gap: 6,
-    paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1,
-    borderColor: "rgba(212,168,67,0.1)", backgroundColor: "#0A0A0F",
+  typeBtn: {
+    flex: 1,
+    minWidth: "45%",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: "#0A0A0F",
+    borderWidth: 2,
+    borderColor: "#2A2A2F",
   },
-  typeChipText: { fontSize: 12, fontWeight: "500", color: "#6B6B6B", letterSpacing: 0.5 },
-
-  dayChip: {
-    flex: 1, alignItems: "center", paddingVertical: 10,
-    borderWidth: 1, borderColor: "rgba(212,168,67,0.1)", backgroundColor: "#0A0A0F",
+  typeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#9CA3AF",
   },
-  dayChipActive: { borderColor: "#D4A843", backgroundColor: "rgba(212,168,67,0.1)" },
-  dayChipText: { fontSize: 11, fontWeight: "500", color: "#6B6B6B" },
-  dayChipTextActive: { color: "#D4A843" },
-
-  saveBtn: {
-    marginTop: 20, backgroundColor: "rgba(212,168,67,0.1)",
-    borderWidth: 1, borderColor: "rgba(212,168,67,0.2)",
-    paddingVertical: 16, alignItems: "center",
+  typeTextActive: {
+    color: "#0A0A0F",
   },
-  saveBtnText: {
-    fontSize: 13, fontWeight: "600", color: "#D4A843",
-    letterSpacing: 2, textTransform: "uppercase",
+  input: {
+    backgroundColor: "#0A0A0F",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: "#FFF",
+    fontSize: 14,
   },
-
-  emptyState: { alignItems: "center", marginTop: 60, gap: 12 },
-  emptyText: { fontSize: 16, fontWeight: "300", color: "#6B6B6B", letterSpacing: 1 },
-  emptySub: { fontSize: 12, fontWeight: "400", color: "#4A4A4A", textAlign: "center", maxWidth: 260 },
-
-  reminderCard: {
-    flexDirection: "row", alignItems: "center", gap: 14,
-    backgroundColor: "#141418", borderWidth: 1,
-    borderColor: "rgba(212,168,67,0.08)", padding: 16, marginBottom: 10,
+  textarea: {
+    minHeight: 80,
+    textAlignVertical: "top",
   },
-  reminderIcon: {
-    width: 40, height: 40, borderRadius: 20,
-    alignItems: "center", justifyContent: "center",
+  daysGrid: {
+    flexDirection: "row",
+    gap: 6,
+    flexWrap: "wrap",
   },
-  reminderTitle: { fontSize: 14, fontWeight: "500", color: "#FAFAF8", letterSpacing: 0.3 },
-  reminderSub: { fontSize: 11, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
-
-  consentBtn: {
-    marginTop: 24, backgroundColor: "rgba(212,168,67,0.1)",
-    borderWidth: 1, borderColor: "rgba(212,168,67,0.2)",
-    paddingVertical: 14, paddingHorizontal: 24,
+  dayBtn: {
+    flex: 1,
+    minWidth: "30%",
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+    backgroundColor: "#0A0A0F",
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
   },
-  consentBtnText: { fontSize: 13, fontWeight: "500", color: "#D4A843", letterSpacing: 1 },
+  dayBtnActive: {
+    backgroundColor: "#D4A843",
+    borderColor: "#D4A843",
+  },
+  dayText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#9CA3AF",
+  },
+  dayTextActive: {
+    color: "#0A0A0F",
+  },
+  submitBtn: {
+    backgroundColor: "#D4A843",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  submitText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0A0A0F",
+  },
+  card: {
+    backgroundColor: "#1A1A1F",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#2A2A2F",
+  },
+  cardSnoozed: {
+    opacity: 0.6,
+    borderColor: "#D4A843",
+  },
+  cardCompleted: {
+    opacity: 0.5,
+  },
+  reminderHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  reminderTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#FFF",
+    marginBottom: 4,
+  },
+  reminderTime: {
+    fontSize: 13,
+    color: "#9CA3AF",
+  },
+  reminderNotes: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 4,
+  },
+  snoozedText: {
+    fontSize: 12,
+    color: "#D4A843",
+    marginBottom: 12,
+  },
+  snoozeButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  snoozeBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+    backgroundColor: "#0A0A0F",
+    borderWidth: 1,
+    borderColor: "#D4A843",
+  },
+  snoozeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#D4A843",
+  },
+  deleteBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    backgroundColor: "#1F1F1F",
+    borderWidth: 1,
+    borderColor: "#EF4444",
+    flexDirection: "row",
+    gap: 4,
+  },
+  deleteText: {
+    fontSize: 12,
+    color: "#EF4444",
+    fontWeight: "600",
+  },
 });

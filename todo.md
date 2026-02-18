@@ -350,3 +350,30 @@
 - [x] Warnung: "Nach dem Essen nicht sofort spazieren"
 - [x] Gassi-Vorschläge nach Zeitdauer (15/30/45/60+ min)
 - [x] Automatische Empfehlungen nach Tierart/Alter
+
+
+## Automatische Erinnerungen & Export (Phase 7)
+- [ ] Automatische Fütterungserinnerungen mit Zeitplan
+- [ ] Snooze-Funktion für Erinnerungen (5/15/30 min)
+- [ ] Tierarzt-Erinnerungen nach Tierart/Alter
+- [ ] Impf-Kalender mit automatischen Vorschlägen
+- [ ] Zahnreinigung-Erinnerungen
+- [ ] Regelmäßige Untersuchungs-Erinnerungen
+- [ ] PDF-Export für Gesundheitsakte
+- [ ] PDF-Export für Fütterungsverlauf
+- [ ] GPS-Routen als PDF/Karte exportieren
+- [ ] Sharing-Optionen für Exports
+
+
+## Fütterungsprofile & Marktplatz-Sync (Phase 8)
+- [ ] Fütterungsprofile pro Tier im Pet-Detail-Screen
+- [ ] Futtertyp (Trocken/Nass/Gemischt) wählbar
+- [ ] Futtermarke/Name eingeben
+- [ ] Menge pro Mahlzeit (g/ml)
+- [ ] Preis pro Einheit (€/kg oder €/Dose)
+- [ ] Mahlzeiten pro Tag
+- [ ] Marktplatz-Sync: Gekauftes Futter → Fütterungsprofile
+- [ ] Analytics-Dashboard: Gekauft vs. Gefüttert
+- [ ] Kosten pro Tier pro Monat berechnen
+- [ ] Gesamtbudget-Übersicht
+- [ ] Preis-Trends (teurer/günstiger)

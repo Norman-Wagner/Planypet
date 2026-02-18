@@ -15,6 +15,19 @@ export type PetType =
   // Nutztiere
   | "horse" | "cow" | "sheep" | "goat" | "pig" | "chicken" | "duck";
 
+export interface FeedingProfile {
+  id: string;
+  petId: string;
+  foodType: "dry" | "wet" | "mixed";
+  foodBrand: string;
+  mealsPerDay: number;
+  amountPerMeal: number;
+  pricePerUnit: number;
+  unit: "kg" | "dose" | "can";
+  notes?: string;
+  createdAt: string;
+}
+
 export interface Pet {
   id: string;
   name: string;
@@ -27,6 +40,7 @@ export interface Pet {
   photoUrl?: string;
   isGroup: boolean;
   imageUrl?: string;
+  feedingProfile?: FeedingProfile;
   createdAt: string;
 }
 
