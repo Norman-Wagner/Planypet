@@ -255,12 +255,15 @@
 - [x] Geräusch-zu-Text Übersetzung
 - [ ] Lernfähiges System (Tier-spezifische Geräusche)
 
-### Tier-Lockrufe & Soundboard
+### Tier-Soundboard
 - [x] Katzen-Lockrufe (Miau-Sounds die Katzen anlocken)
 - [x] Hunde-Aufmerksamkeits-Sounds
 - [x] Vogel-Lockrufe
 - [x] Trainings-Clicker für alle Tierarten
 - [x] Beruhigende Musik für gestresste Tiere
+- [x] Audio-Wiedergabe mit expo-audio implementiert
+- [x] Pixabay Sound-URLs integriert
+- [x] Tests für Soundboard geschrieben
 
 ### Tierrassen-Erkennung
 - [x] Kamera-basierte Hunderassen-Erkennung
