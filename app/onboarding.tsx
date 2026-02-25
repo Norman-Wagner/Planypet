@@ -93,14 +93,22 @@ export default function OnboardingScreen() {
   const handleComplete = async () => {
     await AsyncStorage.setItem("userName", userName);
     await AsyncStorage.setItem("onboardingComplete", "true");
-    const firstPet = {
+    
+    // BUGFIX: Load existing pets and add new one (do not overwrite)
+    const existingPetsJson = await AsyncStorage.getItem("pets");
+    const existingPets = existingPetsJson ? JSON.parse(existingPetsJson) : [];
+    
+    const newPet = {
       id: Date.now().toString(),
       name: petName,
       type: selectedPetType?.type,
       isGroup,
       createdAt: new Date().toISOString(),
     };
-    await AsyncStorage.setItem("pets", JSON.stringify([firstPet]));
+    
+    // Add new pet to existing pets
+    const allPets = [...existingPets, newPet];
+    await AsyncStorage.setItem("pets", JSON.stringify(allPets));
     router.replace("/(tabs)");
   };
 

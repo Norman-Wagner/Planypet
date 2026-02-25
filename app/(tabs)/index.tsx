@@ -308,20 +308,20 @@ export default function DashboardScreen() {
             </View>
           </FadeInView>
 
-          {/* Notfall */}
+          {/* GPS-Gassi */}
           <FadeInView delay={500}>
             <Pressable
-              onPress={() => router.push("/emergency")}
-              style={({ pressed }) => [s.emergencyCard, pressed && { transform: [{ scale: 0.98 }] }]}
+              onPress={() => router.push("/gps-tracking")}
+              style={({ pressed }) => [s.gpsCard, pressed && { transform: [{ scale: 0.98 }] }]}
             >
-              <View style={s.emergencyIcon}>
-                <IconSymbol name="exclamationmark.triangle.fill" size={22} color="#EF5350" />
+              <View style={s.gpsIcon}>
+                <IconSymbol name="location.fill" size={22} color="#10B981" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={s.emergencyTitle}>Notfall-Hilfe</Text>
-                <Text style={s.emergencySubtitle}>Tier vermisst oder medizinischer Notfall</Text>
+                <Text style={s.gpsTitle}>Gassi mit GPS</Text>
+                <Text style={s.gpsSubtitle}>Spaziergang starten und tracken</Text>
               </View>
-              <IconSymbol name="chevron.right" size={16} color="#EF5350" />
+              <IconSymbol name="chevron.right" size={16} color="#10B981" />
             </Pressable>
           </FadeInView>
         </View>
@@ -499,24 +499,24 @@ const s = StyleSheet.create({
   actionBadgeText: { fontSize: 12, fontWeight: "600", color: "#D4A843", letterSpacing: 1, textTransform: "uppercase" },
 
   // Emergency
-  emergencyCard: {
+  gpsCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(239,83,80,0.05)",
+    backgroundColor: "rgba(16,185,129,0.05)",
     borderWidth: 1,
-    borderColor: "rgba(239,83,80,0.15)",
+    borderColor: "rgba(16,185,129,0.15)",
     padding: 16,
     marginTop: 32,
     gap: 14,
   },
-  emergencyIcon: {
+  gpsIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(239,83,80,0.1)",
+    backgroundColor: "rgba(16,185,129,0.1)",
     alignItems: "center",
     justifyContent: "center",
   },
-  emergencyTitle: { fontSize: 15, fontWeight: "500", color: "#EF5350", letterSpacing: 0.5 },
-  emergencySubtitle: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
+  gpsTitle: { fontSize: 15, fontWeight: "500", color: "#10B981", letterSpacing: 0.5 },
+  gpsSubtitle: { fontSize: 12, fontWeight: "400", color: "#6B6B6B", marginTop: 2 },
 });
