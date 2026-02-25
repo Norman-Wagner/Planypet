@@ -380,3 +380,24 @@
 - [ ] Kosten pro Tier pro Monat berechnen
 - [ ] Gesamtbudget-Übersicht
 - [ ] Preis-Trends (teurer/günstiger)
+
+## 🎨 DESIGN ÜBERARBEITUNG (AKTUELL - 25.02.2026)
+
+### Screen-Design nach Mockups
+- [ ] Dashboard Screen überarbeiten (pro_01_dashboard.png Design)
+- [ ] KI-Symptom-Analyse Screen (pro_02_ai_symptom.png Design)
+- [ ] GPS-Tracking Screen (pro_03_gps.png Design)
+- [ ] Gesundheitsakten Screen (pro_04_health.png Design)
+- [ ] KI-Rassenscanner Screen (pro_05_breed.png Design)
+- [ ] Community & Freunde Screen (pro_06_social.png Design)
+- [ ] Marketplace Screen (pro_07_marketplace.png Design)
+- [ ] Smart-Geräte Screen (pro_08_devices.png Design)
+
+### Globale Design-Änderungen
+- [ ] Grauer Hintergrund (#1a1a1a oder ähnlich) für alle Screens
+- [ ] Blaue Elemente/Akzente wie in Mockups
+- [ ] Farbige Gradient-Hintergründe für Feature-Sections
+- [ ] Premium Glasmorphism-Effekte
+- [ ] Keine Emojis - nur Icons
+- [ ] Hoher Kontrast für Lesbarkeit
+- [ ] Animationen und Übergänge (200-300ms)

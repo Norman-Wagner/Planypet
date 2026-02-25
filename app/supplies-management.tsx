@@ -26,13 +26,21 @@ export default function SuppliesManagementScreen() {
   const [supplies, setSupplies] = useState<SupplyItem[]>([]);
   const [selectedPet, setSelectedPet] = useState(pets[0]?.id || '');
   const [isAdding, setIsAdding] = useState(false);
-  const [newSupply, setNewSupply] = useState({
+  const [newSupply, setNewSupply] = useState<{
+    name: string;
+    brand: string;
+    quantity: number;
+    unit: string;
+    minimumStock: number;
+    displayMode: 'dashboard-only' | 'always' | 'custom';
+    reminderEnabled: boolean;
+  }>({
     name: '',
     brand: '',
     quantity: 0,
     unit: 'kg',
     minimumStock: 0,
-    displayMode: 'always' as const,
+    displayMode: 'always',
     reminderEnabled: false,
   });
   const [searchingMarketplace, setSearchingMarketplace] = useState(false);
