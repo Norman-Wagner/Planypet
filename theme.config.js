@@ -1,32 +1,31 @@
 /** @type {const} */
 const themeColors = {
-  // ULTRA-PREMIUM: Tiefes Schwarz mit Gold-Akzenten
-  primary: { light: '#B8860B', dark: '#D4A843' },        // Dark Gold / Antik-Gold
-  primaryLight: { light: '#DAA520', dark: '#E8C547' },    // Goldenrod
+  // Planypet Blue Gradient Theme (Primary)
+  primary: { light: '#1E40AF', dark: '#1E40AF' },
+  primaryLight: { light: '#3B82F6', dark: '#60A5FA' },
+  primaryLighter: { light: '#93C5FD', dark: '#BFDBFE' },
 
-  // Dunkle, edle Hintergründe - wie schwarzer Samt
-  background: { light: '#FAFAF8', dark: '#0A0A0F' },     // Fast Schwarz
-  surface: { light: '#F5F5F0', dark: '#141418' },         // Leicht heller
+  // Background - Navy Blue Base
+  background: { light: '#0F172A', dark: '#0F172A' },
+  surface: { light: '#1E293B', dark: '#1E293B' },
+  surfaceLight: { light: '#334155', dark: '#334155' },
 
-  // Glasmorphism mit Gold-Schimmer
-  glass: { light: 'rgba(255, 255, 255, 0.6)', dark: 'rgba(212, 168, 67, 0.08)' },
-  glassBorder: { light: 'rgba(184, 134, 11, 0.2)', dark: 'rgba(212, 168, 67, 0.15)' },
+  // Text - Bright on Dark
+  foreground: { light: '#F8FAFC', dark: '#F8FAFC' },
+  muted: { light: '#94A3B8', dark: '#CBD5E1' },
 
-  // MAXIMALER KONTRAST: Reinweiß auf Tiefschwarz
-  foreground: { light: '#0A0A0F', dark: '#FAFAF8' },     // Reinweiß
-  muted: { light: '#6B6B6B', dark: '#C8C8C0' },          // Warmes Grau
+  // Borders - Blue
+  border: { light: '#1E40AF', dark: '#1E40AF' },
+  borderLight: { light: '#3B82F6', dark: '#3B82F6' },
 
-  // Gold-Borders
-  border: { light: 'rgba(184, 134, 11, 0.15)', dark: 'rgba(212, 168, 67, 0.12)' },
+  // Status Colors
+  success: { light: '#10B981', dark: '#34D399' },
+  warning: { light: '#F59E0B', dark: '#FBBF24' },
+  error: { light: '#EF4444', dark: '#F87171' },
 
-  // Status Farben - Edel & gedämpft
-  success: { light: '#2E7D32', dark: '#66BB6A' },
-  warning: { light: '#E65100', dark: '#FFB74D' },
-  error: { light: '#C62828', dark: '#EF5350' },
-
-  // Premium Akzente
-  accent: { light: '#B8860B', dark: '#D4A843' },          // Gold
-  accentSecondary: { light: '#1A237E', dark: '#5C6BC0' }, // Tiefblau
+  // Gradients
+  gradientStart: { light: '#001F3F', dark: '#001F3F' },
+  gradientEnd: { light: '#1E90FF', dark: '#1E90FF' },
 };
 
 module.exports = { themeColors };

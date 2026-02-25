@@ -21,6 +21,7 @@ import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-run
 import { PetStoreProvider } from "@/lib/pet-store";
 import { I18nProvider } from "@/lib/i18n";
 import { ConsentProvider } from "@/lib/consent-store";
+import { GradientBackground } from "@/components/gradient-background";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -83,6 +84,7 @@ export default function RootLayout() {
 
   const content = (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <GradientBackground intensity="dark">
       <ConsentProvider>
       <I18nProvider>
       <PetStoreProvider>
@@ -115,6 +117,7 @@ export default function RootLayout() {
         </PetStoreProvider>
       </I18nProvider>
       </ConsentProvider>
+      </GradientBackground>
       </GestureHandlerRootView>
   );
 
