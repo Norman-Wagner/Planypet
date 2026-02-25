@@ -41,7 +41,7 @@ const env = {
 const config: ExpoConfig = {
   name: env.appName,
   slug: env.appSlug,
-  version: "1.0.0",
+  version: "1.0.5",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
@@ -50,9 +50,14 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
-    "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+      NSLocalNetworkUsageDescription: "Planypet nutzt lokales Netzwerk für Geräte-Verbindungen.",
+      NSBonjourServices: ["_planypet._tcp"],
+      NSCameraUsageDescription: "Kamera wird für Tier-Fotos und Rassen-Erkennung benötigt.",
+      NSLocationWhenInUseUsageDescription: "GPS-Tracking für Gassi-Runden.",
+      NSHealthShareUsageDescription: "Schrittzähler und Aktivitätsdaten."
+    }
   },
   android: {
     adaptiveIcon: {
