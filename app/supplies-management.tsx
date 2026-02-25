@@ -32,7 +32,7 @@ export default function SuppliesManagementScreen() {
     quantity: 0,
     unit: 'kg',
     minimumStock: 0,
-    displayMode: 'always' as 'dashboard-only' | 'always' | 'custom',
+    displayMode: 'always' as const,
     reminderEnabled: false,
   });
   const [searchingMarketplace, setSearchingMarketplace] = useState(false);
