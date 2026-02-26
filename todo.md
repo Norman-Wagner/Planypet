@@ -401,3 +401,29 @@
 - [ ] Keine Emojis - nur Icons
 - [ ] Hoher Kontrast für Lesbarkeit
 - [ ] Animationen und Übergänge (200-300ms)
+
+## Build-Fixes & Neue Features (26.02.2026)
+
+### Build-Fehler
+- [ ] Android Gradle Build-Fehler beheben (react-native-gesture-handler)
+- [ ] Dependencies aktualisieren (expo doctor Fehler beheben)
+- [ ] expo-asset Dependency installieren
+
+### Icon-Update
+- [ ] Neues App-Icon integrieren (icon-new mit Planypet Text, kein Fragezeichen, keine Krone)
+
+### KI-Experten-Ratgeber
+- [ ] KI-Experten-Ratgeber Screen implementieren
+- [ ] Tierart-spezifische Beratung
+- [ ] Ernaehrungs-Ratgeber
+- [ ] Pflege-Ratgeber
+- [ ] Verhaltens-Ratgeber
+
+### Social-Media-Challenge & Punkte-System
+- [ ] Woechentliche Challenge implementieren
+- [ ] Challenge-Aufgaben (Foto, Aktivitaet, Quiz)
+- [ ] Sieger-Ermittlung pro Woche
+- [ ] Punkte-System: Kupfer, Bronze, Silber, Gold Status
+- [ ] Punkte-Vergabe fuer Aktivitaeten
+- [ ] Rangliste/Leaderboard
+- [ ] Status-Badges im Profil anzeigen
