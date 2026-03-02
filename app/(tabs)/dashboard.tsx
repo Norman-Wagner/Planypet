@@ -53,8 +53,7 @@ function FadeInView({
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const { userName, pets, feedings, walks } = usePetStore();
-  const [gamificationLevel, setGamificationLevel] = useState(4);
-  const [gamificationTitle, setGamificationTitle] = useState("Abenteurer");
+
 
   const activePet = pets[0];
 
@@ -123,16 +122,7 @@ export default function DashboardScreen() {
                     <Text className="text-white/70 text-sm">
                       {(activePet as any).species || "Haustier"}
                     </Text>
-                    <View className="mt-2 flex-row items-center gap-2">
-                      <View className="px-3 py-1 bg-white/20 rounded-full">
-                        <Text className="text-white text-xs font-semibold">
-                          Level {gamificationLevel}
-                        </Text>
-                      </View>
-                      <Text className="text-white/80 text-xs">
-                        {gamificationTitle}
-                      </Text>
-                    </View>
+
                   </View>
                 </View>
               </LinearGradient>
