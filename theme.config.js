@@ -1,6 +1,6 @@
 /** @type {const} */
 const themeColors = {
-  // Planypet Blue Gradient Theme (Primary)
+  // Primary - Planypet Blue
   primary: { light: '#1E40AF', dark: '#1E40AF' },
   primaryLight: { light: '#3B82F6', dark: '#60A5FA' },
   primaryLighter: { light: '#93C5FD', dark: '#BFDBFE' },
@@ -22,6 +22,15 @@ const themeColors = {
   success: { light: '#10B981', dark: '#34D399' },
   warning: { light: '#F59E0B', dark: '#FBBF24' },
   error: { light: '#EF4444', dark: '#F87171' },
+
+  // Feature Screen Colors
+  dashboardBlue: { light: '#1E5A96', dark: '#1E5A96' },
+  aiPurple: { light: '#7B3FF2', dark: '#7B3FF2' },
+  gpsGreen: { light: '#2ECC71', dark: '#2ECC71' },
+  healthRed: { light: '#E74C3C', dark: '#E74C3C' },
+  communityBlue: { light: '#3498DB', dark: '#3498DB' },
+  marketplaceOrange: { light: '#F39C12', dark: '#F39C12' },
+  devicesDarkBlue: { light: '#1A3A52', dark: '#1A3A52' },
 
   // Gradients
   gradientStart: { light: '#001F3F', dark: '#001F3F' },

@@ -16,7 +16,7 @@ export default function TabLayout() {
     <View style={{ flex: 1, backgroundColor: "#0A0A0F" }}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: "#D4A843",
+          tabBarActiveTintColor: "#1E5A96",
           tabBarInactiveTintColor: "#4A4A4A",
           headerShown: false,
           tabBarButton: HapticTab,
@@ -25,19 +25,19 @@ export default function TabLayout() {
             paddingBottom: bottomPadding,
             height: tabBarHeight,
             backgroundColor: "#0A0A0F",
-            borderTopColor: "rgba(212,168,67,0.1)",
+            borderTopColor: "rgba(30,90,150,0.1)",
             borderTopWidth: 0.5,
           },
           tabBarLabelStyle: {
             fontSize: 10,
             fontWeight: "500",
-            letterSpacing: 1,
+            letterSpacing: 0.5,
             textTransform: "uppercase",
           },
         }}
       >
         <Tabs.Screen
-          name="index"
+          name="dashboard"
           options={{
             title: "Dashboard",
             tabBarIcon: ({ color }) => (
