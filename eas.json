@@ -12,15 +12,16 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true,
-      "appVersionSource": "remote"
+      "distribution": "store"
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "6737594087",
-        "autoSubmit": true
+        "ascAppId": "6737594087"
+      },
+      "android": {
+        "serviceAccount": "~/.android/service-account.json"
       }
     }
   }
