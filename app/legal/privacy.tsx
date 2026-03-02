@@ -72,7 +72,7 @@ export default function PrivacyScreen() {
 
         {/* Quick Link to Privacy Center */}
         <Pressable
-          onPress={() => router.push("/privacy-center")}
+          onPress={() => router.push("/ai-symptom")}
           style={({ pressed }) => [s.quickLink, pressed && { opacity: 0.7 }]}
         >
           <IconSymbol name="shield.fill" size={16} color="#D4A843" />

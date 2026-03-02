@@ -28,7 +28,7 @@ export function AIAssistantFAB() {
       -1,
       false
     );
-  }, []);
+  }, [glow]);
 
   const glowStyle = useAnimatedStyle(() => ({
     opacity: glow.value,
@@ -47,7 +47,7 @@ export function AIAssistantFAB() {
       withTiming(0.9, { duration: 80 }),
       withTiming(1, { duration: 150 })
     );
-    router.push("/ai-chat");
+    router.push("/ai-symptom");
   };
 
   return (
@@ -63,11 +63,11 @@ export function AIAssistantFAB() {
           end={{ x: 1, y: 1 }}
           style={s.gradient}
         >
-          <IconSymbol name="crown.fill" size={26} color="#0A0A0F" />
+          <IconSymbol name="sparkles" size={26} color="#0A0A0F" />
         </LinearGradient>
       </Pressable>
     </Animated.View>
-  );
+  )
 }
 
 const s = StyleSheet.create({
