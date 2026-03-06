@@ -1,9 +1,10 @@
-import { COOKIE_NAME } from "../shared/const.js";
+import { COOKIE_NAME } from "../shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { aiRouter } from "./routes/ai";
 import { petsRouter } from "./routes/pets";
+import { chipsRouter } from "./routes/chips";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -24,6 +25,9 @@ export const appRouter = router({
 
   // Pet management and sharing
   pets: petsRouter,
+
+  // Chip registration
+  chips: chipsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,40 +1,36 @@
 /** @type {const} */
 const themeColors = {
-  // Primary - Planypet Blue
-  primary: { light: '#1E40AF', dark: '#1E40AF' },
-  primaryLight: { light: '#3B82F6', dark: '#60A5FA' },
-  primaryLighter: { light: '#93C5FD', dark: '#BFDBFE' },
-
-  // Background - Navy Blue Base
-  background: { light: '#0F172A', dark: '#0F172A' },
-  surface: { light: '#1E293B', dark: '#1E293B' },
-  surfaceLight: { light: '#334155', dark: '#334155' },
-
-  // Text - Bright on Dark
-  foreground: { light: '#F8FAFC', dark: '#F8FAFC' },
-  muted: { light: '#94A3B8', dark: '#CBD5E1' },
-
-  // Borders - Blue
-  border: { light: '#1E40AF', dark: '#1E40AF' },
-  borderLight: { light: '#3B82F6', dark: '#3B82F6' },
-
+  // Primary - Clean Professional Blue
+  primary: { light: '#0F5A8C', dark: '#0F5A8C' },
+  secondary: { light: '#2E7BA8', dark: '#2E7BA8' },
+  
+  // Background - Light & Dark
+  background: { light: '#FFFFFF', dark: '#0F1419' },
+  surface: { light: '#F8FAFB', dark: '#1A2332' },
+  surfaceLight: { light: '#F0F4F8', dark: '#253447' },
+  
+  // Text
+  foreground: { light: '#0F1419', dark: '#F0F2F5' },
+  muted: { light: '#6B7280', dark: '#9CA3AF' },
+  
+  // Borders
+  border: { light: '#E5E7EB', dark: '#2D3E52' },
+  borderLight: { light: '#D1D5DB', dark: '#3D4E62' },
+  
   // Status Colors
   success: { light: '#10B981', dark: '#34D399' },
   warning: { light: '#F59E0B', dark: '#FBBF24' },
-  error: { light: '#EF4444', dark: '#F87171' },
-
-  // Feature Screen Colors
-  dashboardBlue: { light: '#1E5A96', dark: '#1E5A96' },
-  aiPurple: { light: '#7B3FF2', dark: '#7B3FF2' },
-  gpsGreen: { light: '#2ECC71', dark: '#2ECC71' },
-  healthRed: { light: '#E74C3C', dark: '#E74C3C' },
-  communityBlue: { light: '#3498DB', dark: '#3498DB' },
-  marketplaceOrange: { light: '#F39C12', dark: '#F39C12' },
-  devicesDarkBlue: { light: '#1A3A52', dark: '#1A3A52' },
-
-  // Gradients
-  gradientStart: { light: '#001F3F', dark: '#001F3F' },
-  gradientEnd: { light: '#1E90FF', dark: '#1E90FF' },
+  error: { light: '#DC2626', dark: '#EF4444' },
+  info: { light: '#3B82F6', dark: '#60A5FA' },
+  
+  // Pet App Semantic Colors
+  feeding: { light: '#8B5CF6', dark: '#A78BFA' },
+  health: { light: '#EC4899', dark: '#F472B6' },
+  activity: { light: '#14B8A6', dark: '#2DD4BF' },
+  alert: { light: '#DC2626', dark: '#EF4444' },
+  
+  // Accent
+  accent: { light: '#0F5A8C', dark: '#4B9DD9' },
 };
 
 module.exports = { themeColors };
