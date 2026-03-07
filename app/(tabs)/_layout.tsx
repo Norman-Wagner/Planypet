@@ -93,6 +93,39 @@ export default function TabLayout() {
           }}
         />
 
+        {/* Family Sharing */}
+        <Tabs.Screen
+          name="family-sharing"
+          options={{
+            title: "Familie",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={24} name="person.2.fill" color={color} />
+            ),
+          }}
+        />
+
+        {/* Community & Challenges */}
+        <Tabs.Screen
+          name="community-challenges"
+          options={{
+            title: "Community",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={24} name="heart.fill" color={color} />
+            ),
+          }}
+        />
+
+        {/* Marketplace */}
+        <Tabs.Screen
+          name="marketplace"
+          options={{
+            title: "Marktplatz",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={24} name="bag.fill" color={color} />
+            ),
+          }}
+        />
+
         {/* Settings */}
         <Tabs.Screen
           name="settings"
