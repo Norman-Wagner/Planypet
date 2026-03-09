@@ -36,7 +36,7 @@ export default function DashboardScreen() {
 
             <TouchableOpacity
               className="bg-primary rounded-lg py-3 px-8 items-center"
-              onPress={() => router.push("/pet-setup")}
+              onPress={() => router.push("/onboarding-flow")}
             >
               <View className="flex-row items-center gap-2">
                 <IconSymbol name="plus.circle.fill" size={20} color="#ffffff" />
