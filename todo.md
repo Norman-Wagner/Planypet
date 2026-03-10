@@ -1,67 +1,104 @@
-# Planypet TODO
+# Planypet TODO – Global Pet Management System
 
-## PHASE 1: Onboarding-Assistent (3 Schritte)
-- [ ] Schritt 1: Nutzer-Profil (Name, Email, optional: Telefon, Adresse, Notfallkontakt, Sprache)
-- [ ] Schritt 2: Tier hinzufügen (Name, Tierart, Rasse, Geburtsdatum, Gewicht, optional: Chipnummer)
-- [ ] Schritt 3: Feature-Tour (10 Features mit Icons + Beschreibungen)
-- [ ] Skip/Restart-Funktionalität in allen Schritten
-- [ ] Tasso/Findefix-Links bei Chip-Eingabe anzeigen
+## PRODUCT VISION: Digital Identity & Management System for Pets
 
-## PHASE 2: Navigation überarbeiten (5 Haupt-Tabs)
-- [ ] Tab 1: Dashboard
-- [ ] Tab 2: Tiere (Pets)
-- [ ] Tab 3: Aktivität (Activity)
-- [ ] Tab 4: Gesundheit (Health)
-- [ ] Tab 5: Mehr (More) → AI Assistant, Community, Marktplatz, Smart Devices, Einstellungen
-- [ ] Alte 9-Tab-Navigation entfernen
+### Phase 1: Pet Identification Module
+- [ ] Microchip validation (exactly 15 digits)
+- [ ] Tax tag number field
+- [ ] QR code generation for each pet
+- [ ] Tag photo upload
+- [ ] Pet identification screen UI
 
-## PHASE 3: Dashboard neu gestalten
-- [ ] Tier-Foto anzeigen
-- [ ] Nächste Fütterungszeit
-- [ ] Letzte Gassi-Runde
-- [ ] Gesundheitserinnerungen
-- [ ] Quick Action Buttons: Fütterung, Gassi, Gesundheit, KI fragen
+### Phase 2: Global Microchip Registry System
+- [ ] Create /data/petRegistries.js with all registries
+- [ ] Germany: TASSO, FINDEFIX, Tiermeldezentrale
+- [ ] USA: HomeAgain, AKC Reunite
+- [ ] UK: Petlog
+- [ ] Singapore: AVS Registry
+- [ ] Country auto-detection based on user location
+- [ ] Registry lookup service
 
-## PHASE 4: KI-Assistent
-- [ ] Blaue Pfoten-Icon statt goldenes Kreuz
-- [ ] Allgemeine Tier-Tipps + App-Funktionen erklären
-- [ ] Disclaimer: "Nur zu Informationszwecken, ersetzt keine Tierarzt-Beratung"
-- [ ] Keine Diagnosen stellen
+### Phase 3: Registration Workflow
+- [ ] Auto-submit for supported registries
+- [ ] Pre-filled email generation for manual registries
+- [ ] Planypet Global Backup Registry database
+- [ ] Backup registry UI and storage
 
-## PHASE 5: Legal-Seiten (GDPR-konform)
-- [ ] Privacy Policy
-- [ ] Terms of Service
-- [ ] Disclaimer
-- [ ] Impressum
-- [ ] Delete Account Funktion (GDPR-Compliance)
-- [ ] Alle in Einstellungen integrieren
+### Phase 4: QR Code Identification
+- [ ] Public finder page (no private address)
+- [ ] Lost pet mode toggle
+- [ ] Message form for finders
+- [ ] QR code scanner integration
+- [ ] Lost pet status display
 
-## PHASE 6: Vet-Modus Screen
-- [ ] Kompakte professionelle Ansicht für Tierarzt-Termine
-- [ ] Gesundheitsdaten übersichtlich darstellen
-- [ ] Impfpass, Medikamente, Allergien
-- [ ] Drucken/Exportieren-Option
+### Phase 5: Family Coordination System
+- [ ] Family member invite system
+- [ ] Role-based permissions (Owner, Parent, Child, Vet, Staff)
+- [ ] Task assignment (feeding, walking, medication)
+- [ ] Family notifications on task acceptance
+- [ ] Activity log per family member
 
-## PHASE 7: Theme-Customization
-- [ ] Blau-Verlauf (Standard)
-- [ ] Natur/Wald (Grün-Verlauf)
-- [ ] Sand/Wüste (Beige-Verlauf, für Reptilien)
-- [ ] Pastell (bunt verspielt, für Nagetiere)
-- [ ] Theme-Einstellungen speichern
+### Phase 6: Feeding Management System
+- [ ] Feeding schedule definition
+- [ ] Reminder notifications to all family
+- [ ] Feeding confirmation ("I'll do it" button)
+- [ ] Skip detection and warnings
+- [ ] Feeding history tracking
 
-## PHASE 8: Nachhaltigkeit & Umweltschutz
-- [ ] Tipps zur Nachhaltigkeit beim Gassi
-- [ ] Müllbeutel-Erinnerungen
-- [ ] Umweltfreundliche Produkt-Empfehlungen
+### Phase 7: Walking System
+- [ ] GPS tracking start/stop
+- [ ] Distance calculation
+- [ ] Duration tracking
+- [ ] Route recording
+- [ ] Activity feed integration
 
-## BEREITS IMPLEMENTIERT
-- [x] Chip-Registrierungs-System
-- [x] Pet-Management Screen
-- [x] Feeding-Schedule Screen
-- [x] Settings Screen
-- [x] Gassi-Tracking (GPS + Wetter-API)
-- [x] Emergency/Notfall-Screen
+### Phase 8: Onboarding Flow (7 Steps)
+- [ ] Step 1: Welcome
+- [ ] Step 2: Select animal type
+- [ ] Step 3: Enter pet name
+- [ ] Step 4: Microchip registration
+- [ ] Step 5: Feeding schedule setup
+- [ ] Step 6: Invite family members
+- [ ] Step 7: Dashboard introduction
+
+### Phase 9: Dashboard Redesign
+- [ ] Today's responsibilities display
+- [ ] Feeding reminders
+- [ ] Walk reminders
+- [ ] Medication reminders
+- [ ] "I'll do it" button for task acceptance
+- [ ] Family member notifications on task acceptance
+
+### Phase 10: Activities Feed
+- [ ] Timeline view
+- [ ] Feeding entries (who fed, when)
+- [ ] Walking entries (distance, duration, route)
+- [ ] Medication entries
+- [ ] Care task entries
+- [ ] Real-time updates
+
+## PREVIOUSLY IMPLEMENTED
+- [x] Basic app structure (5-tab navigation)
+- [x] Onboarding flow (3 steps)
+- [x] Dashboard (basic)
+- [x] Pet management
+- [x] Feeding schedule
+- [x] Gassi-Tracking with GPS & Weather
+- [x] Emergency screen
+- [x] Theme customization
+- [x] Legal pages (Privacy, Terms, Disclaimer, Impressum)
+- [x] Vet-Modus screen
+- [x] Sustainability screen
 - [x] Planypet Icon
-- [x] Family-Sharing Screen
-- [x] Community & Challenges Screen
-- [x] Marketplace Screen
+
+## CODE ORGANIZATION
+- [ ] /features/pets
+- [ ] /features/petIdentification
+- [ ] /features/feeding
+- [ ] /features/walking
+- [ ] /features/family
+- [ ] /components/onboarding
+- [ ] /components/dashboard
+- [ ] /services/registryService
+- [ ] /services/notificationService
+- [ ] /data/petRegistries.js
