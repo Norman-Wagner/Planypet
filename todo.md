@@ -62,19 +62,19 @@
 - [ ] Step 7: Dashboard introduction
 
 ### Phase 9: Dashboard Redesign
-- [ ] Today's responsibilities display
-- [ ] Feeding reminders
-- [ ] Walk reminders
-- [ ] Medication reminders
+- [x] Today's responsibilities display
+- [x] Feeding reminders
+- [x] Walk reminders
+- [x] Medication reminders
 - [ ] "I'll do it" button for task acceptance
 - [ ] Family member notifications on task acceptance
 
 ### Phase 10: Activities Feed
-- [ ] Timeline view
-- [ ] Feeding entries (who fed, when)
-- [ ] Walking entries (distance, duration, route)
-- [ ] Medication entries
-- [ ] Care task entries
+- [x] Timeline view
+- [x] Feeding entries (who fed, when)
+- [x] Walking entries (distance, duration, route)
+- [x] Medication entries
+- [x] Care task entries
 - [ ] Real-time updates
 
 ## PREVIOUSLY IMPLEMENTED
