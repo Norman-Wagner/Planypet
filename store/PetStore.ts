@@ -12,6 +12,7 @@ import {
   Vaccination,
   Medication,
   FamilyMember,
+  Task,
 } from "./types";
 
 interface PetStoreActions {
@@ -55,6 +56,14 @@ interface PetStoreActions {
   getActivities: (petId?: string) => ActivityEvent[];
   clearActivities: () => void;
 
+  // Task Management
+  createTask: (petId: string, type: "feeding" | "walking" | "medication" | "care", scheduledTime: string) => string;
+  acceptTask: (taskId: string, assignedTo: string) => void;
+  completeTask: (taskId: string) => void;
+  getTasksForPet: (petId: string) => Task[];
+  getPendingTasks: (petId: string) => Task[];
+  getTask: (taskId: string) => Task | undefined;
+
   // Lost Pet Mode
   enableLostPetMode: (petId: string, description: string) => void;
   disableLostPetMode: (petId: string) => void;
@@ -72,6 +81,7 @@ export const usePetStore = create<PetStore>()(
     (set, get) => ({
       // Initial state
       pets: {},
+      tasks: {},
       activities: [],
       loading: false,
 
@@ -515,10 +525,127 @@ export const usePetStore = create<PetStore>()(
         });
       },
 
+      // Task Management
+      createTask: (petId, type, scheduledTime) => {
+        const taskId = generateId();
+        const newTask: Task = {
+          id: taskId,
+          petId,
+          type,
+          scheduledTime,
+          status: "pending",
+        };
+        set((state) => ({
+          tasks: { ...state.tasks, [taskId]: newTask },
+        }));
+        return taskId;
+      },
+
+      acceptTask: (taskId, assignedTo) => {
+        set((state) => {
+          const task = state.tasks[taskId];
+          if (!task) return state;
+
+          const updatedTask: Task = {
+            ...task,
+            status: "accepted",
+            assignedTo,
+            acceptedAt: new Date().toISOString(),
+          };
+
+          // Create activity log entry
+          const pet = state.pets[task.petId];
+          const activityId = generateId();
+          const activity: ActivityEvent = {
+            id: activityId,
+            petId: task.petId,
+            type: "task_accepted",
+            title: `${assignedTo} will ${task.type} ${pet?.name || "pet"}`,
+            description: `Task accepted at ${new Date().toLocaleTimeString("de-DE")}`,
+            timestamp: new Date().toISOString(),
+            performedBy: assignedTo,
+            data: { taskId, taskType: task.type },
+          };
+
+          // Trigger notifications asynchronously
+          setTimeout(() => {
+            import("@/lib/notification-service")
+              .then(({ notifyFamilyTaskAccepted }) =>
+                notifyFamilyTaskAccepted(task.petId, updatedTask, assignedTo)
+              )
+              .catch((err) => console.error("Notification error:", err));
+          }, 0);
+
+          return {
+            tasks: { ...state.tasks, [taskId]: updatedTask },
+            activities: [...state.activities, activity],
+          };
+        });
+      },
+
+      completeTask: (taskId) => {
+        set((state) => {
+          const task = state.tasks[taskId];
+          if (!task) return state;
+
+          const updatedTask: Task = {
+            ...task,
+            status: "completed",
+            completedAt: new Date().toISOString(),
+          };
+
+          // Create activity log entry
+          const pet = state.pets[task.petId];
+          const activityId = generateId();
+          const activity: ActivityEvent = {
+            id: activityId,
+            petId: task.petId,
+            type: "task_completed",
+            title: `${task.assignedTo || "Someone"} ${task.type === "feeding" ? "fed" : task.type === "walking" ? "walked" : "cared for"} ${pet?.name || "pet"}`,
+            description: `Task completed at ${new Date().toLocaleTimeString("de-DE")}`,
+            timestamp: new Date().toISOString(),
+            performedBy: task.assignedTo || "Unknown",
+            data: { taskId, taskType: task.type },
+          };
+
+          // Trigger notifications asynchronously
+          setTimeout(() => {
+            import("@/lib/notification-service")
+              .then(({ notifyFamilyTaskCompleted }) =>
+                notifyFamilyTaskCompleted(task.petId, updatedTask, task.assignedTo || "Unknown")
+              )
+              .catch((err) => console.error("Notification error:", err));
+          }, 0);
+
+          return {
+            tasks: { ...state.tasks, [taskId]: updatedTask },
+            activities: [...state.activities, activity],
+          };
+        });
+      },
+
+      getTasksForPet: (petId: string) => {
+        const state = get();
+        return Object.values(state.tasks).filter((t) => t.petId === petId);
+      },
+
+      getPendingTasks: (petId: string) => {
+        const state = get();
+        return Object.values(state.tasks).filter(
+          (t) => t.petId === petId && t.status === "pending"
+        );
+      },
+
+      getTask: (taskId: string) => {
+        const state = get();
+        return state.tasks[taskId];
+      },
+
       // Utility
       reset: () => {
         set({
           pets: {},
+          tasks: {},
           activePetId: undefined,
           activities: [],
           loading: false,
@@ -531,6 +658,7 @@ export const usePetStore = create<PetStore>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         pets: state.pets,
+        tasks: state.tasks,
         activePetId: state.activePetId,
         activities: state.activities,
       }),

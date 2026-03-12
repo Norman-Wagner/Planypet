@@ -128,10 +128,22 @@ export interface Pet {
   };
 }
 
+export interface Task {
+  id: string;
+  petId: string;
+  type: "feeding" | "walking" | "medication" | "care";
+  scheduledTime: string; // HH:mm format or ISO timestamp
+  status: "pending" | "accepted" | "completed" | "skipped";
+  assignedTo?: string; // User ID/name of person responsible
+  acceptedAt?: string; // When task was accepted
+  completedAt?: string; // When task was completed
+  notes?: string;
+}
+
 export interface ActivityEvent {
   id: string;
   petId: string;
-  type: "feeding" | "walking" | "medication" | "care" | "alert" | "vaccination";
+  type: "feeding" | "walking" | "medication" | "care" | "alert" | "vaccination" | "task_accepted" | "task_completed";
   title: string;
   description: string;
   timestamp: string;
@@ -142,6 +154,7 @@ export interface ActivityEvent {
 export interface PetStoreState {
   pets: Record<string, Pet>; // petId -> Pet
   activePetId?: string;
+  tasks: Record<string, Task>; // taskId -> Task
   activities: ActivityEvent[];
   loading: boolean;
   error?: string;
