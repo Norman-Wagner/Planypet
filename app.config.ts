@@ -6,7 +6,7 @@ import type { ExpoConfig } from "expo/config";
 // e.g., "my-app" created at 2024-01-15 10:30:45 -> "space.manus.my.app.t20240115103045"
 // Bundle ID can only contain letters, numbers, and dots
 // Android requires each dot-separated segment to start with a letter
-const rawBundleId = "space.manus.planypet.t20260121054231";
+const rawBundleId = "space.manus.planypet.v1";  // ✅ Statisch, iOS-kompatibel
 const bundleId =
   rawBundleId
     .replace(/[-_]/g, ".") // Replace hyphens/underscores with dots
@@ -24,7 +24,7 @@ const bundleId =
 // Extract timestamp from bundle ID and prefix with "manus" for deep link scheme
 // e.g., "space.manus.my.app.t20240115103045" -> "manus20240115103045"
 const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
-const schemeFromBundleId = `manus${timestamp}`;
+const schemeFromBundleId = "planypet";  // ✅ Einfach & stabil
 
 const env = {
   // App branding - update these values directly (do not use env vars)
@@ -37,6 +37,9 @@ const env = {
   iosBundleId: bundleId,
   androidPackage: bundleId,
 };
+
+// Privacy URL for App Store
+const privacyUrl = "https://planypet.app/privacy";
 
 const config: ExpoConfig = {
   name: env.appName,
@@ -53,11 +56,9 @@ const config: ExpoConfig = {
     buildNumber: "1",
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
-      NSLocalNetworkUsageDescription: "Planypet nutzt lokales Netzwerk für Geräte-Verbindungen.",
-      NSBonjourServices: ["_planypet._tcp"],
       NSCameraUsageDescription: "Kamera wird für Tier-Fotos und Rassen-Erkennung benötigt.",
       NSLocationWhenInUseUsageDescription: "GPS-Tracking für Gassi-Runden.",
-      NSHealthShareUsageDescription: "Schrittzähler und Aktivitätsdaten."
+      NSPhotoLibraryUsageDescription: "Fotos für Tier-Album."
     }
   },
   android: {
@@ -125,6 +126,9 @@ const config: ExpoConfig = {
           buildArchs: ["armeabi-v7a", "arm64-v8a"],
           minSdkVersion: 24,
         },
+        ios: {
+          deploymentTarget: "16.0"
+        }
       },
     ],
   ],

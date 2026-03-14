@@ -38,9 +38,9 @@ yarn-error.*
 
 app-example
 
-# generated native folders
-/ios
-/android
+# generated native folders (keep for build, but exclude sensitive files)
+# ios/ and android/ folders are included in repo
+# but specific sensitive files are excluded above
 
 # IDE
 .vscode/
@@ -60,3 +60,26 @@ Thumbs.db
 *.tgz
 *.tar.gz
 .cache/
+
+# Certificates and Provisioning Profiles (CRITICAL - NEVER COMMIT)
+*.p12
+*.cer
+*.key
+*.mobileprovision
+*.provisionprofile
+*.p8
+Certificates.p12
+DistributionCertificates.p12
+
+# EAS Build
+eas-build-job-*.json
+
+# Xcode build artifacts
+*.xcarchive
+*.ipa
+DerivedData/
+build/
+
+# CocoaPods
+ios/Pods/
+ios/Podfile.lock
